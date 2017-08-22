@@ -11,12 +11,14 @@ $cacheConfig = [
 ];
 
 $aggregator = new ConfigAggregator([
+    // Enable for default Zend Db Config
+    //\Zend\Db\ConfigProvider::class,
     //\Zend\I18n\ConfigProvider::class,
     // Include cache configuration
     new ArrayProvider($cacheConfig),
 
     // Default App module config
-    App\ConfigProvider::class,
+    Gems\Rest\ConfigProvider::class,
 
     // Load application config in a pre-defined order in such a way that local settings
     // overwrite global settings. (Loaded as first to last):

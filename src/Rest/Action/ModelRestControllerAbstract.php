@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Action;
+namespace Gems\Rest\Action;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;

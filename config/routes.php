@@ -26,18 +26,21 @@
  * );
  */
 
-$app->get('/', App\Action\HomePageAction::class, 'home');
-$app->get('/api/ping', App\Action\PingAction::class, 'api.ping');
-$app->get('/test', App\Action\TestModelAction::class, 'test');
+$app->get('/', Gems\Rest\Action\HomePageAction::class, 'home');
+$app->get('/api/ping', Gems\Rest\Action\PingAction::class, 'api.ping');
+$app->get('/test', Gems\Rest\Action\TestModelAction::class, 'test');
 
 
-$app->get('/organizations/structure', App\Action\OrganizationController::class, 'api.organizations.structure');
+
+
+$app->get('/organizations/structure', Gems\Rest\Action\OrganizationController::class, 'api.organizations.structure');
 // Show one/all
-$app->get('/organizations[/{id:\d+}]', App\Action\OrganizationController::class, 'api.organizations.get');
+$app->get('/organizations[/{id:\d+}]', Gems\Rest\Action\OrganizationController::class, 'api.organizations.get');
 // Create
-$app->post('/organizations', App\Action\OrganizationController::class, 'api.organizations.post');
+$app->post('/organizations', Gems\Rest\Action\OrganizationController::class, 'api.organizations.post');
 // Update
-$app->patch('/organizations/[{id:\d+}]', App\Action\OrganizationController::class, 'api.organizations.patch');
+$app->patch('/organizations/[{id:\d+}]', Gems\Rest\Action\OrganizationController::class, 'api.organizations.patch');
 // Delete
-$app->delete('/organizations/[{id:\d+}]', App\Action\OrganizationController::class, 'api.organizations.delete');
+$app->delete('/organizations/[{id:\d+}]', Gems\Rest\Action\OrganizationController::class, 'api.organizations.delete');
 
+$app->injectRoutesFromConfig();

@@ -1,9 +1,17 @@
 <?php
 
-namespace App\Action;
+namespace Gems\Rest\Legacy;
 
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
+
+use Gems_Loader as Loader;
+use Gems_Project_ProjectSettings as ProjectSettings;
+use Gems_Util as Util;
+use Gems_Util_BasePath as Util_BasePath;
+use Zend_Cache as Cache;
+use Zend_Locale as Locale;
+use Zend_Translate as Translate;
 
 class LegacyFactory implements FactoryInterface
 {
@@ -19,28 +27,29 @@ class LegacyFactory implements FactoryInterface
         $this->container = $container;
         $this->loader = $this->container->get('loader');
         switch ($requestedName) {
-            case 'Loader':
-            case 'Util':
+            case Loader::class:
+            case Util::class:
+            case Util_BasePath::class:
                 return $this->loader->create($requestedName, $container, []);
                 break;
 
-            case 'ProjectSettings':
+            case ProjectSettings::class:
                 $this->config = $container->get('config');
                 $project = $this->getProjectSettings();
                 return $project;
                 break;
 
-            case 'Cache':
+            case Cache::class:
                 $cache = $this->getCache();
                 return $cache;
                 break;
 
-            case 'Locale':
+            case Locale::class:
                 //return $this->loader->create('Locale', 'en');
                 return new \Zend_Locale('en');
                 break;
 
-            case 'Translate':
+            case Translate::class:
                 //$translateOptions = $this->getTranslateOptions();
                 return $this->getTranslate();
         }

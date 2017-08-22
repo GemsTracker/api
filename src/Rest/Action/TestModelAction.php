@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Action;
+namespace Gems\Rest\Action;
 
 use Interop\Container\ContainerInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
@@ -25,14 +25,38 @@ class TestModelAction implements ServerMiddlewareInterface
         //$this->loader->verbose = true;
         $this->loader->legacyClasses = true;
 
-        $this->db = $container->get('db');
+        $container->get(\Zend_Db::class);
+
+        $clientRepository = $container->get('Rest\Auth\ClientRepository');
+
+        //print_r($clientRespository->getClientEntity('test', null));
+
+        $scopeRepository = $container->get('Rest\\Auth\\ScopeRepository');
+
+        //print_r($scopeRepository->getScopeEntityByIdentifier('all'));
+
+        $accessTokenRepository = $container->get('Rest\\Auth\\AccessTokenRepository');
+
+        $userRepository = $container->get('Rest\\Auth\\UserRepository');
+
+        $client = $clientRepository->getClientEntity('test', null, null, false);
+
+        $user = $userRepository->getUserEntityByUserCredentials('jvangestel@70', 'test123', null, $client);
+
+        if (!$user) {
+            echo 'No user found!';
+        }
+        print_r($user);
+
+
+
     }
 
 
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $model = $this->loader->create('Gems_Model_OrganizationModel');
+        $model = $this->loader->create('Model_OrganizationModel');
         $model->applyBrowseSettings();
 
         return new JsonResponse($model->load());

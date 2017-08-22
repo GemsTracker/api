@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Action;
+namespace Gems\Rest\Action;
 
 use Interop\Container\ContainerInterface;
 use Zend\Expressive\Router\RouterInterface;

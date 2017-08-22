@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Action;
+namespace Gems\Rest\Model;
 
 use Zend\ServiceManager\Factory\FactoryInterface;
 

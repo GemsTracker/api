@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Action;
+namespace Gems\Rest\Action;
 
 class OrganizationController extends ModelRestControllerAbstract
 {

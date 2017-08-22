@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Action;
+namespace Gems\Rest\Action;
 
 use Interop\Http\ServerMiddleware\MiddlewareInterface as ServerMiddlewareInterface;
 use Interop\Container\ContainerInterface;
@@ -10,6 +10,7 @@ use Zend\Expressive\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Zend\Diactoros\Response\EmptyResponse;
+use Zend_Db;
 
 
 abstract class RestControllerAbstract implements ServerMiddlewareInterface
@@ -36,7 +37,9 @@ abstract class RestControllerAbstract implements ServerMiddlewareInterface
         //$this->loader->verbose = true;
         $this->loader->legacyClasses = true;
 
-        $this->db = $this->container->get('db');
+        // Init Zend DB so it's loaded at least once, needed to set default Zend_Db_Adapter for Zend_Db_Table
+        $this->container->get(Zend_Db::class);
+
         $this->helper = $this->container->get(UrlHelper::class);
     }
 

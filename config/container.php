@@ -33,11 +33,15 @@ $loader = new ProjectOverloader([
     'Gems',
     'MUtil',
 ]);
+$loader->legacyClasses = true;
 
 $container = $loader->createServiceManager();
 (new Config($config['dependencies']))->configureServiceManager($container);
 
 // Inject config
 $container->setService('config', $config);
+
+// Inject the ProjectOverloader
+$container->setService(ProjectOverloader::class, $loader);
 
 return $container;

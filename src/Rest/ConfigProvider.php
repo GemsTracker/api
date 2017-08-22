@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Gems\Rest;
 
 /**
  * The configuration provider for the App module

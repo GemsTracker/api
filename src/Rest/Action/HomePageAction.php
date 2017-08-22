@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Action;
+namespace Gems\Rest\Action;
 
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface as ServerMiddlewareInterface;
