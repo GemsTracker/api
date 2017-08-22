@@ -96,6 +96,7 @@ return [
             'name' => 'access_token',
             'path' => '/access_token',
             'middleware' => [
+                Gems\Rest\Auth\MergeUsernameOrganizationMiddleware::class,
                 Rest\Auth\AccessTokenAction::class
             ],
             'allowed_methods' => ['POST'],
@@ -104,6 +105,7 @@ return [
             'name' => 'authorize',
             'path' => '/authorize',
             'middleware' => [
+                Gems\Rest\Auth\MergeUsernameOrganizationMiddleware::class,
                 Rest\Auth\AuthorizeAction::class
             ],
             'allowed_methods' => ['GET', 'POST'],
