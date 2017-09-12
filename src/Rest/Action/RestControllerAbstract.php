@@ -30,7 +30,7 @@ abstract class RestControllerAbstract implements ServerMiddlewareInterface
 
     protected $method;
 
-    public function __construct(ContainerInterface $container, ProjectOverloader $loader)
+    public function __construct(ContainerInterface $container, ProjectOverloader $loader, UrlHelper $urlHelper)
     {
         $this->loader = $loader;
         $this->container = $container;
@@ -40,7 +40,7 @@ abstract class RestControllerAbstract implements ServerMiddlewareInterface
         // Init Zend DB so it's loaded at least once, needed to set default Zend_Db_Adapter for Zend_Db_Table
         $this->container->get(Zend_Db::class);
 
-        $this->helper = $this->container->get(UrlHelper::class);
+        $this->helper = $urlHelper;
     }
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)

@@ -11,6 +11,8 @@ class RestControllerFactory implements FactoryInterface
     {
         $loader = $container->get('loader');
 
-        return new $requestedName($container, $loader);
+        $urlHelper = $container->get(UrlHelper::class);
+
+        return new $requestedName($container, $loader, $urlHelper);
     }
 }

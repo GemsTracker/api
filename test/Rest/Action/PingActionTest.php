@@ -1,8 +1,8 @@
 <?php
 
-namespace AppTest\Action;
+namespace GemsTest\Rest\Action;
 
-use Rest\Action\PingAction;
+use Gems\Rest\Action\PingAction;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;

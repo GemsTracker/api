@@ -1,0 +1,17 @@
+test_messages:
+    -
+        id: 1
+        message: 'Test'
+        by: 1
+        changed: '2017-09-12 00:00:00'
+        changed_by: 1
+        created: '2017-09-11 00:00:00'
+        created_by: 1
+    -
+        id: 2
+        message: 'Moooo'
+        by: 2
+        changed: '2017-09-12 00:00:00'
+        changed_by: 2
+        created: '2017-09-11 00:00:00'
+        created_by: 2

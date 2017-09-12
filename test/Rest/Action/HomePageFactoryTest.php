@@ -1,9 +1,9 @@
 <?php
 
-namespace AppTest\Action;
+namespace GemsTest\Rest\Action;
 
-use Rest\Action\HomePageAction;
-use Rest\Action\HomePageFactory;
+use Gems\Rest\Action\HomePageAction;
+use Gems\Rest\Action\HomePageFactory;
 use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
 use Zend\Expressive\Router\RouterInterface;

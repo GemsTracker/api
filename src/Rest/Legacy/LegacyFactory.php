@@ -39,6 +39,14 @@ class LegacyFactory implements FactoryInterface
                 return $project;
                 break;
 
+            case \Gems_AccessLog::class:
+                return $this->getAccessLog();
+                break;
+
+            case \Zend_Acl::class:
+                return $this->getAcl();
+                break;
+
             case Cache::class:
                 $cache = $this->getCache();
                 return $cache;
@@ -49,9 +57,30 @@ class LegacyFactory implements FactoryInterface
                 return new \Zend_Locale('en');
                 break;
 
+            case Logger::class:
+                return $this->getLogger();
+                break;
+
+            case \Zend_Session_Namespace::class:
+                return $this->getSession();
+                break;
+
+            case 'LegacyStaticSession':
+                return $this->getStaticSession();
+                break;
+
             case Translate::class:
                 //$translateOptions = $this->getTranslateOptions();
                 return $this->getTranslate();
+                break;
+
+            case TranslateAdapter::class:
+                return $this->getTranslateAdapter();
+                break;
+
+            case \Zend_View::class:
+                return $this->getView();
+                break;
         }
 
         return null;
@@ -66,9 +95,23 @@ class LegacyFactory implements FactoryInterface
         }
     }
 
+    protected function getAccessLog()
+    {
+        $cache = $this->container->get('LegacyCache');
+        $db = $this->container->get('LegacyDb');
+        $loader = $this->container->get('LegacyLoader');
+        return $this->loader->create('AccessLog', $cache, $db, $loader);
+    }
+
+    protected function getAcl()
+    {
+        $cache = $this->container->get('LegacyCache');
+        return $this->loader->create('Roles', $cache);
+    }
+
     protected function getCache()
     {
-        $project = $this->container->get('Legacyproject');
+        $project = $this->container->get('LegacyProject');
 
         $useCache = $project->getCache();
 
@@ -132,6 +175,37 @@ class LegacyFactory implements FactoryInterface
         }
     }
 
+    protected function getLogger()
+    {
+        $project = $this->container->get('LegacyProject');
+        $translateAdapter = $this->container->get('LegacyTranslateAdapter');
+        $logger = \Gems_Log::getLogger();
+
+        $logPath = GEMS_ROOT_DIR . '/var/logs';
+
+        try {
+            $writer = new \Zend_Log_Writer_Stream($logPath . '/errors.log');
+        } catch (Exception $exc) {
+            try {
+                // Try to solve the problem, otherwise fail heroically
+                \MUtil_File::ensureDir($logPath);
+                $writer = new \Zend_Log_Writer_Stream($logPath . '/errors.log');
+            } catch (Exception $exc) {
+                die(str_replace(GEMS_ROOT_DIR . '/', '', sprintf(
+                    $translateAdapter->_('Path %s not writable') . "\n%s\n",
+                    $logPath,
+                    $exc->getMessage()
+                )));
+            }
+        }
+
+        $filter = new \Zend_Log_Filter_Priority($project->getLogLevel());
+        $writer->addFilter($filter);
+        $logger->addWriter($writer);
+
+        return $logger;
+    }
+
     protected function getProjectSettings()
     {
         $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/config/project');
@@ -145,9 +219,32 @@ class LegacyFactory implements FactoryInterface
         return $project;
     }
 
+    protected function getSession()
+    {
+        $project = $this->container->get('LegacyProject');
+        $session = new \Zend_Session_Namespace('gems.' . GEMS_PROJECT_NAME . '.session');
+
+        $idleTimeout = $project->getSessionTimeOut();
+
+        $session->setExpirationSeconds($idleTimeout);
+
+        if (! isset($session->user_role)) {
+            $session->user_role = 'nologin';
+        }
+
+        return $session;
+    }
+
+    protected function getStaticSession()
+    {
+        // Since userloading can clear the session, we put stuff that should remain (like redirect info)
+        // in a different namespace that we call a 'static session', use getStaticSession to access.
+        return new \Zend_Session_Namespace('gems.' . GEMS_PROJECT_NAME . '.sessionStatic');
+    }
+
     protected function getTranslate()
     {
-        $locale = $this->container->get('Legacylocale');
+        $locale = $this->container->get('LegacyLocale');
 
         //echo get_class($locale);
         //die;
@@ -168,6 +265,42 @@ class LegacyFactory implements FactoryInterface
 
         return $translate;
     }
+
+    protected function getTranslateAdapter()
+    {
+        $translate = $this->container->get(Translate::class);
+
+        return $translate->getAdapter();
+    }
+
+    protected function getView()
+    {
+        $project = $this->container->get('LegacyProject');
+
+        // Initialize view
+        $view = new \Zend_View();
+        $view->addHelperPath('MUtil/View/Helper', 'MUtil_View_Helper');
+        $view->addHelperPath('MUtil/Less/View/Helper', 'MUtil_Less_View_Helper');
+        $view->addHelperPath('Gems/View/Helper', 'Gems_View_Helper');
+        $view->headTitle($project->getName());
+        $view->setEncoding('UTF-8');
+
+        $metas    = $project->getMetaHeaders();
+        $headMeta = $view->headMeta();
+        foreach ($metas as $httpEquiv => $content) {
+            $headMeta->appendHttpEquiv($httpEquiv, $content);
+        }
+
+        $view->doctype(\Zend_View_Helper_Doctype::HTML5);
+
+        // Add it to the ViewRenderer
+        $viewRenderer = \Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
+        $viewRenderer->setView($view);
+
+        // Return it, so that it can be stored by the bootstrap
+        return $view;
+    }
+
 
     /**
      * Searches and loads ini, xml, php or inc file

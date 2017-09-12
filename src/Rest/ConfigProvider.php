@@ -38,7 +38,7 @@ class ConfigProvider
             ],
             'factories'  => [
                 Action\HomePageAction::class => Action\HomePageFactory::class,
-                Action\TestModelAction::class => Action\TempLoaderFactory::class,
+                Action\TestModelAction::class => Action\LoaderFactory::class,
                 Action\OrganizationController::class => Action\RestControllerFactory::class,
             ],
         ];

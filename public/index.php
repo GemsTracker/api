@@ -22,6 +22,8 @@ defined('MUTIL_LIBRARY_DIR') || define('MUTIL_LIBRARY_DIR', realpath(VENDOR_DIR 
 defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR . '/src/App');
 
 define('GEMS_PROJECT_NAME', 'pulse');
+defined('GEMS_PROJECT_NAME_UC') || define('GEMS_PROJECT_NAME_UC', ucfirst(GEMS_PROJECT_NAME));
+
 
 /**
  * Self-called anonymous function that creates its own scope and keep the global namespace clean.

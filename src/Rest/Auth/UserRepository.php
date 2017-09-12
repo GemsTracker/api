@@ -20,7 +20,7 @@ class UserRepository extends EntityRepositoryAbstract implements UserRepositoryI
         list($username, $organizationId) = array_values($this->extractUserInfo($username));
 
         $container = $this->loader->getServiceManager();
-        $legacyLoader = $container->get('Legacyloader');
+        $legacyLoader = $container->get('LegacyLoader');
         $userLoader = $legacyLoader->getUserLoader();
         $user = $userLoader->getUser($username, $organizationId);
 
