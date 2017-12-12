@@ -14,12 +14,17 @@ class ImplicitGrantFactory implements FactoryInterface
         $config = $container->get('config');
 
         $valid = new \DateInterval('PT10M');
-        if (!isset($config['implicit'], $config['implicit']['code_valid'])) {
-            $valid = new \DateInterval($config['implicit']['code_valid']);
+        if (isset(
+            $config['oauth2'],
+            $config['oauth2']['grants'],
+            $config['oauth2']['grants']['implicit'],
+            $config['oauth2']['grants']['implicit']['code_valid'])
+        ) {
+            $valid = new \DateInterval($config['oauth2']['grants']['implicit']['code_valid']);
         }
 
-        $authCodeGrant = new ImplicitGrant($valid);
+        $implicitGrant = new ImplicitGrant($valid);
 
-        return $authCodeGrant;
+        return $implicitGrant;
     }
 }

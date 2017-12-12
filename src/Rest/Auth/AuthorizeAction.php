@@ -51,9 +51,10 @@ class AuthorizeAction implements ServerMiddlewareInterface
 
             if (isset($body['username'], $body['password'])) {
 
+
                 $user = $this->userRepository->getUserEntityByUserCredentials(
-                    $request->getParsedBody()['username'],
-                    $request->getParsedBody()['password'],
+                    $body['username'],
+                    $body['password'],
                     $authRequest->getGrantTypeId(),
                     $authRequest->getClient()
                 );

@@ -1,0 +1,10 @@
+gems__oauth_scope:
+    -
+        id: 1
+        name: 'private_data'
+        description: 'Private data'
+        active: 1
+        changed: "2017-12-07 12:00:00"
+        changed_by: 1
+        created: "2017-12-07 12:00:00"
+        created_by: 1

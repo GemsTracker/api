@@ -3,6 +3,7 @@
 namespace Gems\Rest\Legacy;
 
 use Interop\Container\ContainerInterface;
+use Gems\Rest\Legacy\LegacyCacheFactoryWrapper;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
 use Gems_Loader as Loader;
@@ -12,9 +13,12 @@ use Gems_Util_BasePath as Util_BasePath;
 use Zend_Cache as Cache;
 use Zend_Locale as Locale;
 use Zend_Translate as Translate;
+use Zend_Translate_Adapter as TranslateAdapter;
+
 
 class LegacyFactory implements FactoryInterface
 {
+    protected $cacheFactoryWrapper;
 
     protected $config;
 
@@ -57,7 +61,7 @@ class LegacyFactory implements FactoryInterface
                 return new \Zend_Locale('en');
                 break;
 
-            case Logger::class:
+            case \Gems_Log::class:
                 return $this->getLogger();
                 break;
 
@@ -120,11 +124,11 @@ class LegacyFactory implements FactoryInterface
         $cachePrefix = GEMS_PROJECT_NAME . '_';
 
         // Check if APC extension is loaded and enabled
-        if (\MUtil_Console::isConsole() && !ini_get('apc.enable_cli') && $useCache === 'apc') {
+        if ((\MUtil_Console::isConsole() && !ini_get('apc.enable_cli') && $useCache === 'apc') || (isset($this->testConsoleApc) && $this->testConsoleApc)) {
             // To keep the rest readable, we just fall back to File when apc is disabled on cli
             $useCache = "File";
         }
-        if ($useCache === 'apc' && extension_loaded('apc') && ini_get('apc.enabled')) {
+        if (($useCache === 'apc' && extension_loaded('apc') && ini_get('apc.enabled')) || (isset($this->testApc) && $this->testApc)) {
             $cacheBackend = 'Apc';
             $cacheBackendOptions = array();
             //Add path to the prefix as APC is a SHARED cache
@@ -153,9 +157,13 @@ class LegacyFactory implements FactoryInterface
                 'cache_id_prefix' => $cachePrefix,
                 'automatic_cleaning_factor' => 0);
 
-            $cache = \Zend_Cache::factory('Core', $cacheBackend, $cacheFrontendOptions, $cacheBackendOptions);
+            //$cache = \Zend_Cache::factory('Core', $cacheBackend, $cacheFrontendOptions, $cacheBackendOptions);
+            $cacheWrapper = $this->getCacheFactoryWrapper();
+            $cache = $cacheWrapper->factory('Core', $cacheBackend, $cacheFrontendOptions, $cacheBackendOptions);
         } else {
-            $cache = \Zend_Cache::factory('Core', 'Static', array('caching' => false), array('disable_caching' => true));
+            $cacheWrapper = $this->getCacheFactoryWrapper();
+            $cache = $cacheWrapper->factory('Core', 'Static', array('caching' => false), array('disable_caching' => true));
+            //$cache = \Zend_Cache::factory('Core', 'Static', array('caching' => false), array('disable_caching' => true));
         }
 
         \Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
@@ -163,6 +171,19 @@ class LegacyFactory implements FactoryInterface
         \Zend_Locale::setCache($cache);
 
         return $cache;
+    }
+
+    protected function getCacheFactoryWrapper()
+    {
+        if (!$this->cacheFactoryWrapper) {
+            return new LegacyCacheFactoryWrapper();
+        }
+        return $this->cacheFactoryWrapper;
+    }
+
+    public function setCacheFactoryWrapper($wrapper)
+    {
+        $this->cacheFactoryWrapper = $wrapper;
     }
 
 
@@ -185,18 +206,10 @@ class LegacyFactory implements FactoryInterface
 
         try {
             $writer = new \Zend_Log_Writer_Stream($logPath . '/errors.log');
-        } catch (Exception $exc) {
-            try {
-                // Try to solve the problem, otherwise fail heroically
-                \MUtil_File::ensureDir($logPath);
-                $writer = new \Zend_Log_Writer_Stream($logPath . '/errors.log');
-            } catch (Exception $exc) {
-                die(str_replace(GEMS_ROOT_DIR . '/', '', sprintf(
-                    $translateAdapter->_('Path %s not writable') . "\n%s\n",
-                    $logPath,
-                    $exc->getMessage()
-                )));
-            }
+        } catch (\Exception $exc) {
+            // Try to solve the problem, otherwise fail heroically
+            \MUtil_File::ensureDir($logPath);
+            $writer = new \Zend_Log_Writer_Stream($logPath . '/errors.log');
         }
 
         $filter = new \Zend_Log_Filter_Priority($project->getLogLevel());
@@ -210,11 +223,14 @@ class LegacyFactory implements FactoryInterface
     {
         $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/config/project');
 
-        if ($projectArray instanceof \Gems_Project_ProjectSettings) {
+        $project = $this->loader->create('Project_ProjectSettings', $projectArray);
+
+        /* Testing if the supplied projectSettings is a class is supported in Gemstracker, but not used. For now it's disabled.
+        /*if ($projectArray instanceof \Gems_Project_ProjectSettings) {
             $project = $projectArray;
         } else {
             $project = $this->loader->create('Project_ProjectSettings', $projectArray);
-        }
+        }*/
 
         return $project;
     }
@@ -328,11 +344,13 @@ class LegacyFactory implements FactoryInterface
             switch ($extension) {
                 case 'ini':
                     $config = new \Zend_Config_Ini($fileName, $appEnvironment);
+                    return $config->toArray();
                     break;
 
-                case 'xml':
+                /*case 'xml':
                     $config = new \Zend_Config_Xml($fileName, $appEnvironment);
-                    break;
+                    return $config->toArray();
+                    break;*/
 
                 case 'php':
                 case 'inc':
@@ -342,15 +360,7 @@ class LegacyFactory implements FactoryInterface
                     // All variables from this Escort file can be changed in the include file.
                     return include($fileName);
                     break;
-
-                default:
-                    throw new \Zend_Application_Exception(
-                        'Invalid configuration file provided; unknown config type ' . $extension
-                    );
-
             }
-
-            return $config->toArray();
         }
     }
 }

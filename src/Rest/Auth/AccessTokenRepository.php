@@ -36,6 +36,13 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
         return $data;
     }
 
+    /**
+     * Find a valid access token
+     *
+     * @param UserEntityInterface $user
+     * @param ClientEntityInterface $client
+     * @return AccessTokenEntityInterface|false
+     */
     public function findValidToken(UserEntityInterface $user, ClientEntityInterface $client)
     {
         $now = new \DateTime;
@@ -64,6 +71,7 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
     {
         $accessToken = new AccessTokenEntity($userIdentifier, $scopes);
         $accessToken->setRevoked(0);
+        $accessToken->setClient($clientEntity);
 
         return $accessToken;
     }
@@ -88,14 +96,11 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
     public function revokeAccessToken($tokenId)
     {
         $newValues = [
-            'revoked' => 1
+            'revoked' => 1,
+            'id' => $tokenId,
         ];
 
-        $filter = [
-            'id' => $tokenId
-        ];
-
-        $this->save($newValues, $filter);
+        $this->save($newValues);
 
         /*if ($accessToken = $this->loadFirst($filter)) {
             $accessToken->revoked = 1;

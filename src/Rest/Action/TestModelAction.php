@@ -19,25 +19,27 @@ class TestModelAction implements ServerMiddlewareInterface
      */
     protected $loader;
 
-    public function __construct(ContainerInterface $container, ProjectOverloader $loader)
+    public function __construct(ProjectOverloader $loader)
     {
         $this->loader = $loader;
         //$this->loader->verbose = true;
         $this->loader->legacyClasses = true;
 
+        $container = $loader->getServiceManager();
+
         $container->get(\Zend_Db::class);
 
-        $clientRepository = $container->get('Rest\Auth\ClientRepository');
+        $clientRepository = $container->get('Gems\\Rest\\Auth\\ClientRepository');
 
         //print_r($clientRespository->getClientEntity('test', null));
 
-        $scopeRepository = $container->get('Rest\\Auth\\ScopeRepository');
+        $scopeRepository = $container->get('Gems\\Rest\\Auth\\ScopeRepository');
 
         //print_r($scopeRepository->getScopeEntityByIdentifier('all'));
 
-        $accessTokenRepository = $container->get('Rest\\Auth\\AccessTokenRepository');
+        $accessTokenRepository = $container->get('Gems\\Rest\\Auth\\AccessTokenRepository');
 
-        $userRepository = $container->get('Rest\\Auth\\UserRepository');
+        $userRepository = $container->get('Gems\\Rest\\Auth\\UserRepository');
 
         $client = $clientRepository->getClientEntity('test', null, null, false);
 

@@ -51,10 +51,10 @@ class EntityRepositoryAbstract
     {
         $columns = array_flip($this->getColumnNames());
         foreach($data as $key=>$value) {
-            if (isset($this->nonPersistColumns[$key])) {
+            /*if (isset($this->nonPersistColumns[$key])) {
                 unset($data[$key]);
                 continue;
-            }
+            }*/
 
             if (!isset($columns[$key])) {
                 throw new \Exception(sprintf('Column %s not found in database table', $key));
@@ -250,10 +250,11 @@ class EntityRepositoryAbstract
             $data = $this->getEntityValues($data, true);
         }
 
-        $update = true;
+        $update = false;
         foreach($this->getTableKeys() as $key) {
-            if (!isset($data[$key]) || (0 !== strlen($data[$key]))) {
-                $update = false;
+            //if (!isset($data[$key]) || (0 !== strlen($data[$key]))) {
+            if (isset($data[$key]) && (0 !== strlen($data[$key]))) {
+                $update = true;
                 if (!isset($filter[$key])) {
                     $filter[$key] = $data[$key];
                 }
@@ -279,7 +280,6 @@ class EntityRepositoryAbstract
         }
 
         $result = $statement->execute();
-
         return $result;
     }
 }

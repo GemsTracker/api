@@ -18,13 +18,7 @@ class AuthorizationServerFactory implements FactoryInterface
         $clientRepository = $container->get('Gems\Rest\Auth\ClientRepository');
         $scopeRepository = $container->get('Gems\Rest\Auth\ScopeRepository');
 
-        $this->server = new AuthorizationServer(
-            $clientRepository,
-            $accessTokenRepository,
-            $scopeRepository,
-            $config['certificates']['private'],
-            $config['app_key']
-        );
+        $this->server = new AuthorizationServer($clientRepository, $accessTokenRepository, $scopeRepository, $config['certificates']['private'], $config['app_key']);
 
         if(isset($config['oauth2']['grants'])) {
             $this->addGrants($config['oauth2']['grants'], $container);

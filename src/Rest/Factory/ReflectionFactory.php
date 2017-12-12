@@ -64,7 +64,7 @@ class ReflectionFactory implements FactoryInterface
             return $this->container->get($className);
         }
 
-        $this->resolveDefault($parameter);
+        return $this->resolveDefault($parameter);
     }
 
     /**
@@ -81,6 +81,6 @@ class ReflectionFactory implements FactoryInterface
             return $parameter->getDefaultValue();
         }
 
-        throw new Exception("Dependency [$parameter] can't be resolved in class {$parameter->getDeclaringClass()->getName()}");
+        throw new Exception("Dependency [$parameter->name] can't be resolved in class {$parameter->getDeclaringClass()->getName()}");
     }
 }

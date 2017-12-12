@@ -14,12 +14,11 @@ class ArrayModelRestController extends ModelRestControllerAbstract
 
     public function createModel()
     {
-        return new \Gems_Model_PlaceholderModel('emptyModel', $this->headers, $this->data);
-    }
+        if ($this->model instanceof \MUtil_Model_ModelAbstract) {
+            return $this->model;
+        }
 
-    public function setHeaders($headers)
-    {
-        $this->headers = $headers;
+        return new \Gems_Model_PlaceholderModel('emptyModel', $this->headers, $this->data);
     }
 
     public function setData($data)
@@ -30,5 +29,15 @@ class ArrayModelRestController extends ModelRestControllerAbstract
         }
 
         $this->data = $data;
+    }
+
+    public function setHeaders($headers)
+    {
+        $this->headers = $headers;
+    }
+
+    public function setModel(\MUtil_Model_ModelAbstract $model)
+    {
+        $this->model = $model;
     }
 }

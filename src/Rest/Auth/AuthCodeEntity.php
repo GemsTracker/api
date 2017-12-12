@@ -129,7 +129,7 @@ class AuthCodeEntity implements AuthCodeEntityInterface, EntityInterface
 
     public function getRevoked()
     {
-        return $this->revoked;
+        return (bool)$this->revoked;
     }
 
     /**
@@ -212,7 +212,7 @@ class AuthCodeEntity implements AuthCodeEntityInterface, EntityInterface
 
     public function setRevoked($revoked)
     {
-        $this->revoked = $revoked;
+        $this->revoked = (bool)$revoked;
     }
 
     /**

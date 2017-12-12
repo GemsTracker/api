@@ -54,6 +54,8 @@ abstract class RestControllerAbstract implements ServerMiddlewareInterface
             }
         } elseif (method_exists($this, $method)) {
             $this->method = $method;
+
+
             return $this->$method($request, $delegate);
         }
 

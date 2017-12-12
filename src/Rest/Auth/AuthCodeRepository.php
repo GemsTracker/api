@@ -72,14 +72,11 @@ class AuthCodeRepository extends EntityRepositoryAbstract implements AuthCodeRep
     public function revokeAuthCode($codeId)
     {
         $newValues = [
+            'id' => $codeId,
             'revoked' => 1
         ];
 
-        $filter = [
-            'id' => $codeId
-        ];
-
-        $this->save($newValues, $filter);
+        $this->save($newValues);
 
         /*if ($authCode = $this->loadFirst($filter)) {
             $authCode->revoked = 1;

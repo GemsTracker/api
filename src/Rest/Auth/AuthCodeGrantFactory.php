@@ -20,7 +20,13 @@ class AuthCodeGrantFactory implements FactoryInterface
 
 
         $valid = new \DateInterval('PT10M');
-        if (!isset($config['oauth2']['grants']['authorization_code'], $config['oauth2']['grants']['authorization_code']['code_valid'])) {
+        if (isset(
+
+            $config['oauth2'],
+            $config['oauth2']['grants'],
+            $config['oauth2']['grants']['authorization_code'],
+            $config['oauth2']['grants']['authorization_code']['code_valid'])
+        ) {
             $valid = new \DateInterval($config['oauth2']['grants']['authorization_code']['code_valid']);
         }
 

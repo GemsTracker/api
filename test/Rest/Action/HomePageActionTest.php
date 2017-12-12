@@ -9,8 +9,10 @@ use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
+use Zend\Expressive\Router\FastRouteRouter;
 use Zend\Expressive\Router\RouterInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
+use Zend\Expressive\Twig\TwigRenderer;
 
 class HomePageActionTest extends TestCase
 {
@@ -42,6 +44,20 @@ class HomePageActionTest extends TestCase
 
         $homePage = new HomePageAction($this->router->reveal(), $renderer->reveal());
 
+        $response = $homePage->process(
+            $this->prophesize(ServerRequestInterface::class)->reveal(),
+            $this->prophesize(DelegateInterface::class)->reveal()
+        );
+
+        $this->assertInstanceOf(HtmlResponse::class, $response);
+    }
+
+    public function testRouterAndTemplate()
+    {
+        $router = $this->prophesize(FastRouteRouter::class);
+        $template = $this->prophesize(TwigRenderer::class);
+        $template->render(Argument::type('string'), Argument::type('array'))->willReturn('');
+        $homePage = new HomePageAction($router->reveal(), $template->reveal());
         $response = $homePage->process(
             $this->prophesize(ServerRequestInterface::class)->reveal(),
             $this->prophesize(DelegateInterface::class)->reveal()

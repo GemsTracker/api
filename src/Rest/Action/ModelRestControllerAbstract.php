@@ -8,6 +8,7 @@ use Interop\Http\ServerMiddleware\DelegateInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Exception;
+use Zend\Expressive\Router\RouteResult;
 
 abstract class ModelRestControllerAbstract extends RestControllerAbstract
 {
@@ -16,6 +17,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     protected $errors;
 
     protected $itemsPerPage = 25;
+
+    protected $model;
 
     protected $reverseApiNames;
 
@@ -36,8 +39,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         ];
 
         try {
-            $this->model->delete($filter);
+            $changedRows = $this->model->delete($filter);
+
         } catch (Exception $e) {
+            return new EmptyResponse(400);
+        }
+
+        if ($changedRows == 0) {
             return new EmptyResponse(400);
         }
 
@@ -54,8 +62,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                     $idField => $id,
                 ];
                 $row = $this->model->loadFirst($filter);
-                $row = $this->translateRow($row);
-                return new JsonResponse($row);
+                if (is_array($row)) {
+                    $row = $this->translateRow($row);
+                    return new JsonResponse($row);
+                }
             }
             return new EmptyResponse(404);
         } else {
@@ -99,6 +109,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         }
 
         $rows = $this->model->load($paginatedFilters, $order);
+        //print_r($rows);
 
         $translatedRows = [];
         foreach($rows as $key=>$row) {
@@ -153,7 +164,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $translations = $this->getApiNames(true);
 
             foreach($orderParams as $orderParam) {
-                $name = $orderParam;
                 $sort = false;
                 if (strpos(strtolower($orderParam), ' desc')) {
                     $name = substr($orderParam, 0,-5);
@@ -163,6 +173,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                     $name = substr($orderParam, 0,-4);
                     $sort = SORT_ASC;
                 }
+
+                $name = trim($name);
 
                 if (isset($translations[$name])) {
                     $name = $translations[$name];
@@ -210,12 +222,14 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     public function getPaginationHeaders(ServerRequestInterface $request, $filter=[], $sort=[])
     {
         $count = $this->model->getItemCount($filter, $sort);
+
         $headers = [
             'X-total-count' => $count
         ];
 
         if ($this->itemsPerPage) {
             $params = $request->getQueryParams();
+
             $page = 1;
             if (isset($params['page'])) {
                 $page = $params['page'];
@@ -236,6 +250,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $routeName   = $routeResult->getMatchedRouteName();
 
             $links = [];
+
             if ($page != $lastPage) {
                 $nextPageParams = $params;
                 $nextPageParams['page'] = $page+1;
@@ -265,12 +280,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     public function post(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $row = $this->translateRow($request->getParsedBody(), true);
-        return $this->saveRow($row);
+        return $this->saveRow($request, $row);
     }
 
     public function patch(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $parsedBody = json_decode($request->getBody()->getContents(), true);
+        //$parsedBody = json_decode($request->getBody()->getContents(), true);
+        $parsedBody = $request->getParsedBody();
         $newRowData = $this->translateRow($parsedBody, true);
 
         $id = $request->getAttribute('id');
@@ -286,7 +302,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $row = $newRowData + $row;
 
-        return $this->saveRow($row);
+        return $this->saveRow($request, $row);
     }
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
@@ -299,7 +315,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return parent::process($request, $delegate);
     }
 
-    public function saveRow($row)
+    public function saveRow(ServerRequestInterface $request, $row)
     {
         if (empty($row)) {
             return new EmptyResponse(400);
@@ -319,13 +335,25 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $idField = $this->getIdField();
         if (isset($newRow[$idField])) {
+
+            $result = $request->getAttribute(RouteResult::class);
+            $routeName = $result->getMatchedRouteName();
+
+
+            $routeParts = explode('.', $routeName);
+            array_pop($routeParts);
+            $getRouteName = join('.', $routeParts) . '.get';
+
             $id = $newRow[$idField];
-            return new EmptyResponse(
-                201,
-                [
-                    'Location' => $this->helper->generate('api.organization.get', ['id' => $id]),
-                ]
-            );
+            $location = $this->helper->generate($getRouteName, ['id' => $id]);
+            if ($location !== null) {
+                return new EmptyResponse(
+                    201,
+                    [
+                        'Location' => $location,
+                    ]
+                );
+            }
         }
 
         return new EmptyResponse(201);
@@ -437,17 +465,18 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         if ($validator instanceof \Zend_Validate_Interface) {
             return $validator;
         } elseif (is_string($validator)) {
+            $this->loader->find('Validate_'.$validator);
             $validator = $this->loader->create('Validate_'.$validator);
             if ($validator) {
                 return $validator;
             } else {
-                throw new Exception('Invalid validator provided to addValidator; must be string or Zend_Validate_Interface');
+                throw new Exception('Validator not found');
             }
         } else {
             throw new Exception(
                 sprintf(
                     'Invalid validator provided to addValidator; must be string or Zend_Validate_Interface. Supplied %s',
-                    $validator
+                    gettype($validator)
                 )
             );
         }
@@ -488,6 +517,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
     public function validateRow($row)
     {
+
         $rowValidators = $this->getValidators();
         $translations = $this->getApiNames();
         $idField = $this->getIdField();
@@ -496,6 +526,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         if ($this->method == 'post' && isset($rowValidators[$idField])) {
             unset($rowValidators[$idField]);
         }
+
+
 
         foreach ($rowValidators as $colName=>$validators) {
             $value = null;

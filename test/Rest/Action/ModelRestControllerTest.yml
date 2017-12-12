@@ -9,7 +9,7 @@ test_messages:
         created_by: 1
     -
         id: 2
-        message: 'Moooo'
+        message: 'Test2'
         by: 2
         changed: '2017-09-12 00:00:00'
         changed_by: 2

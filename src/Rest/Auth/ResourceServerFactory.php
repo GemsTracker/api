@@ -15,7 +15,7 @@ class ResourceServerFactory implements FactoryInterface
         $config = $container->get('config');
 
         return new ResourceServer(
-            $container->get('Rest\Auth\AccessTokenRepository'), $config['certificates']['public']
+            $container->get('Gems\Rest\Auth\AccessTokenRepository'), $config['certificates']['public']
         );
     }
 }

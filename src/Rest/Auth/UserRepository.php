@@ -24,8 +24,6 @@ class UserRepository extends EntityRepositoryAbstract implements UserRepositoryI
         $userLoader = $legacyLoader->getUserLoader();
         $user = $userLoader->getUser($username, $organizationId);
 
-        $test = $user->getLoginName();
-
         if (!$user instanceof \Gems_User_User) {
             //throw new \Exception('No user found');
             return;

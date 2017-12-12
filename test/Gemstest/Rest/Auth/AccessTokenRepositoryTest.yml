@@ -1,0 +1,7 @@
+gems__oauth_access_tokens
+  id varchar(100) not null,
+  user_id varchar(255) null,
+  client_id varchar(255) not null,
+  scopes TEXT NULL,
+  revoked tinyint(1) not null,
+  expires_at DATETIME null,

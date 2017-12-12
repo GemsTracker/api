@@ -33,7 +33,7 @@ return [
                 'token_valid' => 'PT1H', // Time a token is valid
             ],
             'refresh_token' => [
-                League\OAuth2\Server\Grant\RefreshTokenGrant::class,
+                'class' => League\OAuth2\Server\Grant\RefreshTokenGrant::class,
                 'token_valid' => 'PT1H', // Time a token is valid
             ],
         ],

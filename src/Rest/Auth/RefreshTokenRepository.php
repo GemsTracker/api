@@ -67,14 +67,11 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
     public function revokeRefreshToken($tokenId)
     {
         $newValues = [
-            'revoked' => 1
-        ];
-
-        $filter = [
+            'revoked' => 1,
             'id' => $tokenId
         ];
 
-        $this->save($newValues, $filter);
+        $this->save($newValues);
     }
 
     /**

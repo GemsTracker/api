@@ -1,0 +1,5 @@
+gems__organizations:
+  -
+    gor_id_organization: 1
+    gor_name: "Test Organization"
+    gor_code: "testOrganization"

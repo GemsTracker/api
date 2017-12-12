@@ -27,14 +27,14 @@ class AccessTokenAction implements ServerMiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $response = new JsonResponse(null);
+
         try {
             return $this->server->respondToAccessTokenRequest($request, $response);
         } catch (OAuthServerException $exception) {
             return $exception->generateHttpResponse($response);
         } catch (\Exception $exception) {
-            $body = new Stream('php://temp', 'r+');
-            $body->write($exception->getMessage());
-            return $response->withStatus(500)->withBody($body);
+            $error = ['error' => $exception->getMessage()];
+            return $response->withStatus(500)->withPayload(json_encode($error));
         }
     }
 }
