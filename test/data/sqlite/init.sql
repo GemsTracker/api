@@ -2,6 +2,7 @@ CREATE TABLE test_messages (
   id          INTEGER not null ,
   message     varchar(255) not null,
   by          integer not null,
+  optional    varchar(255),
   changed     TEXT not null default current_timestamp,
   changed_by  INTEGER not null,
   created     TEXT not null,

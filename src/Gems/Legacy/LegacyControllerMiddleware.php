@@ -10,6 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Expressive\Router\RouterInterface;
+use Zend\Expressive\Template\TemplateRendererInterface;
 
 class LegacyControllerMiddleware implements MiddlewareInterface
 {
@@ -80,10 +81,22 @@ class LegacyControllerMiddleware implements MiddlewareInterface
                     call_user_func_array([$controllerObject, $action], []);
                 }
 
-                $test = get_class_methods($controllerObject);
+                $view = new \Zend_View;
+                $content = $controllerObject->html->render($view);
 
+                $data = [
+                    'content' => $content
+                ];
 
-                return new HtmlResponse('nyan');
+                $template = $this->serviceManager->has(TemplateRendererInterface::class)
+                    ? $this->serviceManager->get(TemplateRendererInterface::class)
+                    : null;
+
+                if ($template) {
+                    return new HtmlResponse($template->render('app::gemstracker-responsive', $data));
+                }        
+                
+                return new HtmlResponse($content);
 
             }
 

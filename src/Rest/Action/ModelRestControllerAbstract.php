@@ -109,7 +109,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         }
 
         $rows = $this->model->load($paginatedFilters, $order);
-        //print_r($rows);
 
         $translatedRows = [];
         foreach($rows as $key=>$row) {
@@ -465,12 +464,12 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         if ($validator instanceof \Zend_Validate_Interface) {
             return $validator;
         } elseif (is_string($validator)) {
-            $this->loader->find('Validate_'.$validator);
+            $validatorName = $validator;
             $validator = $this->loader->create('Validate_'.$validator);
             if ($validator) {
                 return $validator;
             } else {
-                throw new Exception('Validator not found');
+                throw new Exception(sprintf('Validator %s not found', $validatorName));
             }
         } else {
             throw new Exception(
@@ -517,7 +516,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
     public function validateRow($row)
     {
-
         $rowValidators = $this->getValidators();
         $translations = $this->getApiNames();
         $idField = $this->getIdField();
@@ -526,8 +524,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         if ($this->method == 'post' && isset($rowValidators[$idField])) {
             unset($rowValidators[$idField]);
         }
-
-
 
         foreach ($rowValidators as $colName=>$validators) {
             $value = null;

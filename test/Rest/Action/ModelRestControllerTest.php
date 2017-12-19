@@ -322,7 +322,7 @@ class ModelRestControllerTest extends ZendDbTestCase
 
         $this->checkResponse($response, EmptyResponse::class, 201);
 
-        $expectedData = ['id' => 3] + $newData;
+        $expectedData = ['id' => 3] + $newData + ['optional' => null];
 
         $request = $this->getRequest('GET', ['id' => 3]);
 
@@ -425,10 +425,6 @@ class ModelRestControllerTest extends ZendDbTestCase
     {
         $controller = $this->getTestMessageModelRestController();
 
-        $routeResultProphecy = $this->prophesize(RouteResult::class);
-        $routeResultProphecy->getMatchedRouteName()->willReturn('/');
-        $routeResult = $routeResultProphecy->reveal();
-
         $request = $this->getRequest(
             'GET',
             ['id' => 1],
@@ -459,6 +455,12 @@ class ModelRestControllerTest extends ZendDbTestCase
                 'type' => 'numeric',
                 'name' => 'by',
             ],
+            'optional' => [
+                'required' => false,
+                'maxlength' => 255,
+                'type' => 'string',
+                'name' => 'optional',
+            ],
             'changed' => [
                 'required' => false,
                 'type' => 'string',
@@ -479,6 +481,30 @@ class ModelRestControllerTest extends ZendDbTestCase
                 'type' => 'numeric',
                 'name' => 'created_by',
             ],
+            'testDateTime' => [
+                'type' => 'datetime',
+                'name' => 'testDateTime',
+            ],
+            'testDate' => [
+                'type' => 'date',
+                'name' => 'testDate',
+            ],
+            'testTime' => [
+                'type' => 'time',
+                'name' => 'testTime',
+            ],
+            'testChildModel' => [
+                'type' => 'child_model',
+                'name' => 'testChildModel',
+            ],
+            'testNoValue' => [
+                'type' => 'no_value',
+                'name' => 'testNoValue',
+            ],
+            'testNotCorrectType' => [
+                'type' => 'no_value',
+                'name' => 'testNotCorrectType',
+            ]
         ];
 
         $this->checkResponse($response,JsonResponse::class, 200);
@@ -599,7 +625,7 @@ class ModelRestControllerTest extends ZendDbTestCase
     {
         $controller = $this->getTestMessageModelRestController();
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Validator not found');
+        $this->expectExceptionMessage('Validator testValidatorThatDoesNotExist not found');
         $controller->getValidator('testValidatorThatDoesNotExist');
     }
 
@@ -609,6 +635,110 @@ class ModelRestControllerTest extends ZendDbTestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Invalid validator provided to addValidator; must be string or Zend_Validate_Interface. Supplied array');
         $controller->getValidator(['an_array as validator should fail']);
+    }
+
+    public function testTranslateRowWithDate()
+    {
+        $row = [
+            'date' => new \MUtil_Date('1977-12-15 00:00:00'),
+        ];
+
+        $controller = $this->getTestMessageModelRestController();
+
+        $model = new TestApiSettingsModel('test_messages', 'test');
+        $controller->setModel($model);
+
+        $translatedRow = $controller->translateRow($row);
+
+        $this->assertEquals('1977-12-15T00:00:00+00:00', $translatedRow['date'], 'Date should be translated to ISO_8601 string');
+    }
+
+
+    public function testExtraFieldsOnPost()
+    {
+        $controller = $this->getTestMessageModelRestController(true);
+
+        $newData = [
+            'message' => 'a new entry!',
+            'by' => 3,
+            'optional' => null,
+            'changed' => '2017-09-12 00:00:00',
+            'changed_by' => 3,
+            'created' => '2017-09-11 00:00:00',
+            'created_by' => 3,
+            'extra_field' => true,
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData);
+        $response = $controller->process(
+            $request,
+            $this->prophesize(DelegateInterface::class)->reveal()
+        );
+
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $request = $this->getRequest('GET', ['id' => 3]);
+
+        $response = $controller->process(
+            $request,
+            $this->prophesize(DelegateInterface::class)->reveal()
+        );
+
+        unset($newData['extra_field']);
+
+        $expectedData = ['id' => 3] + $newData;
+
+        $this->assertEquals($expectedData, $response->getPayload());
+
+    }
+
+    public function testValidatorOnEmptyField()
+    {
+        $controller = $this->getTestMessageModelRestController(true);
+
+        $newData = [
+            'message' => 'a new entry!',
+            'by' => 3,
+            'optional' => null,
+            'changed' => '2017-09-12 00:00:00',
+            'changed_by' => 3,
+            'created' => '2017-09-11 00:00:00',
+            'created_by' => 3,
+        ];
+
+        $model = new TestApiSettingsModel('test_messages', 'test');
+        $model->set('optional', 'validator', 'Alpha');
+        $controller->setModel($model);
+
+
+        $request = $this->getRequest('POST', [], [], $newData);
+        $response = $controller->process(
+            $request,
+            $this->prophesize(DelegateInterface::class)->reveal()
+        );
+
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $request = $this->getRequest('GET', ['id' => 3]);
+
+        $response = $controller->process(
+            $request,
+            $this->prophesize(DelegateInterface::class)->reveal()
+        );
+
+        $expectedData = [
+            'id' => 3,
+            'apiSetting' => 'a new entry!',
+            'by' => 3,
+            'optional' => null,
+            'changed' => '2017-09-12 00:00:00',
+            'changed_by' => 3,
+            'created' => '2017-09-11 00:00:00',
+            'created_by' => 3,
+        ];
+
+        $this->assertEquals($expectedData, $response->getPayload());
+
     }
 
     /**

@@ -167,10 +167,6 @@ class EntityRepositoryAbstract
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
-        if (!$result instanceof ResultInterface || !$result->isQueryResult()) {
-            throw new Exception('No correct Query result');
-        }
-
         return $result;
     }
 

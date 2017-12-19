@@ -64,10 +64,15 @@ class ScopeRepositoryTest extends ZendDbTestCase
         $scopeRepository = $this->getScopeRepository();
         $result = $scopeRepository->load(['limit' => [1,0]]);
 
-        $this->assertCount(1, $result, 'Expecting only one result');
+        $this->assertEquals(1, count($result), 'Expecting only one result');
 
         $result = $scopeRepository->loadFirst(['limit' => [1,0]]);
-        $this->assertCount(1, $result, 'Expecting only one result');
+        $this->assertEquals(1, count($result), 'Expecting only one result');
+
+        $result = $scopeRepository->loadFirst(['limit' => [1,1]]);
+        $this->assertEquals(1, count($result), 'Expecting no results');
+
+
     }
 
     public function testEntityGettersWithoutSetters()
