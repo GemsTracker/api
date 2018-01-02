@@ -22,6 +22,7 @@ class ConfigProvider
         return [
             'dependencies' => $this->getDependencies(),
             'templates'    => $this->getTemplates(),
+            'routes'       => $this->getRoutes(),
         ];
     }
 
@@ -42,6 +43,20 @@ class ConfigProvider
                 Action\OrganizationController::class => Action\RestControllerFactory::class,
             ],
         ];
+    }
+
+    public function getModelRoutes()
+    {
+        return [];
+    }
+
+    /**
+     * Returns the Routes configuration
+     * @return array
+     */
+    public function getRoutes()
+    {
+        return $this->getModelRoutes();
     }
 
     /**
