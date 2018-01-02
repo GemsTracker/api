@@ -241,7 +241,7 @@ class ModelRestControllerTest extends ZendDbTestCase
             [
                 'page' => 1,
                 'alias_by' => 1,
-                'order' => 'created DESC, message ASC, alias_by ASC',
+                'order' => 'created DESC, message ASC, alias_by, -id',
             ]
         );
 
@@ -251,6 +251,8 @@ class ModelRestControllerTest extends ZendDbTestCase
         );
 
         $this->checkResponse($response,JsonResponse::class, 200);
+
+        // TODO: Add actual check for the sorting results
     }
 
     public function testGetListPagination()
