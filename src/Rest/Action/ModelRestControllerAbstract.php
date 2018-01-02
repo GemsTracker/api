@@ -164,6 +164,12 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
             foreach($orderParams as $orderParam) {
                 $sort = false;
+                $name = $orderParam = trim($orderParam);
+
+                if (strpos($orderParam, '-') === 0) {                    
+                    $name = substr($orderParam, 1);
+                    $sort = SORT_DESC;
+                }
                 if (strpos(strtolower($orderParam), ' desc')) {
                     $name = substr($orderParam, 0,-5);
                     $sort = SORT_DESC;
@@ -184,8 +190,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 } else {
                     $order[] = $name;
                 }
-
-
             }
 
             return $order;
@@ -307,6 +311,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $this->model = $this->createModel();
+        if (!$this->model instanceof \MUtil_Model_ModelAbstract) {
+            throw new \Exception('No valid model loaded');
+        }
         if (method_exists($this->model, 'applyApiSettings')) {
             $this->model->applyApiSettings();
         }
