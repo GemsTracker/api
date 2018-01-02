@@ -79,6 +79,11 @@ class LegacyControllerMiddleware implements MiddlewareInterface
 
                 if (method_exists($controllerObject, $action) && is_callable([$controllerObject, $action])) {
                     call_user_func_array([$controllerObject, $action], []);
+                } else {
+                    throw new \Exception(sprintf(
+                        "Controller action %s could not be found in paths %s",
+                        $action
+                    ));
                 }
 
                 $view = new \Zend_View;
