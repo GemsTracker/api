@@ -47,6 +47,41 @@ class ConfigProvider
 
     public function getModelRoutes()
     {
+        $restModels = [
+            'organizations' => [
+                'model' => 'Model_OrganizationModel',
+                'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
+            ],
+        ];
+
+        $routes = [];
+
+        foreach($restModels as $endpoint=>$settings) {
+            $route = [
+                'name' => 'api.'.$endpoint.'.get',
+                'path' => '/'.$endpoint.'[/{id:\d+}]',
+                'middleware' => [
+                    Gems\Rest\Action\ModelRestController::class
+                ],
+                'allowed_methods' => ['GET']
+            ];
+            $routes[] = $route;
+
+            $route = [
+                'name' => 'api.'.$endpoint.'.post',
+                'path' => '/'.$endpoint,
+                'middleware' => [
+                    Gems\Rest\Action\ModelRestController::class
+                ],
+                'allowed_methods' => ['POST']
+            ];
+            $routes[] = $route;
+
+
+
+        }
+
+
         return [];
     }
 
