@@ -2,6 +2,8 @@
 
 namespace Gems\Rest;
 
+use Gems\Rest\Action\ModelRestController;
+
 /**
  * The configuration provider for the App module
  *
@@ -41,6 +43,7 @@ class ConfigProvider
                 Action\HomePageAction::class => Action\HomePageFactory::class,
                 Action\TestModelAction::class => Factory\ReflectionFactory::class,
                 Action\OrganizationController::class => Action\RestControllerFactory::class,
+                Action\ModelRestController::class => Action\RestControllerFactory::class,
             ],
         ];
     }
@@ -52,37 +55,93 @@ class ConfigProvider
                 'model' => 'Model_OrganizationModel',
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
             ],
+            'respondents' => [
+                'model' => 'Model_RespondentModel',
+                'methods' => ['GET'],
+            ],
+            'logs' => [
+                'model' => 'Model\\LogModel',
+                'methods' => ['GET'],
+            ],
         ];
 
         $routes = [];
 
         foreach($restModels as $endpoint=>$settings) {
-            $route = [
-                'name' => 'api.'.$endpoint.'.get',
-                'path' => '/'.$endpoint.'[/{id:\d+}]',
-                'middleware' => [
-                    Gems\Rest\Action\ModelRestController::class
-                ],
-                'allowed_methods' => ['GET']
-            ];
-            $routes[] = $route;
 
-            $route = [
-                'name' => 'api.'.$endpoint.'.post',
-                'path' => '/'.$endpoint,
-                'middleware' => [
-                    Gems\Rest\Action\ModelRestController::class
-                ],
-                'allowed_methods' => ['POST']
-            ];
-            $routes[] = $route;
+            $methods = array_flip($settings['methods']);
+            if (!empty($methods)) {
+                $routes[] = [
+                    'name' => 'api.' . $endpoint . '.structure',
+                    'path' => '/' . $endpoint . '/structure',
+                    'middleware' => [
+                        ModelRestController::class
+                    ],
+                    'options' => [
+                        'model' => $settings['model']
+                    ],
+                    'allowed_methods' => ['GET']
+                ];
+            }
 
+            if (isset($methods['GET'])) {
+                $routes[] = [
+                    'name' => 'api.' . $endpoint . '.get',
+                    'path' => '/' . $endpoint . '[/{id:\d+}]',
+                    'middleware' => [
+                        ModelRestController::class
+                    ],
+                    'options' => [
+                        'model' => $settings['model']
+                    ],
+                    'allowed_methods' => ['GET']
+                ];
+            }
 
+            if (isset($methods['POST'])) {
+                $routes[] = [
+                    'name' => 'api.' . $endpoint . '.post',
+                    'path' => '/' . $endpoint,
+                    'middleware' => [
+                        ModelRestController::class
+                    ],
+                    'options' => [
+                        'model' => $settings['model']
+                    ],
+                    'allowed_methods' => ['POST']
+                ];
+            }
 
+            if (isset($methods['PATCH'])) {
+                $routes[] = [
+                    'name' => 'api.' . $endpoint . '.patch',
+                    'path' => '/' . $endpoint . '/[{id:\d+}]',
+                    'middleware' => [
+                        ModelRestController::class
+                    ],
+                    'options' => [
+                        'model' => $settings['model']
+                    ],
+                    'allowed_methods' => ['PATCH']
+                ];
+            }
+
+            if (isset($methods['DELETE'])) {
+                $routes[] = [
+                    'name' => 'api.' . $endpoint . '.delete',
+                    'path' => '/' . $endpoint . '/[{id:\d+}]',
+                    'middleware' => [
+                        ModelRestController::class
+                    ],
+                    'options' => [
+                        'model' => $settings['model']
+                    ],
+                    'allowed_methods' => ['DELETE']
+                ];
+            }
         }
 
-
-        return [];
+        return $routes;
     }
 
     /**

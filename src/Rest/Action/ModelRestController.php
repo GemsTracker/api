@@ -2,7 +2,10 @@
 
 namespace Gems\Rest\Action;
 
-class ModelRestControllerController extends ModelRestControllerAbstract
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+class ModelRestController extends ModelRestControllerAbstract
 {
     protected $itemsPerPage = 5;
 

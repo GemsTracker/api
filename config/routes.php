@@ -33,7 +33,7 @@ $app->get('/test', Gems\Rest\Action\TestModelAction::class, 'test');
 
 
 
-$app->get('/organizations/structure', Gems\Rest\Action\OrganizationController::class, 'api.organizations.structure');
+/*$app->get('/organizations/structure', Gems\Rest\Action\OrganizationController::class, 'api.organizations.structure');
 // Show one/all
 $app->get('/organizations[/{id:\d+}]', Gems\Rest\Action\OrganizationController::class, 'api.organizations.get');
 // Create
@@ -41,6 +41,6 @@ $app->post('/organizations', Gems\Rest\Action\OrganizationController::class, 'ap
 // Update
 $app->patch('/organizations/[{id:\d+}]', Gems\Rest\Action\OrganizationController::class, 'api.organizations.patch');
 // Delete
-$app->delete('/organizations/[{id:\d+}]', Gems\Rest\Action\OrganizationController::class, 'api.organizations.delete');
+$app->delete('/organizations/[{id:\d+}]', Gems\Rest\Action\OrganizationController::class, 'api.organizations.delete');*/
 
 $app->injectRoutesFromConfig();

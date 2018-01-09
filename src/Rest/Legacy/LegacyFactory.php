@@ -43,6 +43,10 @@ class LegacyFactory implements FactoryInterface
                 return $project;
                 break;
 
+            case 'LegacyCurrentUser':
+                return $this->getCurrentUser();
+                break;
+
             case \Gems_AccessLog::class:
                 return $this->getAccessLog();
                 break;
@@ -186,6 +190,16 @@ class LegacyFactory implements FactoryInterface
         $this->cacheFactoryWrapper = $wrapper;
     }
 
+    public function getCurrentUser()
+    {
+        $loader = $this->container->get('LegacyLoader');
+        $userLoader = $loader->getUserLoader();
+        /*$projectUser = $this->loader->create(\Gems_User_ProjectUserDefinition::class);
+        $emptySession = new \Zend_Session_Namespace('CurrentUser');
+        $user = $this->loader->create('User_User', $emptySession, $projectUser);*/
+
+        return $user;
+    }
 
     protected function getEnvironment()
     {

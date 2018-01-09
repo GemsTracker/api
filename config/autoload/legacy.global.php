@@ -16,6 +16,7 @@ return [
             Gems_Util::class => LegacyFactory::class,
             Gems_Util_BasePath::class => LegacyFactory::class,
             Gems_AccessLog::class => LegacyFactory::class,
+            'LegacyCurrentUser' => LegacyFactory::class,
             Zend_Acl::class => LegacyFactory::class,
             Zend_Locale::class => LegacyFactory::class,
             Zend_Session_Namespace::class => LegacyFactory::class,
