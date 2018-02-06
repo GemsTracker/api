@@ -4,6 +4,7 @@ namespace Gems\Rest\Legacy;
 
 use Interop\Container\ContainerInterface;
 use Gems\Rest\Legacy\LegacyCacheFactoryWrapper;
+use Zalt\Loader\ProjectOverloader;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
 use Gems_Loader as Loader;
@@ -24,6 +25,9 @@ class LegacyFactory implements FactoryInterface
 
     protected $container;
 
+    /**
+     * @var \Zalt\Loader\ProjectOverloader;
+     */
     protected $loader;
 
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
@@ -34,7 +38,7 @@ class LegacyFactory implements FactoryInterface
             case Loader::class:
             case Util::class:
             case Util_BasePath::class:
-                return $this->loader->create($requestedName, $container, []);
+                return $this->loader->create($requestedName, $this->loader, []);
                 break;
 
             case ProjectSettings::class:
@@ -192,13 +196,13 @@ class LegacyFactory implements FactoryInterface
 
     public function getCurrentUser()
     {
-        $loader = $this->container->get('LegacyLoader');
-        $userLoader = $loader->getUserLoader();
-        /*$projectUser = $this->loader->create(\Gems_User_ProjectUserDefinition::class);
-        $emptySession = new \Zend_Session_Namespace('CurrentUser');
-        $user = $this->loader->create('User_User', $emptySession, $projectUser);*/
-
-        return $user;
+        $currentUserRepository = $this->container->get(CurrentUserRepository::class);
+        try {
+            $currentUser = $currentUserRepository->getCurrentUser();
+            return $currentUser;
+        } catch(\Exception $e) {
+            return null;
+        }
     }
 
     protected function getEnvironment()
@@ -251,6 +255,35 @@ class LegacyFactory implements FactoryInterface
 
     protected function getSession()
     {
+        $config = $this->container->get('config');
+
+        if (isset($config['gems_auth'])
+            && isset($config['gems_auth']['use_linked_gemstracker_session'])
+            && $config['gems_auth']['use_linked_gemstracker_session'] === true
+            && isset($config['gems_auth']['linked_gemstracker'])
+        ) {
+            $gemsProjectNameUc = ucfirst($config['gems_auth']['linked_gemstracker']['project_name']);
+            $applicationPath = $config['gems_auth']['linked_gemstracker']['root_dir'] . '/application';
+
+            if (isset($config['gems_auth']['linked_gemstracker']['application_env'])) {
+                $applicationEnv = $config['gems_auth']['linked_gemstracker']['application_env'];
+            } else {
+                $applicationEnv = $config['project']['environment'];
+            }
+
+            $cookiePath = strtr(dirname($_SERVER['SCRIPT_NAME']), '\\', '/');
+            if (isset($config['gems_auth']['linked_gemstracker']['cookie_path'])) {
+                $cookiePath = $config['gems_auth']['linked_gemstracker']['cookie_path'];
+            }
+
+
+            $sessionOptions['name']            = $gemsProjectNameUc . '_' . md5($applicationPath) . '_SESSID';
+            $sessionOptions['cookie_path']     = $cookiePath;
+            $sessionOptions['cookie_httponly'] = true;
+            $sessionOptions['cookie_secure']   = ($applicationEnv == 'production') || ($applicationEnv === 'acceptance');
+            \Zend_Session::start($sessionOptions);
+        }
+
         $project = $this->container->get('LegacyProject');
         $session = new \Zend_Session_Namespace('gems.' . GEMS_PROJECT_NAME . '.session');
 

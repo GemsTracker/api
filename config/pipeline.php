@@ -13,6 +13,9 @@ use Zend\Stratigility\Middleware\ErrorHandler;
 
 // The error handler should be the first (most outer) middleware to catch
 // all Exceptions.
+
+$app->pipe(\Blast\BaseUrl\BaseUrlMiddleware::class);
+
 $app->pipe(ErrorHandler::class);
 $app->pipe(ServerUrlMiddleware::class);
 

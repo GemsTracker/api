@@ -42,6 +42,8 @@ class ReflectionFactory implements FactoryInterface
         foreach($dependencies as $dependency) {
             if ($class = $dependency->getClass() !== null) {
                 $results[] = $this->resolveClass($dependency);
+            } elseif ($this->container->has($dependency->getName())) {
+                $results[] = $this->container->get($dependency->getName());
             } else {
                 $results[] = $this->resolveDefault($dependency);
             }

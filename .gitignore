@@ -6,3 +6,4 @@ coveralls-upload.json
 phpunit.xml
 vendor/
 var/cache/
+test/coverage/

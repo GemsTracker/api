@@ -30,15 +30,20 @@ abstract class RestControllerAbstract implements ServerMiddlewareInterface
 
     protected $method;
 
-    public function __construct(ContainerInterface $container, ProjectOverloader $loader, UrlHelper $urlHelper)
+
+    /**
+     *
+     * RestControllerAbstract constructor.
+     * @param ProjectOverloader $loader
+     * @param UrlHelper $urlHelper
+     * @param $LegacyDb Init Zend DB so it's loaded at least once, needed to set default Zend_Db_Adapter for Zend_Db_Table
+     */
+    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
     {
+
         $this->loader = $loader;
-        $this->container = $container;
         //$this->loader->verbose = true;
         $this->loader->legacyClasses = true;
-
-        // Init Zend DB so it's loaded at least once, needed to set default Zend_Db_Adapter for Zend_Db_Table
-        $this->container->get(Zend_Db::class);
 
         $this->helper = $urlHelper;
     }

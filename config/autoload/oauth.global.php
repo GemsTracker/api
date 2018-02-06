@@ -3,7 +3,8 @@
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\Auth\AuthorizationServerFactory;
 use Gems\Rest\Auth\ResourceServerFactory;
-use League\OAuth2\Server\Middleware\ResourceServerMiddleware;
+//use League\OAuth2\Server\Middleware\ResourceServerMiddleware;
+use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 
 return [
     'certificates' => [
@@ -45,7 +46,7 @@ return [
             League\OAuth2\Server\ResourceServer::class => ResourceServerFactory::class,
 
             // Middleware
-            ResourceServerMiddleware::class => ReflectionFactory::class,
+            AuthorizeGemsAndOauthMiddleware::class => ReflectionFactory::class,
 
             // Actions
             Rest\Auth\AuthorizeAction::class => ReflectionFactory::class,
@@ -87,7 +88,7 @@ return [
             'name' => 'nyan',
             'path' => '/nyan',
             'middleware' => [
-                ResourceServerMiddleware::class,
+                AuthorizeGemsAndOauthMiddleware::class,
                 Gems\Rest\Action\TestModelAction::class
             ],
             'allowed_methods' => ['GET']

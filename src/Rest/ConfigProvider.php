@@ -3,6 +3,7 @@
 namespace Gems\Rest;
 
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 
 /**
  * The configuration provider for the App module
@@ -42,8 +43,7 @@ class ConfigProvider
             'factories'  => [
                 Action\HomePageAction::class => Action\HomePageFactory::class,
                 Action\TestModelAction::class => Factory\ReflectionFactory::class,
-                Action\OrganizationController::class => Action\RestControllerFactory::class,
-                Action\ModelRestController::class => Action\RestControllerFactory::class,
+                Action\ModelRestController::class => Factory\ReflectionFactory::class,
             ],
         ];
     }
@@ -74,9 +74,7 @@ class ConfigProvider
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.structure',
                     'path' => '/' . $endpoint . '/structure',
-                    'middleware' => [
-                        ModelRestController::class
-                    ],
+                    'middleware' => $this->getMiddleware(),
                     'options' => [
                         'model' => $settings['model']
                     ],
@@ -88,9 +86,7 @@ class ConfigProvider
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.get',
                     'path' => '/' . $endpoint . '[/{id:\d+}]',
-                    'middleware' => [
-                        ModelRestController::class
-                    ],
+                    'middleware' => $this->getMiddleware(),
                     'options' => [
                         'model' => $settings['model']
                     ],
@@ -102,9 +98,7 @@ class ConfigProvider
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.post',
                     'path' => '/' . $endpoint,
-                    'middleware' => [
-                        ModelRestController::class
-                    ],
+                    'middleware' => $this->getMiddleware(),
                     'options' => [
                         'model' => $settings['model']
                     ],
@@ -116,9 +110,7 @@ class ConfigProvider
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.patch',
                     'path' => '/' . $endpoint . '/[{id:\d+}]',
-                    'middleware' => [
-                        ModelRestController::class
-                    ],
+                    'middleware' => $this->getMiddleware(),
                     'options' => [
                         'model' => $settings['model']
                     ],
@@ -130,9 +122,7 @@ class ConfigProvider
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.delete',
                     'path' => '/' . $endpoint . '/[{id:\d+}]',
-                    'middleware' => [
-                        ModelRestController::class
-                    ],
+                    'middleware' => $this->getMiddleware(),
                     'options' => [
                         'model' => $settings['model']
                     ],
@@ -142,6 +132,14 @@ class ConfigProvider
         }
 
         return $routes;
+    }
+
+    public function getMiddleware()
+    {
+        return [
+            AuthorizeGemsAndOauthMiddleware::class,
+            ModelRestController::class
+        ];
     }
 
     /**
