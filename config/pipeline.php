@@ -11,10 +11,12 @@ use Zend\Stratigility\Middleware\ErrorHandler;
  * Setup middleware pipeline:
  */
 
+
+// Base url Middleware so running from subdirectory is supported
+$app->pipe(\Blast\BaseUrl\BaseUrlMiddleware::class);
+
 // The error handler should be the first (most outer) middleware to catch
 // all Exceptions.
-
-$app->pipe(\Blast\BaseUrl\BaseUrlMiddleware::class);
 
 $app->pipe(ErrorHandler::class);
 $app->pipe(ServerUrlMiddleware::class);
