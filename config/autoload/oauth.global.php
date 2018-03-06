@@ -1,5 +1,7 @@
 <?php
 
+return [];
+/*
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\Auth\AuthorizationServerFactory;
 use Gems\Rest\Auth\ResourceServerFactory;
@@ -117,4 +119,4 @@ return [
             'oauth' => 'templates/oauth'
         ],
     ]
-];
+];*/

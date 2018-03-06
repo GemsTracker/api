@@ -6,12 +6,13 @@ namespace Gems\Rest\Action;
 use Interop\Container\ContainerInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface as ServerMiddlewareInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ServerRequestInterface;
 
-class TestModelAction implements ServerMiddlewareInterface
+class TestModelAction implements MiddlewareInterface
 {
     /**
      *
@@ -43,12 +44,12 @@ class TestModelAction implements ServerMiddlewareInterface
 
         $client = $clientRepository->getClientEntity('test', null, null, false);
 
-        $user = $userRepository->getUserEntityByUserCredentials('jvangestel@70', 'test123', null, $client);
+        /*$user = $userRepository->getUserEntityByUserCredentials('jvangestel@70', 'test123', null, $client);
 
         if (!$user) {
             echo 'No user found!';
         }
-        print_r($user);
+        print_r($user);*/
 
 
 

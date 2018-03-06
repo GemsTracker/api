@@ -13,6 +13,7 @@ return [
         'factories' => [
             Gems_Loader::class => LegacyFactory::class,
             Gems_Project_ProjectSettings::class => LegacyFactory::class,
+            Gems_Tracker::class => LegacyFactory::class,
             Gems_Util::class => LegacyFactory::class,
             Gems_Util_BasePath::class => LegacyFactory::class,
             Gems_AccessLog::class => LegacyFactory::class,
@@ -37,6 +38,7 @@ return [
             'LegacyLocale' => Zend_Locale::class,
             'LegacyLogger' => Zend_Log::class,
             'LegacySession' => Zend_Session_Namespace::class,
+            'LegacyTracker' => Gems_Tracker::class,
             'LegacyTranslate' => Translate::class,
             'LegacyTranslateAdapter' => Zend_Translate_Adapter::class,
             'LegacyCache' => Zend_Cache::class,

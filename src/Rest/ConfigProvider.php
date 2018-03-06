@@ -3,13 +3,38 @@
 namespace Gems\Rest;
 
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Auth\AccessTokenAction;
+use Gems\Rest\Auth\AccessTokenRepository;
+use Gems\Rest\Auth\AuthCodeGrantFactory;
+use Gems\Rest\Auth\AuthCodeRepository;
+use Gems\Rest\Auth\AuthorizeAction;
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 
+use Gems\Rest\Auth\ClientRepository;
+use Gems\Rest\Auth\CorsMiddleware;
+use Gems\Rest\Auth\ImplicitGrantFactory;
+use Gems\Rest\Auth\MergeUsernameOrganizationMiddleware;
+use Gems\Rest\Auth\RefreshTokenRepository;
+use Gems\Rest\Auth\ScopeRepository;
+use Gems\Rest\Auth\UserRepository;
 use Gems\Rest\Legacy\CurrentUserRepository;
 use Gems\Rest\Factory\ReflectionFactory;
 
 use Gems\Rest\Auth\AuthorizationServerFactory;
 use Gems\Rest\Auth\ResourceServerFactory;
+use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\Grant\AuthCodeGrant;
+use League\OAuth2\Server\Grant\ClientCredentialsGrant;
+use League\OAuth2\Server\Grant\ImplicitGrant;
+use League\OAuth2\Server\Grant\PasswordGrant;
+use League\OAuth2\Server\Grant\RefreshTokenGrant;
+use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
+use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
+use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
+use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use League\OAuth2\Server\Repositories\UserRepositoryInterface;
+use League\OAuth2\Server\ResourceServer;
 
 
 /**
@@ -30,9 +55,21 @@ class ConfigProvider
     public function __invoke()
     {
         return [
+            'certificates' => $this->getCertificates(),
+            'oauth2' => $this->getOauth2(),
             'dependencies' => $this->getDependencies(),
             'templates'    => $this->getTemplates(),
             'routes'       => $this->getRoutes(),
+        ];
+    }
+
+    public function getCertificates()
+    {
+        return [
+            //'public' => 'file://' . GEMS_ROOT_DIR . '/var/settings/gems.public.key',
+            //'private' => 'file://' . GEMS_ROOT_DIR . '/var/settings/gems.private.key',
+            'public' => 'file:///var/www/expressive/var/settings/gems.public.key',
+            'private' => 'file:///var/www/expressive/var/settings/gems.private.key',
         ];
     }
 
@@ -61,45 +98,37 @@ class ConfigProvider
                 // Oauth2
 
                 // OAUTH2 servers
-                League\OAuth2\Server\AuthorizationServer::class => AuthorizationServerFactory::class,
-                League\OAuth2\Server\ResourceServer::class => ResourceServerFactory::class,
+                AuthorizationServer::class => AuthorizationServerFactory::class,
+                ResourceServer::class => ResourceServerFactory::class,
 
                 // Middleware
                 AuthorizeGemsAndOauthMiddleware::class => ReflectionFactory::class,
 
                 // Actions
-                Rest\Auth\AuthorizeAction::class => ReflectionFactory::class,
-                Rest\Auth\AccessTokenAction::class => ReflectionFactory::class,
+                AuthorizeAction::class => ReflectionFactory::class,
+                AccessTokenAction::class => ReflectionFactory::class,
 
                 // Entity repositories
-                Gems\Rest\Auth\AccessTokenRepository::class => ReflectionFactory::class,
-                Gems\Rest\Auth\AuthCodeRepository::class => ReflectionFactory::class,
-                Gems\Rest\Auth\ClientRepository::class => ReflectionFactory::class,
-                Gems\Rest\Auth\RefreshTokenRepository::class => ReflectionFactory::class,
-                Gems\Rest\Auth\ScopeRepository::class => ReflectionFactory::class,
-                Gems\Rest\Auth\UserRepository::class => ReflectionFactory::class,
+                AccessTokenRepository::class => ReflectionFactory::class,
+                AuthCodeRepository::class => ReflectionFactory::class,
+                ClientRepository::class => ReflectionFactory::class,
+                RefreshTokenRepository::class => ReflectionFactory::class,
+                ScopeRepository::class => ReflectionFactory::class,
+                UserRepository::class => ReflectionFactory::class,
 
-                League\OAuth3\Server\Repositories\AccessTokenRepositoryInterface::class => ReflectionFactory::class,
-                League\OAuth3\Server\Repositories\AuthCodeRepositoryInterface::class => ReflectionFactory::class,
-                League\OAuth3\Server\Repositories\ClientRepositoryInterface::class => ReflectionFactory::class,
-                League\OAuth3\Server\Repositories\RefreshTokenRepositoryInterface::class => ReflectionFactory::class,
-                League\OAuth3\Server\Repositories\ScopeRepositoryInterface::class => ReflectionFactory::class,
-                League\OAuth3\Server\Repositories\UserRepositoryInterface::class => ReflectionFactory::class,
+                AccessTokenRepositoryInterface::class => ReflectionFactory::class,
+                AuthCodeRepositoryInterface::class => ReflectionFactory::class,
+                ClientRepositoryInterface::class => ReflectionFactory::class,
+                RefreshTokenRepositoryInterface::class => ReflectionFactory::class,
+                ScopeRepositoryInterface::class => ReflectionFactory::class,
+                UserRepositoryInterface::class => ReflectionFactory::class,
 
                 // Grants
-                League\OAuth3\Server\Grant\AuthCodeGrant::class => Gems\Rest\Auth\AuthCodeGrantFactory::class,
-                League\OAuth3\Server\Grant\ClientCredentialsGrant::class => ReflectionFactory::class,
-                League\OAuth3\Server\Grant\ImplicitGrant::class => Gems\Rest\Auth\ImplicitGrantFactory::class,
-                League\OAuth3\Server\Grant\PasswordGrant::class => ReflectionFactory::class,
-                League\OAuth3\Server\Grant\RefreshTokenGrant::class => ReflectionFactory::class,
-            ],
-            'aliases' => [
-                League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface::class => Gems\Rest\Auth\AccessTokenRepository::class,
-                League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface::class => Gems\Rest\Auth\AuthCodeRepository::class,
-                League\OAuth2\Server\Repositories\ClientRepositoryInterface::class => Gems\Rest\Auth\ClientRepository::class,
-                League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface::class => Gems\Rest\Auth\RefreshTokenRepository::class,
-                League\OAuth2\Server\Repositories\ScopeRepositoryInterface::class => Gems\Rest\Auth\ScopeRepository::class,
-                League\OAuth2\Server\Repositories\UserRepositoryInterface::class => Gems\Rest\Auth\UserRepository::class,
+                AuthCodeGrant::class => AuthCodeGrantFactory::class,
+                ClientCredentialsGrant::class => ReflectionFactory::class,
+                ImplicitGrant::class => ImplicitGrantFactory::class,
+                PasswordGrant::class => ReflectionFactory::class,
+                RefreshTokenGrant::class => ReflectionFactory::class,
             ],
         ];
     }
@@ -198,6 +227,36 @@ class ConfigProvider
         ];
     }
 
+    public function getOauth2()
+    {
+        return [
+            'grants' => [
+                'authorization_code' => [
+                    'class' => AuthCodeGrant::class,
+                    'code_valid' => 'PT10M', // Time an auth code can be exchanged for a token
+                    'token_valid' => 'PT1H', // Time a token is valid
+                ],
+                'client_credentials' => [
+                    'class' => ClientCredentialsGrant::class,
+                    'token_valid' => 'PT1H', // Time a token is valid
+                ],
+                'implicit' => [
+                    'class' => ImplicitGrant::class,
+                    'code_valid' => 'PT1H',
+                    'token_valid' => 'PT1H', // Time a token is valid
+                ],
+                'password' => [
+                    'class' => PasswordGrant::class,
+                    'token_valid' => 'PT1H', // Time a token is valid
+                ],
+                'refresh_token' => [
+                    'class' => RefreshTokenGrant::class,
+                    'token_valid' => 'PT1H', // Time a token is valid
+                ],
+            ],
+        ];
+    }
+
     /**
      * Returns the Routes configuration
      * @return array
@@ -209,8 +268,8 @@ class ConfigProvider
                 'name' => 'access_token',
                 'path' => '/access_token',
                 'middleware' => [
-                    Gems\Rest\Auth\MergeUsernameOrganizationMiddleware::class,
-                    Rest\Auth\AccessTokenAction::class
+                    MergeUsernameOrganizationMiddleware::class,
+                    AccessTokenAction::class
                 ],
                 'allowed_methods' => ['POST'],
             ],
@@ -218,8 +277,8 @@ class ConfigProvider
                 'name' => 'authorize',
                 'path' => '/authorize',
                 'middleware' => [
-                    Gems\Rest\Auth\MergeUsernameOrganizationMiddleware::class,
-                    Rest\Auth\AuthorizeAction::class
+                    MergeUsernameOrganizationMiddleware::class,
+                    AuthorizeAction::class
                 ],
                 'allowed_methods' => ['GET', 'POST'],
             ],

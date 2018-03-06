@@ -38,6 +38,7 @@ class LegacyFactory implements FactoryInterface
             case Loader::class:
             case Util::class:
             case Util_BasePath::class:
+            case \Gems_Tracker::class:
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
 
@@ -197,12 +198,12 @@ class LegacyFactory implements FactoryInterface
     public function getCurrentUser()
     {
         $currentUserRepository = $this->container->get(CurrentUserRepository::class);
-        try {
+        //try {
             $currentUser = $currentUserRepository->getCurrentUser();
             return $currentUser;
-        } catch(\Exception $e) {
+        /*} catch(\Exception $e) {
             return null;
-        }
+        }*/
     }
 
     protected function getEnvironment()

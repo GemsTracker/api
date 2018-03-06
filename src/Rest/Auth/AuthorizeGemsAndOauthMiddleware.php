@@ -20,7 +20,7 @@ class AuthorizeGemsAndOauthMiddleware
     /**
      * @param ResourceServer $server
      */
-    public function __construct(ResourceServer $server, ProjectOverloader $loader, CurrentUserRepository $currentUserRepository, $config)
+    public function __construct(ResourceServer $server, CurrentUserRepository $currentUserRepository, $config)
     {
         $this->server = $server;
         $this->currentUserRepository  = $currentUserRepository;
