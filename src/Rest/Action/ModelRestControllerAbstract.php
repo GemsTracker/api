@@ -380,6 +380,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 'maxlength',
                 'type',
                 'multiOptions',
+                'default',
             ];
 
             $structure = [];
@@ -421,6 +422,24 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                                 default:
                                     $structure[$columnLabel][$attributeName] = 'no_value';
                                     break;
+                            }
+                        }
+
+                        if ($attributeName == 'default') {
+                            switch (true) {
+                                case $structure[$columnLabel][$attributeName] instanceof \Zend_Db_Expr:
+                                    $structure[$columnLabel][$attributeName] = $structure[$columnLabel][$attributeName]->__toString();
+                                    break;
+                                case ($structure[$columnLabel][$attributeName] instanceof \MUtil_Date
+                                    && $structure[$columnLabel][$attributeName] == new \MUtil_Date):
+                                    $structure[$columnLabel][$attributeName] = 'NOW()';
+                                    break;
+                                case ($structure[$columnLabel][$attributeName] instanceof \Zend_Date
+                                    && $structure[$columnLabel][$attributeName] == new \Zend_Date):
+                                    $structure[$columnLabel][$attributeName] = 'NOW()';
+                                    break;
+                                case is_object($structure[$columnLabel][$attributeName]):
+                                    $structure[$columnLabel][$attributeName] = null;
                             }
                         }
                     }

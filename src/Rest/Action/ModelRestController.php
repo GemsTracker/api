@@ -7,6 +7,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ModelRestController extends ModelRestControllerAbstract
 {
+    protected $applySettings;
+
     protected $itemsPerPage = 5;
 
     protected $modelName;
@@ -17,7 +19,17 @@ class ModelRestController extends ModelRestControllerAbstract
             return $this->model;
         }
 
-        return $this->loader->create($this->modelName);
+        $model = $this->loader->create($this->modelName);
+
+        if ($this->applySettings) {
+            foreach($this->applySettings as $methodName) {
+                if (method_exists($model, $methodName)) {
+                    $model->$methodName();
+                }
+            }
+        }
+
+        return $model;
         //return $this->loader->create('Model_OrganizationModel');
     }
 
@@ -29,6 +41,13 @@ class ModelRestController extends ModelRestControllerAbstract
             $options = $route->getOptions();
             if (isset($options['model'])) {
                 $this->setModelName($options['model']);
+
+                if (isset($options['applySettings'])) {
+                    if (is_string($options['applySettings'])) {
+                        $options['applySettings'] = [$options['applySettings']];
+                    }
+                    $this->applySettings = $options['applySettings'];
+                }
             }
             if (isset($options['itemsPerPage'])) {
                 $this->setItemsPerPage($options['itemsPerPage']);

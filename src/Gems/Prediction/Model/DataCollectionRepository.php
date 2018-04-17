@@ -206,6 +206,9 @@ class DataCollectionRepository
                 case 'age':
                     $itemData = $respondent->getAge();
                     break;
+                case 'birthday':
+                    $itemData = $respondent->getBirthday();
+                    break;
                 case 'gender':
                     $itemData = $respondent->getGender();
                     break;

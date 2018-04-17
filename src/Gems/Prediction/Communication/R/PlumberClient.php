@@ -46,7 +46,7 @@ class PlumberClient
         if (!$this->client) {
             $this->client = new Client([
                 'base_uri' => $this->url,
-                'timeout' => 2,
+                'timeout' => 20,
             ]);
         }
 
@@ -58,6 +58,7 @@ class PlumberClient
     public function request($endpoint, $method, $data)
     {
         $client = $this->getClient();
+
         try {
             $response = $client->request($method, $endpoint, [
                 'json' => $data,

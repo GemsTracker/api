@@ -42,7 +42,7 @@ use League\OAuth2\Server\ResourceServer;
  *
  * @see https://docs.zendframework.com/zend-component-installer/
  */
-class ConfigProvider
+class ConfigProvider extends RestModelConfigProviderAbstract
 {
     /**
      * Returns the configuration array
@@ -133,9 +133,9 @@ class ConfigProvider
         ];
     }
 
-    public function getModelRoutes()
+    public function getRestModels()
     {
-        $restModels = [
+        return [
             'organizations' => [
                 'model' => 'Model_OrganizationModel',
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -143,87 +143,12 @@ class ConfigProvider
             'respondents' => [
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET'],
+                'applySettings' => 'applyEditSettings',
             ],
             'logs' => [
                 'model' => 'Model\\LogModel',
                 'methods' => ['GET'],
             ],
-        ];
-
-        $routes = [];
-
-        foreach($restModels as $endpoint=>$settings) {
-
-            $methods = array_flip($settings['methods']);
-            if (!empty($methods)) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.structure',
-                    'path' => '/' . $endpoint . '/structure',
-                    'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
-                    'allowed_methods' => ['GET']
-                ];
-            }
-
-            if (isset($methods['GET'])) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.get',
-                    'path' => '/' . $endpoint . '[/{id:\d+}]',
-                    'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
-                    'allowed_methods' => ['GET']
-                ];
-            }
-
-            if (isset($methods['POST'])) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.post',
-                    'path' => '/' . $endpoint,
-                    'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
-                    'allowed_methods' => ['POST']
-                ];
-            }
-
-            if (isset($methods['PATCH'])) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.patch',
-                    'path' => '/' . $endpoint . '/[{id:\d+}]',
-                    'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
-                    'allowed_methods' => ['PATCH']
-                ];
-            }
-
-            if (isset($methods['DELETE'])) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.delete',
-                    'path' => '/' . $endpoint . '/[{id:\d+}]',
-                    'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
-                    'allowed_methods' => ['DELETE']
-                ];
-            }
-        }
-
-        return $routes;
-    }
-
-    public function getMiddleware()
-    {
-        return [
-            AuthorizeGemsAndOauthMiddleware::class,
-            ModelRestController::class
         ];
     }
 
@@ -263,6 +188,8 @@ class ConfigProvider
      */
     public function getRoutes()
     {
+        $modelRoutes = parent::getRoutes();
+
         $routes = [
             [
                 'name' => 'access_token',
@@ -284,7 +211,7 @@ class ConfigProvider
             ],
         ];
 
-        return array_merge($routes, $this->getModelRoutes());
+        return array_merge($routes, $modelRoutes);
     }
 
     /**
