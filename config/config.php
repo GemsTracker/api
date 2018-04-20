@@ -11,6 +11,8 @@ $cacheConfig = [
 ];
 
 $aggregator = new ConfigAggregator([
+    Zend\Expressive\ConfigProvider::class,
+    Zend\Expressive\Router\ConfigProvider::class,
     // Enable for default Zend Db Config
     //\Zend\Db\ConfigProvider::class,
     //\Zend\I18n\ConfigProvider::class,

@@ -1,12 +1,7 @@
 <?php
 
 use Gems\Rest\Legacy\LegacyFactory;
-
-use Gems_Project_ProjectSettings as ProjectSettings;
-use Gems_Util as Util;
-use Gems_Util_BasePath as Util_BasePath;
-use Zend_Cache as Cache;
-use Zend_Translate as Translate;
+use Gems\Rest\Factory\ReflectionFactory;
 
 define('GEMS_ROOT_DIR', dirname(__DIR__));
 defined('VENDOR_DIR') || define('VENDOR_DIR', GEMS_ROOT_DIR . '/vendor/');
@@ -36,6 +31,7 @@ return [
             Zend_Log::class => LegacyFactory::class,
             Zend_Cache::class => LegacyFactory::class,
             Zend_View::class => LegacyFactory::class,
+            Gems\Legacy\LegacyControllerMiddleware::class => ReflectionFactory::class,
         ],
         'aliases' => [
             'LegacyLoader' => Gems_Loader::class,
@@ -53,5 +49,22 @@ return [
             'LegacyCache' => Zend_Cache::class,
             'LegacyView' => Zend_View::class,
         ],
+    ],
+    'routes' => [
+        [
+            'name' => 'contact',
+            'path' => '/contact',
+            'middleware' => [
+                Gems\Legacy\LegacyControllerMiddleware::class
+            ],
+            'options' => [
+                'controller' => 'contact',
+                'action' => 'index',
+                'permission' => 'pr.all',
+            ],
+        ]
+    ],
+    'controllerDirs' => [
+        'gems' => GEMS_LIBRARY_DIR . '/controllers',
     ],
 ];

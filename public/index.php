@@ -5,6 +5,10 @@ if (PHP_SAPI === 'cli-server' && $_SERVER['SCRIPT_FILENAME'] !== __FILE__) {
     return false;
 }
 
+error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+define('GEMS_WEB_DIR', __DIR__);
+
 chdir(dirname(__DIR__));
 require 'vendor/autoload.php';
 
