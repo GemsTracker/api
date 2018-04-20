@@ -8,6 +8,15 @@ use Gems_Util_BasePath as Util_BasePath;
 use Zend_Cache as Cache;
 use Zend_Translate as Translate;
 
+define('GEMS_ROOT_DIR', dirname(__DIR__));
+defined('VENDOR_DIR') || define('VENDOR_DIR', GEMS_ROOT_DIR . '/vendor/');
+defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
+defined('MUTIL_LIBRARY_DIR') || define('MUTIL_LIBRARY_DIR', realpath(VENDOR_DIR . '/magnafacta/mutil/src'));
+defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR . '/src/App');
+
+define('GEMS_PROJECT_NAME', 'newProject');
+defined('GEMS_PROJECT_NAME_UC') || define('GEMS_PROJECT_NAME_UC', ucfirst(GEMS_PROJECT_NAME));
+
 return [
     'dependencies' => [
         'factories' => [

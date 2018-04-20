@@ -33,7 +33,11 @@ $loader = new ProjectOverloader([
     'Gems',
     'MUtil',
 ]);
+
+
+
 $loader->legacyClasses = true;
+$loader->legacyPrefix = 'Legacy';
 
 $container = $loader->createServiceManager();
 (new Config($config['dependencies']))->configureServiceManager($container);
