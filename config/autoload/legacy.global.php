@@ -27,7 +27,7 @@ return [
             Zend_Session_Namespace::class => LegacyFactory::class,
             'LegacyStaticSession' => LegacyFactory::class,
             Zend_Translate_Adapter::class => LegacyFactory::class,
-            Translate::class => LegacyFactory::class,
+            Zend_Translate::class => LegacyFactory::class,
             Zend_Log::class => LegacyFactory::class,
             Zend_Cache::class => LegacyFactory::class,
             Zend_View::class => LegacyFactory::class,
