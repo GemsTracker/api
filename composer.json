@@ -25,10 +25,11 @@
         "zendframework/zend-i18n": "^2.7",
         "zendframework/zend-stdlib": "^3.1",
         "zendframework/zend-servicemanager": "^3.3",
-        "gemstracker/gemstracker": "dev-master",
+        "mddejong/pulse": "dev-api-changes",
+        "gemstracker/gemstracker": "dev-api-changes",
         "guzzlehttp/guzzle": "^6.3",
         "league/oauth2-server": "^6.0",
-        "magnafacta/zalt-loader": "dev-master",
+        "magnafacta/zalt-loader": "dev-feat/legacy-classes",
         "mtymek/blast-base-url": "^0.2.0"
     },
     "require-dev": {
@@ -45,7 +46,8 @@
             "App\\": "src/App/src/",
             "Gems\\Rest\\": "src/Rest/",
             "Gems\\Legacy\\": "src/Gems/Legacy/",
-            "Gems\\Prediction\\": "src/Gems/Prediction/"
+            "Gems\\Prediction\\": "src/Gems/Prediction/",
+            "Pulse\\Api\\": "src/Pulse/Api/"
         }
     },
     "autoload-dev": {
@@ -76,6 +78,18 @@
         {
             "type": "git",
             "url": "https://github.com/MagnaFacta/zalt-loader.git"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/mddejong/Pulse.git"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/GemsTracker/gemstracker-template.git"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/GemsTracker/gemstracker-responsive-template.git"
         }
     ]
 }
