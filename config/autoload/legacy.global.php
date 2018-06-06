@@ -44,7 +44,7 @@ return [
             'LegacyLogger' => Zend_Log::class,
             'LegacySession' => Zend_Session_Namespace::class,
             'LegacyTracker' => Gems_Tracker::class,
-            'LegacyTranslate' => Translate::class,
+            'LegacyTranslate' => Zend_Translate::class,
             'LegacyTranslateAdapter' => Zend_Translate_Adapter::class,
             'LegacyCache' => Zend_Cache::class,
             'LegacyView' => Zend_View::class,

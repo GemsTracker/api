@@ -49,6 +49,18 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Tracker_Model_StandardTokenModel',
                 'methods' => ['GET'],
             ],
+            'respondent-tracks' => [
+                'model' => 'Tracker_Model_RespondentTrackModel',
+                'methods' => ['GET'],
+            ],
+            'extreme-values' => [
+                'model' => 'Model\\EvdModel',
+                'methods' => ['GET'],
+            ],
+            'outcome-variables' => [
+                'model' => 'Model\\OutcomeVariableModel',
+                'methods' => ['GET'],
+            ],
         ];
     }
 }
