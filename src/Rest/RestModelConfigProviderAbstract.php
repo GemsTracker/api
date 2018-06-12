@@ -26,6 +26,11 @@ abstract class RestModelConfigProviderAbstract
         foreach($restModels as $endpoint=>$settings) {
 
             $methods = array_flip($settings['methods']);
+            $idRegex = '\d+';
+            if (isset($settings['idFieldRegex'])) {
+                $idRegex = $settings['idFieldRegex'];
+            }
+
             if (!empty($methods)) {
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.structure',
@@ -39,11 +44,9 @@ abstract class RestModelConfigProviderAbstract
             if (isset($methods['GET'])) {
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.get',
-                    'path' => '/' . $endpoint . '[/{id:\d+}]',
+                    'path' => '/' . $endpoint . '[/{id:' . $idRegex . '}]',
                     'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
+                    'options' => $settings,
                     'allowed_methods' => ['GET']
                 ];
             }
@@ -53,9 +56,7 @@ abstract class RestModelConfigProviderAbstract
                     'name' => 'api.' . $endpoint . '.post',
                     'path' => '/' . $endpoint,
                     'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
+                    'options' => $settings,
                     'allowed_methods' => ['POST']
                 ];
             }
@@ -63,11 +64,9 @@ abstract class RestModelConfigProviderAbstract
             if (isset($methods['PATCH'])) {
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.patch',
-                    'path' => '/' . $endpoint . '/[{id:\d+}]',
+                    'path' => '/' . $endpoint . '/[{id:' . $idRegex . '}]',
                     'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
+                    'options' => $settings,
                     'allowed_methods' => ['PATCH']
                 ];
             }
@@ -75,11 +74,9 @@ abstract class RestModelConfigProviderAbstract
             if (isset($methods['DELETE'])) {
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.delete',
-                    'path' => '/' . $endpoint . '/[{id:\d+}]',
+                    'path' => '/' . $endpoint . '/[{id:' . $idRegex . '}]',
                     'middleware' => $this->getMiddleware(),
-                    'options' => [
-                        'model' => $settings['model']
-                    ],
+                    'options' => $settings,
                     'allowed_methods' => ['DELETE']
                 ];
             }
