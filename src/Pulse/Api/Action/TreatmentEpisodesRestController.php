@@ -29,7 +29,9 @@ class TreatmentEpisodesRestController extends RestControllerAbstract
             throw new RestException('Treatment episode needs an ID in the id parameter', 1, 'treatment_episode_id_missing', 400);
         }
 
-        $treatmentEpisode = $this->treatmentEpisodesRepository->getTreatmentEpisode($id);
+        $filters = $request->getQueryParams();
+
+        $treatmentEpisode = $this->treatmentEpisodesRepository->getTreatmentEpisode($id, $filters);
 
         return new JsonResponse($treatmentEpisode);
     }

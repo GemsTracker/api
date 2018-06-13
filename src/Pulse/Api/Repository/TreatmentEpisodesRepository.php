@@ -38,7 +38,7 @@ class TreatmentEpisodesRepository
         return $this->loader->create('Agenda_Appointment', $appointmentData);
     }
 
-    public function getTreatmentEpisode($id)
+    public function getTreatmentEpisode($id, $filters=[])
     {
         $includeColumns = [
             "gtr_id_track",
@@ -52,7 +52,23 @@ class TreatmentEpisodesRepository
         ];
 
         $respondentTrackModel = $this->tracker->getRespondentTrackModel();
-        $respondentTrackData = $respondentTrackModel->loadFirst(['gr2t_id_respondent_track' => $id]);
+
+        $itemNames = array_flip($respondentTrackModel->getItemNames());
+        foreach($filters as $filterField=>$filterValue) {
+            if (!isset($itemNames[$filterField])) {
+                unset($filters[$filterField]);
+            }
+        }
+
+        if ($id != 0) {
+            $filters['gr2t_id_respondent_track'] = $id;
+        }
+
+        $sort = [
+            'gr2t_created DESC'
+        ];
+
+        $respondentTrackData = $respondentTrackModel->loadFirst($filters, $sort);
 
 
         /*$track = [
@@ -99,7 +115,7 @@ class TreatmentEpisodesRepository
 
 
         $treatmentEpisode = [
-            'gte_id_episode' => $id,
+            'gte_id_episode' => $respondentTrackData['gr2t_id_respondent_track'],
             'tracks' => [
                 $track,
             ]
