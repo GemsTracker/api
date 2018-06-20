@@ -16,6 +16,11 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 {
     protected $apiNames;
 
+    /**
+     * @var db1 \Zend_Db_Adapter
+     */
+    protected $db1;
+
     protected $errors;
 
     /**
@@ -53,6 +58,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         //$this->loader->legacyClasses = true;
 
         $this->helper = $urlHelper;
+        $this->db1 = $LegacyDb;
     }
 
     public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
@@ -137,7 +143,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $paginatedFilters = $this->getListPagination($request, $filters);
         $headers = $this->getPaginationHeaders($request, $filters);
         if ($headers === false) {
-            return new EmptyResponse(204);
+            //return new EmptyResponse(204);
         }
 
         $rows = $this->model->load($paginatedFilters, $order);
@@ -162,6 +168,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $keywords = array_flip($keywords);
 
+        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $route = $routeResult->getMatchedRoute();
+        $routeOptions = $route->getOptions();
+
         $itemNames = array_flip($this->model->getItemNames());
         $translations = $this->getApiNames(true);
 
@@ -169,6 +179,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         foreach($params as $key=>$value) {
             if (isset($keywords[$key])) {
+                continue;
+            }
+
+            if (isset($routeOptions['multiOranizationField'], $routeOptions['multiOranizationField']['field']) && $key == $routeOptions['multiOranizationField']['field']) {
+                $field = $routeOptions['multiOranizationField']['field'];
+                $separator = $routeOptions['multiOranizationField']['separator'];
+                $filters[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $value . $separator . '%');
                 continue;
             }
 

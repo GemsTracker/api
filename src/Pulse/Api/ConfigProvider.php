@@ -74,6 +74,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Tracker_Model_TrackModel',
                 'methods' => ['GET'],
                 'hasMany' => ['rounds' => 'rounds'],
+                'multiOranizationField' => [
+                    'field' => 'gtr_organizations',
+                    'separator' => '|',
+                ],
             ],
             'rounds' => [
                 'model' => 'Tracker\\Model\\RoundModel',
@@ -82,6 +86,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'surveys' => [
                 'model' => 'Model\\SimpleSurveyModel',
                 'methods' => ['GET'],
+                'multiOranizationField' => [
+                    'field' => 'gsu_insert_organizations',
+                    'separator' => '|',
+                ],
             ],
             'tokens' => [
                 'model' => 'Tracker_Model_StandardTokenModel',
