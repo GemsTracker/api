@@ -49,6 +49,7 @@ class TreatmentEpisodesRepository
             "gtr_code",
             "gtr_survey_rounds",
             "gr2t_mailable",
+            "gr2t_id_respondent_track",
         ];
 
         $respondentTrackModel = $this->tracker->getRespondentTrackModel();
