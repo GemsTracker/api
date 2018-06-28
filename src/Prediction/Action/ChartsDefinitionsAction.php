@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Dev\Action;
+namespace Prediction\Action;
 
 
-use Gems\Prediction\Model\DataCollectionRepository;
+use Prediction\Model\DataCollectionRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;

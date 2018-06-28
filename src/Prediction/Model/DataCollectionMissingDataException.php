@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Gems\Prediction\Model;
+namespace Prediction\Model;
 
 
 use Gems\Rest\Exception\RestException;

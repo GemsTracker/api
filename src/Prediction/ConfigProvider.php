@@ -1,15 +1,16 @@
 <?php
 
 
-namespace Gems\Prediction;
+namespace Prediction;
 
 
+use Dev\Action\ChartDataAction;
 use Dev\Action\ChartsDefinitionsAction;
-use Gems\Prediction\Action\InputMapping\SurveyQuestions;
-use Gems\Prediction\Action\InputMapping\RespondentAction;
-use Gems\Prediction\Action\InputMapping\TrackFieldAction;
-use Gems\Prediction\Communication\R\PlumberClient;
-use Gems\Prediction\Model\DataCollectionRepository;
+use Prediction\Action\InputMapping\RespondentAction;
+use Prediction\Action\InputMapping\SurveyQuestions;
+use Prediction\Action\InputMapping\TrackFieldAction;
+use Prediction\Communication\R\PlumberClient;
+use Prediction\Model\DataCollectionRepository;
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Gems\Rest\Factory\ReflectionFactory;
@@ -40,6 +41,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 DataCollectionRepository::class => ReflectionFactory::class,
                 PlumberClient::class => ReflectionFactory::class,
                 ChartsDefinitionsAction::class => ReflectionFactory::class,
+                ChartDataAction::class => ReflectionFactory::class,
                 RespondentAction::class => ReflectionFactory::class,
                 TrackFieldAction::class => ReflectionFactory::class,
                 SurveyQuestions::class => ReflectionFactory::class,
@@ -78,6 +80,15 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     ChartsDefinitionsAction::class,
+                ],
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'api.charts',
+                'path' => '/charts/{modelId:\d+}',
+                'middleware' => [
+                    AuthorizeGemsAndOauthMiddleware::class,
+                    ChartDataAction::class,
                 ],
                 'allowed_methods' => ['GET'],
             ],

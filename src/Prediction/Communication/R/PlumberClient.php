@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Gems\Prediction\Communication\R;
+namespace Prediction\Communication\R;
 
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7;

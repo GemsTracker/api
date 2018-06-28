@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Dev\Action;
+namespace Prediction\Action;
 
-use Gems\Prediction\Communication\R\PlumberClient;
-use Gems\Prediction\Model\DataCollectionRepository;
+use Prediction\Communication\R\PlumberClient;
+use Prediction\Model\DataCollectionRepository;
 use Gems\Rest\Exception\RestException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
@@ -12,7 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
-class DevAction implements MiddlewareInterface
+class ChartDataAction implements MiddlewareInterface
 {
     /**
      * @var PlumberClient
@@ -33,10 +33,11 @@ class DevAction implements MiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $params = $request->getQueryParams();
+        $modelId = (int)$params['modelId'];
 
         try {
             $data = $this->dataCollectionRepository->getPredicationDataInputModel(
-                $params['modelId'],
+                $modelId,
                 $params['patientNr'],
                 (int)$params['organizationId'],
                 (int)$params['respondentTrack']
@@ -47,7 +48,7 @@ class DevAction implements MiddlewareInterface
         }
         //var_dump($data);
 
-        $response = $this->client->request('/prediction1/cmc1', 'POST', $data);
+        $response = $this->client->request('/chart/' . $modelId, 'POST', $data);
 
         $body = $response->getBody()->getContents();
         $plotlyData = json_decode($body, true);

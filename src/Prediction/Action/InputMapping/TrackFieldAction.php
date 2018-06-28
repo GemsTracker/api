@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Gems\Prediction\Action\InputMapping;
+namespace Prediction\Action\InputMapping;
 
 
 use Gems\Tracker\Field\FieldAbstract;
