@@ -476,6 +476,7 @@ class ModelRestControllerTest extends ZendDbTestCase
             'created' => [
                 'required' => true,
                 'type' => 'string',
+                'default' => 'current_timestamp',
                 'name' => 'created',
             ],
             'created_by' => [
@@ -755,16 +756,14 @@ class ModelRestControllerTest extends ZendDbTestCase
 
     private function getArrayModelRestController()
     {
-        $container = $this->prophesize(ContainerInterface::class)->reveal();
         $loader    = $this->prophesize(ProjectOverloader::class)->reveal();
         $urlHelper = $this->prophesize(UrlHelper::class)->reveal();
 
-        return new ArrayModelRestController($container, $loader, $urlHelper);
+        return new ArrayModelRestController($loader, $urlHelper, $this->db1);
     }
 
     private function getTestMessageModelRestController($realLoader=false, $urlHelperRoutes=[])
     {
-        $container = $this->prophesize(ContainerInterface::class)->reveal();
         if ($realLoader) {
             $loader = new ProjectOverloader([
                 'Gems',
@@ -783,7 +782,7 @@ class ModelRestControllerTest extends ZendDbTestCase
 
         $urlHelper = $urlHelperProphecy->reveal();
 
-        return new TestMessageModelRestController($container, $loader, $urlHelper);
+        return new TestMessageModelRestController($loader, $urlHelper, $this->db1);
     }
 
     private function getRequest($method='GET',$attributes=[], $queryParams=[],$postData=[], $uri='/')
