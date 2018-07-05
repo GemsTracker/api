@@ -136,7 +136,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function getRestModels()
     {
         return [
-            'organizations' => [
+            /*'organizations' => [
                 'model' => 'Model_OrganizationModel',
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
             ],
@@ -148,7 +148,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'logs' => [
                 'model' => 'Model\\LogModel',
                 'methods' => ['GET'],
-            ],
+            ],*/
         ];
     }
 

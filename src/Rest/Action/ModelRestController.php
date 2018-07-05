@@ -52,6 +52,9 @@ class ModelRestController extends ModelRestControllerAbstract
             if (isset($options['itemsPerPage'])) {
                 $this->setItemsPerPage($options['itemsPerPage']);
             }
+            if (isset($options['idField'])) {
+                $this->idField = $options['idField'];
+            }
         }
 
         return parent::process($request, $delegate);
