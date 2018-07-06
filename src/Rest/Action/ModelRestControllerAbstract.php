@@ -89,13 +89,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $id = $request->getAttribute('id');
+        $id = $this->getId($request);
+
         if ($id !== null) {
             $idField = $this->getIdField();
             if ($idField) {
-                $filter = [
-                    $idField => $id,
-                ];
+                $filter = $this->getIdFilter($id, $idField);
+
                 $row = $this->model->loadFirst($filter);
                 if (is_array($row)) {
                     $row = $this->translateRow($row);
@@ -124,6 +124,25 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $this->apiNames;
     }
 
+    protected function getId(ServerRequestInterface $request)
+    {
+        if (isset($this->routeOptions['idField'])) {
+            if (is_array($this->routeOptions['idField'])) {
+                $id = [];
+                foreach($this->routeOptions['idField'] as $idField) {
+                    $id[] = $request->getAttribute($idField);
+                }
+            } else {
+                $id = $request->getAttribute($this->routeOptions['idField']);
+            }
+
+        } else {
+            $id = $request->getAttribute('id');
+        }
+
+        return $id;
+    }
+
     protected function getIdField()
     {
         if (!$this->idField) {
@@ -136,6 +155,22 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $this->idField;
     }
 
+    protected function getIdFilter($id, $idField)
+    {
+        if (is_array($id) && is_array($idField)) {
+            $filter = [];
+            foreach($idField as $key=>$singleField) {
+                $filter[$singleField] = $id[$key];
+            }
+        } else {
+            $filter = [
+                $idField => $id,
+            ];
+        }
+
+        return $filter;
+    }
+
     public function getList(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $filters = $this->getListFilter($request);
@@ -143,7 +178,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $paginatedFilters = $this->getListPagination($request, $filters);
         $headers = $this->getPaginationHeaders($request, $filters);
         if ($headers === false) {
-            //return new EmptyResponse(204);
+            return new EmptyResponse(204);
         }
 
         $rows = $this->model->load($paginatedFilters, $order);
@@ -168,10 +203,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $keywords = array_flip($keywords);
 
-        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
-        $route = $routeResult->getMatchedRoute();
-        $routeOptions = $route->getOptions();
-
         $itemNames = array_flip($this->model->getItemNames());
         $translations = $this->getApiNames(true);
 
@@ -182,9 +213,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 continue;
             }
 
-            if (isset($routeOptions['multiOranizationField'], $routeOptions['multiOranizationField']['field']) && $key == $routeOptions['multiOranizationField']['field']) {
-                $field = $routeOptions['multiOranizationField']['field'];
-                $separator = $routeOptions['multiOranizationField']['separator'];
+            if (isset($this->routeOptions['multiOranizationField'], $this->routeOptions['multiOranizationField']['field'])
+                && $key == $this->routeOptions['multiOranizationField']['field']) {
+                $field = $this->routeOptions['multiOranizationField']['field'];
+                $separator = $this->routeOptions['multiOranizationField']['separator'];
                 $filters[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $value . $separator . '%');
                 continue;
             }
@@ -337,19 +369,20 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
     public function patch(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        //$parsedBody = json_decode($request->getBody()->getContents(), true);
-        $parsedBody = $request->getParsedBody();
-        $newRowData = $this->translateRow($parsedBody, true);
 
-        $id = $request->getAttribute('id');
+
+        $id = $this->getId($request);
+
         $idField = $this->getIdField();
         if ($id === null || !$idField) {
             return new EmptyResponse(404);
         }
 
-        $filter = [
-            $idField => $id,
-        ];
+        $parsedBody = json_decode($request->getBody()->getContents(), true);
+        $newRowData = $this->translateRow($parsedBody, true);
+
+        $filter = $this->getIdFilter($id, $idField);
+
         $row = $this->model->loadFirst($filter);
 
         $row = $newRowData + $row;
@@ -389,18 +422,32 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         }
 
         $idField = $this->getIdField();
-        if (isset($newRow[$idField])) {
+
+        $routeParams = [];
+        if (is_array($idField)) {
+
+
+            foreach($idField as $key=>$singleField) {
+                if (isset($newRow[$singleField])) {
+                    $routeParams[$singleField] =     $newRow[$singleField];
+                } else {
+                    return new EmptyResponse(201);
+                }
+            }
+        } elseif (isset($newRow[$idField])) {
+            $routeParams[$idField] = $newRow[$idField];
+        }
+
+        if (!empty($routeParams)) {
 
             $result = $request->getAttribute(RouteResult::class);
             $routeName = $result->getMatchedRouteName();
-
 
             $routeParts = explode('.', $routeName);
             array_pop($routeParts);
             $getRouteName = join('.', $routeParts) . '.get';
 
-            $id = $newRow[$idField];
-            $location = $this->helper->generate($getRouteName, ['id' => $id]);
+            $location = $this->helper->generate($getRouteName, $routeParams);
             if ($location !== null) {
                 return new EmptyResponse(
                     201,
@@ -561,7 +608,15 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         if (!$this->validators) {
             $multiValidators = $this->model->getCol('validators');
             $singleValidators = $this->model->getCol('validator');
-            $requiredFields = $this->model->getCol('required');
+            $allRequiredFields = $this->model->getCol('required');
+            $labeledFields = $this->model->getColNames('label');
+
+            $requiredFields = [];
+            foreach($labeledFields  as $labeledField) {
+                if (isset($allRequiredFields[$labeledField])) {
+                    $requiredFields[$labeledField] = $allRequiredFields[$labeledField];
+                }
+            }
 
             $this->requiredFields = $requiredFields;
 
@@ -580,6 +635,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
                 if ($required && $this->model->get($columnName, 'autoInsertNotEmptyValidator') !== false) {
                     $multiValidators[$columnName][] = $this->getValidator('NotEmpty');
+                } else {
+                    $this->requiredFields[$columnName] = false;
                 }
             }
 

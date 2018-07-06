@@ -26,9 +26,24 @@ abstract class RestModelConfigProviderAbstract
         foreach($restModels as $endpoint=>$settings) {
 
             $methods = array_flip($settings['methods']);
+            $idField = 'id';
             $idRegex = '\d+';
+
             if (isset($settings['idFieldRegex'])) {
                 $idRegex = $settings['idFieldRegex'];
+            }
+
+            if (isset($settings['idField'])) {
+                $idField = $settings['idField'];
+            }
+            
+            if (is_array($idField) && count($idField) > 1) {
+                $routeParameters = '';
+                foreach($idField as $key=>$field) {
+                    $routeParameters .= '/{'.$field.':'.$idRegex[$key].'}';
+                }
+            } else {
+                $routeParameters = '/[{' . $idField . ':' . $idRegex . '}]';
             }
 
             if (!empty($methods)) {
@@ -44,7 +59,7 @@ abstract class RestModelConfigProviderAbstract
             if (isset($methods['GET'])) {
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.get',
-                    'path' => '/' . $endpoint . '[/{id:' . $idRegex . '}]',
+                    'path' => '/' . $endpoint . '['.$routeParameters.']',
                     'middleware' => $this->getMiddleware(),
                     'options' => $settings,
                     'allowed_methods' => ['GET']
@@ -64,7 +79,7 @@ abstract class RestModelConfigProviderAbstract
             if (isset($methods['PATCH'])) {
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.patch',
-                    'path' => '/' . $endpoint . '/[{id:' . $idRegex . '}]',
+                    'path' => '/' . $endpoint . $routeParameters,
                     'middleware' => $this->getMiddleware(),
                     'options' => $settings,
                     'allowed_methods' => ['PATCH']
@@ -74,7 +89,7 @@ abstract class RestModelConfigProviderAbstract
             if (isset($methods['DELETE'])) {
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.delete',
-                    'path' => '/' . $endpoint . '/[{id:' . $idRegex . '}]',
+                    'path' => '/' . $endpoint . $routeParameters,
                     'middleware' => $this->getMiddleware(),
                     'options' => $settings,
                     'allowed_methods' => ['DELETE']

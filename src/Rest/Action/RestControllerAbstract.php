@@ -23,10 +23,19 @@ abstract class RestControllerAbstract implements MiddlewareInterface
      */
     protected $method;
 
+    /**
+     * @var array Current route options
+     */
+    protected $routeOptions;
+
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $method = strtolower($request->getMethod());
         $path = $request->getUri()->getPath();
+
+        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $route = $routeResult->getMatchedRoute();
+        $this->routeOptions = $route->getOptions();
 
         if (($method == 'get') && (substr($path, -10) === '/structure')) {
             if (method_exists($this, 'structure')) {
