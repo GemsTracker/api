@@ -64,11 +64,16 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'respondents' => [
                 'model' => 'Model_RespondentModel',
-                'methods' => ['GET'],
+                'methods' => ['GET', 'PATCH'],
                 'applySettings' => 'applyEditSettings',
-                'idField' => 'gr2o_patient_nr',
-                'idFieldRegex' => '[0-9]{6}-A[0-9]{3}',
-                //'idFieldRegex' => '\d+',
+                'idField' => [
+                    'gr2o_patient_nr',
+                    'gr2o_id_organization',
+                ],
+                'idFieldRegex' => [
+                    '[0-9]{6}-A[0-9]{3}',
+                    '\d+',
+                ],
             ],
             'tracks' => [
                 'model' => 'Tracker_Model_TrackModel',
