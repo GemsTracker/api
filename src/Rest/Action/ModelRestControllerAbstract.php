@@ -14,6 +14,8 @@ use Zend\Expressive\Router\RouteResult;
 
 abstract class ModelRestControllerAbstract extends RestControllerAbstract
 {
+    protected $allowedContentTypes = ['application/json'];
+
     protected $apiNames;
 
     /**
@@ -59,6 +61,24 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $this->helper = $urlHelper;
         $this->db1 = $LegacyDb;
+    }
+
+    /**
+     * Check if current content type is allowed for the current method
+     *
+     * @param ServerRequestInterface $request
+     * @return bool
+     */
+    protected function checkContentType(ServerRequestInterface $request)
+    {
+        $contentTypeHeader = $request->getHeaderLine('content-type');
+        foreach ($this->allowedContentTypes as $contentType) {
+            if (strpos($contentTypeHeader, $contentType) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
@@ -363,19 +383,25 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
     public function post(ServerRequestInterface $request, DelegateInterface $delegate)
     {
+        if ($this->checkContentType($request) === false) {
+            return new EmptyResponse(415);
+        }
+
         $row = $this->translateRow($request->getParsedBody(), true);
         return $this->saveRow($request, $row);
     }
 
     public function patch(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-
-
         $id = $this->getId($request);
 
         $idField = $this->getIdField();
         if ($id === null || !$idField) {
             return new EmptyResponse(404);
+        }
+
+        if ($this->checkContentType($request) === false) {
+            return new EmptyResponse(415);
         }
 
         $parsedBody = json_decode($request->getBody()->getContents(), true);
@@ -581,13 +607,18 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $translatedRow;
     }
 
-    public function getValidator($validator)
+    public function getValidator($validator, $options=null)
     {
         if ($validator instanceof \Zend_Validate_Interface) {
             return $validator;
         } elseif (is_string($validator)) {
             $validatorName = $validator;
-            $validator = $this->loader->create('Validate_'.$validator);
+            if ($options !== null) {
+                $validator = $this->loader->create('Validate_' . $validator, $options);
+            } else {
+                $validator = $this->loader->create('Validate_'.$validator);
+            }
+
             if ($validator) {
                 return $validator;
             } else {
@@ -610,6 +641,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $singleValidators = $this->model->getCol('validator');
             $allRequiredFields = $this->model->getCol('required');
             $labeledFields = $this->model->getColNames('label');
+            $types = $this->model->getCol('type');
 
             $requiredFields = [];
             foreach($labeledFields  as $labeledField) {
@@ -635,8 +667,29 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
                 if ($required && $this->model->get($columnName, 'autoInsertNotEmptyValidator') !== false) {
                     $multiValidators[$columnName][] = $this->getValidator('NotEmpty');
+
                 } else {
                     $this->requiredFields[$columnName] = false;
+                }
+
+                if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1) {
+                    switch ($types[$columnName]) {
+                        case \MUtil_Model::TYPE_STRING:
+                            $multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
+                            break;
+
+                        case \MUtil_Model::TYPE_NUMERIC:
+                            $multiValidators[$columnName][] = $this->getValidator('Float');
+                            break;
+
+                        case \MUtil_Model::TYPE_DATE:
+                            $multiValidators[$columnName][] = $this->getValidator('Date');
+                            break;
+
+                        case \MUtil_Model::TYPE_DATETIME:
+                            $multiValidators[$columnName][] = $this->getValidator('Date', ['format' => \Zend_Date::ISO_8601]);
+                            break;
+                    }
                 }
             }
 
