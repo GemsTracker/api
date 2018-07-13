@@ -255,12 +255,14 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                         case '>':
                         case '<=':
                         case '>=':
+                        case '!=':
                         case 'LIKE':
+                        case 'NOT LIKE':
                             $secondValue = end($values);
                             if (is_numeric($secondValue)) {
                                 $secondValue = ($secondValue == (int) $secondValue) ? (int) $secondValue : (float) $secondValue;
                             }
-                            if ($firstValue == 'LIKE') {
+                            if ($firstValue == 'LIKE' || $firstValue == 'NOT LIKE') {
                                 $secondValue = $this->db1->quote($secondValue);
                             }
                             $filters[] = $colName . ' ' . $firstValue . ' ' . $secondValue;
@@ -270,7 +272,14 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                             break;
                     }
                 } else {
-                    $filters[$colName] = $value;
+                    switch (strtoupper($value)) {
+                        case 'IS NULL':
+                        case 'IS NOT NULL':
+                            $filters[] = $colName . ' ' . $value;
+                            break;
+                        default:
+                            $filters[$colName] = $value;
+                    }
                 }
             }
         }
