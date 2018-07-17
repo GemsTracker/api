@@ -7,10 +7,12 @@ namespace Pulse\Api;
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
+use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
 use Pulse\Api\Action\TokenAnswersRestController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
+use Pulse\Api\Repository\RespondentTrackfieldsRepository;
 use Pulse\Api\Repository\SurveyQuestionsRepository;
 use Pulse\Api\Repository\TokenAnswerRepository;
 use Pulse\Api\Repository\TrackfieldsRepository;
@@ -39,7 +41,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     {
         return [
             'factories'  => [
-
                 SurveyQuestionsRestController::class => ReflectionFactory::class,
                 SurveyQuestionsRepository::class => ReflectionFactory::class,
 
@@ -51,6 +52,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 TrackfieldsRestController::class => ReflectionFactory::class,
                 TrackfieldsRepository::class => ReflectionFactory::class,
+
+                RespondentTrackfieldsRestController::class => ReflectionFactory::class,
+                RespondentTrackfieldsRepository::class => ReflectionFactory::class,
             ]
         ];
     }
@@ -103,7 +107,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'respondent-tracks' => [
                 'model' => 'Tracker_Model_RespondentTrackModel',
-                'methods' => ['GET'],
+                'methods' => ['GET', 'PATCH'],
+                'idField' => 'gr2t_id_respondent_track',
             ],
             'extreme-values' => [
                 'model' => 'Model\\EvdModel',
@@ -156,6 +161,15 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     TrackfieldsRestController::class
                 ],
                 'allowed_methods' => ['GET'],
+            ],
+            [
+                'respondent-track-fields',
+                'path' => '/respondent-track-fields/[{id:\d+}]',
+                'middleware' => [
+                    AuthorizeGemsAndOauthMiddleware::class,
+                    RespondentTrackfieldsRestController::class
+                ],
+                'allowed_methods' => ['GET', 'PATCH'],
             ],
         ];
 
