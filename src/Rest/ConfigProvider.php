@@ -22,6 +22,7 @@ use Gems\Rest\Factory\ReflectionFactory;
 
 use Gems\Rest\Auth\AuthorizationServerFactory;
 use Gems\Rest\Auth\ResourceServerFactory;
+use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -83,8 +84,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         return [
             'invokables' => [
                 Action\PingAction::class => Action\PingAction::class,
+
             ],
             'factories'  => [
+
+                SecurityHeadersMiddleware::class => Factory\ReflectionFactory::class,
+
                 // Default test 
                 Action\HomePageAction::class => Action\HomePageFactory::class,
                 Action\TestModelAction::class => Factory\ReflectionFactory::class,

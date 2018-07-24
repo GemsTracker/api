@@ -6,6 +6,7 @@ namespace Pulse\Api;
 
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\Factory\ReflectionFactory;
+use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
@@ -129,46 +130,31 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             [
                 'name' => 'survey-questions',
                 'path' => '/survey-questions/[{id:\d+}]',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    SurveyQuestionsRestController::class
-                ],
+                'middleware' => $this->getCustomActionMiddleware(SurveyQuestionsRestController::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'name' => 'token-answers',
                 'path' => '/token-answers/[{id:[a-zA-Z0-9-_]+}]',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    TokenAnswersRestController::class
-                ],
+                'middleware' => $this->getCustomActionMiddleware(TokenAnswersRestController::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'treatment-episodes',
                 'path' => '/treatment-episodes/[{id:\d+}]',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    TreatmentEpisodesRestController::class
-                ],
+                'middleware' => $this->getCustomActionMiddleware(TreatmentEpisodesRestController::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'track-fields',
                 'path' => '/track-fields/[{id:\d+}]',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    TrackfieldsRestController::class
-                ],
+                'middleware' => $this->getCustomActionMiddleware(TrackfieldsRestController::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'respondent-track-fields',
                 'path' => '/respondent-track-fields/[{id:\d+}]',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    RespondentTrackfieldsRestController::class
-                ],
+                'middleware' => $this->getCustomActionMiddleware(RespondentTrackfieldsRestController::class),
                 'allowed_methods' => ['GET', 'PATCH'],
             ],
         ];
