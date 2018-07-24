@@ -129,7 +129,7 @@ class DataCollectionRepository
         foreach($data as $predictionChartData) {
             $renamedData = [
                 'respondentTrack' => $predictionChartData['gr2t_id_respondent_track'],
-                'modelId' => $predictionChartData['gpm_id'],
+                'modelId' => $predictionChartData['gpm_api_id'],
                 'title' => $predictionChartData['gpm_name'],
             ];
 
@@ -183,7 +183,8 @@ class DataCollectionRepository
         $sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__prediction_model_mapping')
-            ->where(['gpmm_prediction_model_id' => $predictionId]);
+            ->join('gems__prediction_models', 'gpm_id = gpmm_prediction_model_id', [])
+            ->where(['gpm_api_id' => $predictionId]);
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         $resultSet = new ResultSet();

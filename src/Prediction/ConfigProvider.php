@@ -6,6 +6,7 @@ namespace Prediction;
 
 use Dev\Action\ChartDataAction;
 use Dev\Action\ChartsDefinitionsAction;
+use Prediction\Model\PredictionModelsModel;
 use Prediction\Action\InputMapping\RespondentAction;
 use Prediction\Action\InputMapping\SurveyQuestions;
 use Prediction\Action\InputMapping\TrackFieldAction;
@@ -57,7 +58,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     protected function getRestModels()
     {
         return [
-            'tracks' => [
+            /*'tracks' => [
                 'model' => 'Tracker_Model_TrackModel',
                 'methods' => ['GET'],
                 'hasMany' => ['rounds' => 'rounds'],
@@ -65,7 +66,11 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'rounds' => [
                 'model' => 'Tracker\\Model\\RoundModel',
                 'methods' => ['GET'],
-            ]
+            ],*/
+            'prediction-models' => [
+                'model' => PredictionModelsModel::class,
+                'methods' => ['GET'],
+            ],
         ];
     }
 
@@ -85,7 +90,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             [
                 'name' => 'api.charts',
-                'path' => '/charts/{modelId:\d+}',
+                'path' => '/charts/[{modelId:[a-zA-Z0-9-_]+}]',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     ChartDataAction::class,

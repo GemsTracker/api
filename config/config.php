@@ -21,7 +21,7 @@ $aggregator = new ConfigAggregator([
 
     // Default App module config
     Gems\Rest\ConfigProvider::class,
-    //Gems\Prediction\ConfigProvider::class,
+    Prediction\ConfigProvider::class,
     Pulse\Api\ConfigProvider::class,
 
     // Load application config in a pre-defined order in such a way that local settings

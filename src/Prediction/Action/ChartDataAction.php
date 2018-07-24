@@ -48,7 +48,7 @@ class ChartDataAction implements MiddlewareInterface
         }
         //var_dump($data);
 
-        $response = $this->client->request('/chart/' . $modelId, 'POST', $data);
+        $response = $this->client->request('/prediction1/chart/' . $modelId, 'POST', $data);
 
         $body = $response->getBody()->getContents();
         $plotlyData = json_decode($body, true);
