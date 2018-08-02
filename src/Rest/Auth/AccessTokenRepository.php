@@ -13,6 +13,8 @@ use Zend\Db\Sql\Where;
 
 class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTokenRepositoryInterface
 {
+    protected $canUpdate = false;
+
     protected $entity = 'Rest\\Auth\\AccessTokenEntity';
 
     protected $table = 'gems__oauth_access_tokens';

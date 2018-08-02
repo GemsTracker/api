@@ -17,6 +17,9 @@ use Zend\Hydrator\Reflection;
 
 class EntityRepositoryAbstract
 {
+
+    protected $canUpdate;
+
     /**
      * @var Zend\Db\Adapter\Adapter;
      */
@@ -247,12 +250,14 @@ class EntityRepositoryAbstract
         }
 
         $update = false;
-        foreach($this->getTableKeys() as $key) {
-            //if (!isset($data[$key]) || (0 !== strlen($data[$key]))) {
-            if (isset($data[$key]) && (0 !== strlen($data[$key]))) {
-                $update = true;
-                if (!isset($filter[$key])) {
-                    $filter[$key] = $data[$key];
+        if ($this->canUpdate) {
+            foreach ($this->getTableKeys() as $key) {
+                //if (!isset($data[$key]) || (0 !== strlen($data[$key]))) {
+                if (isset($data[$key]) && (0 !== strlen($data[$key]))) {
+                    $update = true;
+                    if (!isset($filter[$key])) {
+                        $filter[$key] = $data[$key];
+                    }
                 }
             }
         }

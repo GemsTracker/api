@@ -11,6 +11,8 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 
 class RefreshTokenRepository extends EntityRepositoryAbstract implements RefreshTokenRepositoryInterface
 {
+    protected $canUpdate = false;
+
     protected $entity = 'Rest\\Auth\\RefreshTokenEntity';
 
     protected $table = 'gems__oauth_refresh_tokens';
@@ -56,7 +58,13 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
     {
-        $this->save($refreshTokenEntity);
+        if ($this->save($refreshTokenEntity)) {
+
+        } else {
+            throw \Exception('Refresh token not saved');
+        }
+
+
     }
 
     /**
