@@ -1,13 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Jasper
- * Date: 19/04/2018
- * Time: 15:18
- */
 
 namespace Gems\Rest\Auth;
 
+use Defuse\Crypto\Key;
 
 class KeyGenerator
 {
@@ -62,5 +57,11 @@ class KeyGenerator
         chmod($this->publicKeyLocation, $this->fileMode);
 
         return true;
+    }
+    
+    public function generateApplicationKey()
+    {
+        $key = Key::createNewRandomKey();
+        return $key->saveToAsciiSafeString();
     }
 }

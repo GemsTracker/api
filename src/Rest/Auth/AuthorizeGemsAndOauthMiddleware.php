@@ -12,6 +12,7 @@ use League\OAuth2\Server\ResourceServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
+use Zend\Diactoros\Response;
 use Zend\Diactoros\Response\JsonResponse;
 
 class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
@@ -71,11 +72,15 @@ class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
                     $request->withAttribute('user_id', $userId);
                     list($loginName, $loginOrganization) = explode('@', $userId);
                     $this->currentUserRepository->setCurrentUserCredentials($loginName, $loginOrganization);
+
+
                 }
             } catch (OAuthServerException $exception) {
+                $response = new Response();
                 return $exception->generateHttpResponse($response);
                 // @codeCoverageIgnoreStart
             } catch (\Exception $exception) {
+                $response = new Response();
                 return (new OAuthServerException($exception->getMessage(), 0, 'unknown_error', 500))
                     ->generateHttpResponse($response);
                 // @codeCoverageIgnoreEnd

@@ -121,12 +121,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ScopeRepository::class => ReflectionFactory::class,
                 UserRepository::class => ReflectionFactory::class,
 
-                AccessTokenRepositoryInterface::class => ReflectionFactory::class,
-                AuthCodeRepositoryInterface::class => ReflectionFactory::class,
-                ClientRepositoryInterface::class => ReflectionFactory::class,
-                RefreshTokenRepositoryInterface::class => ReflectionFactory::class,
-                ScopeRepositoryInterface::class => ReflectionFactory::class,
-                UserRepositoryInterface::class => ReflectionFactory::class,
+                //AccessTokenRepositoryInterface::class => ReflectionFactory::class,
+                //AuthCodeRepositoryInterface::class => ReflectionFactory::class,
+                //ClientRepositoryInterface::class => ReflectionFactory::class,
+                //RefreshTokenRepositoryInterface::class => ReflectionFactory::class,
+                //ScopeRepositoryInterface::class => ReflectionFactory::class,
+                //UserRepositoryInterface::class => ReflectionFactory::class,
 
                 // Grants
                 AuthCodeGrant::class => AuthCodeGrantFactory::class,
@@ -134,6 +134,14 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ImplicitGrant::class => ImplicitGrantFactory::class,
                 PasswordGrant::class => ReflectionFactory::class,
                 RefreshTokenGrant::class => ReflectionFactory::class,
+            ],
+            'aliases' => [
+                AccessTokenRepositoryInterface::class => AccessTokenRepository::class,
+                AuthCodeRepositoryInterface::class => AuthCodeRepository::class,
+                ClientRepositoryInterface::class => ClientRepository::class,
+                RefreshTokenRepositoryInterface::class => RefreshTokenRepository::class,
+                ScopeRepositoryInterface::class => ScopeRepository::class,
+                UserRepositoryInterface::class => UserRepository::class,
             ],
         ];
     }

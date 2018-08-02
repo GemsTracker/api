@@ -32,6 +32,10 @@ class ClientRepository extends EntityRepositoryAbstract implements ClientReposit
         ];
         $client = $this->loadFirst($filter);
 
+        if ($client === false) {
+            throw new \Exception('Client with supplied user ID and secret not found');
+        }
+
         // Check if client can use current Grant
 
         if ($mustValidateSecret) {
@@ -55,7 +59,7 @@ class ClientRepository extends EntityRepositoryAbstract implements ClientReposit
     public function checkClientSecret(ClientEntityInterface $client, $clientSecret)
     {
         if (!password_verify($clientSecret, $client->getSecret())) {
-            throw new \Exception('Supplied client secret incorrect');
+            throw new \Exception('Client with supplied user ID and secret not found');
         }
     }
 }
