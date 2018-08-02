@@ -111,6 +111,50 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return new EmptyResponse(204);
     }
 
+    /**
+     * Filter the columns of a row with routeoptions like allowed_fields, disallowed_fields and readonly_fields
+     *
+     * @param $row Row with model values
+     * @param bool $save Will the row be saved after filter (enables readonly
+     * @param bool $useKeys Use keys or values in the filter of the row
+     * @return array Filtered array
+     */
+    protected function filterColumns($row, $save=false, $useKeys=true)
+    {
+        $flag = ARRAY_FILTER_USE_KEY;
+        if ($useKeys === false) {
+            $flag = ARRAY_FILTER_USE_BOTH;
+        }
+
+        if (isset($this->routeOptions['allowed_fields'])) {
+            $allowedFields = $this->routeOptions['allowed_fields'];
+
+            $row = array_filter($row, function ($key) use ($allowedFields) {
+                return in_array($key, $allowedFields);
+            }, $flag);
+        }
+
+        if (isset($this->routeOptions['disallowed_fields'])) {
+            $disallowedFields = $this->routeOptions['disallowed_fields'];
+
+            $row = array_filter($row, function ($key) use ($disallowedFields) {
+                return !in_array($key, $disallowedFields);
+            }, $flag);
+
+        }
+
+        if ($save && isset($this->routeOptions['readonly_fields'])) {
+            $readonlyFields = $this->routeOptions['readonly_fields'];
+
+            $row = array_filter($row, function ($key) use ($readonlyFields) {
+                return !in_array($key, $readonlyFields);
+            }, $flag);
+
+        }
+
+        return $row;
+    }
+
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $id = $this->getId($request);
@@ -123,6 +167,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 $row = $this->model->loadFirst($filter);
                 if (is_array($row)) {
                     $row = $this->translateRow($row);
+                    $row = $this->filterColumns($row);
                     return new JsonResponse($row);
                 }
             }
@@ -210,6 +255,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $translatedRows = [];
         foreach($rows as $key=>$row) {
             $translatedRows[$key] = $this->translateRow($row);
+            $translatedRows[$key] = $this->filterColumns($row);
         }
 
         return new JsonResponse($translatedRows, 200, $headers);
@@ -490,6 +536,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             return new EmptyResponse(400);
         }
 
+        $row = $this->filterColumns($row, true);
+
         try {
             $this->validateRow($row);
         } catch (Exception $e) {
@@ -561,6 +609,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             ];
 
             $structure = [];
+
+            $columns = $this->filterColumns($columns, false, false);
+
             foreach ($columns as $columnName) {
 
                 $columnLabel = $columnName;

@@ -143,8 +143,12 @@ abstract class RestModelConfigProviderAbstract
      *  idFieldRegex: (string|array) If the ID is not a number the default regex ('\d+') can be changed here.
      *      if multiple id values exist, and one has another regex, supply both regexes in the same order as the idFields
      *  multiOranizationField: (array) If the current model uses one column to store multiple organizations, it can be added here.
-     *      supply the field key with the columnname, and the separator key with which separator char has been sued
+     *      supply the field key with the columnname, and the separator key with which separator char has been sewed together
      *
+     *  Field filters: Keep in mind validation on save will occur after the filter.
+     *  allow_fields: (array) List of fields that are allowed to be requested and saved
+     *  disallow_fields: (array) List of fields that are not allowed to be requested and saved
+     *  readonly_fields: (array) List of fields that are allowed to be requested, but not allowed to be saved
      *
      * @return array
      */
