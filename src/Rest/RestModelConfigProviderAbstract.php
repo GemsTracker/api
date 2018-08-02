@@ -93,33 +93,35 @@ abstract class RestModelConfigProviderAbstract
                 ];
             }
 
+            $defaultPathMethods = ['OPTIONS'];
             if (isset($methods['POST'])) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.post',
-                    'path' => '/' . $endpoint,
-                    'middleware' => $this->getMiddleware(),
-                    'options' => $settings,
-                    'allowed_methods' => ['POST']
-                ];
+                $defaultPathMethods[] = 'POST';
             }
+
+            $routes[] = [
+                'name' => 'api.' . $endpoint,
+                'path' => '/' . $endpoint,
+                'middleware' => $this->getMiddleware(),
+                'options' => $settings,
+                'allowed_methods' => $defaultPathMethods,
+            ];
+
+            $fixedRouteMethods = [];
 
             if (isset($methods['PATCH'])) {
-                $routes[] = [
-                    'name' => 'api.' . $endpoint . '.patch',
-                    'path' => '/' . $endpoint . $routeParameters,
-                    'middleware' => $this->getMiddleware(),
-                    'options' => $settings,
-                    'allowed_methods' => ['PATCH']
-                ];
+                $fixedRouteMethods = ['PATCH'];
+            }
+            if (isset($methods['DELETE'])) {
+                $fixedRouteMethods = ['DELETE'];
             }
 
-            if (isset($methods['DELETE'])) {
+            if (!empty($fixedRouteMethods)) {
                 $routes[] = [
-                    'name' => 'api.' . $endpoint . '.delete',
+                    'name' => 'api.' . $endpoint . '.fixed',
                     'path' => '/' . $endpoint . $routeParameters,
                     'middleware' => $this->getMiddleware(),
                     'options' => $settings,
-                    'allowed_methods' => ['DELETE']
+                    'allowed_methods' => $fixedRouteMethods,
                 ];
             }
         }

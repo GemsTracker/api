@@ -422,16 +422,16 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     {
         $response = new EmptyResponse(200);
 
+        $allow = null;
+
         if (isset($this->routeOptions['methods'])) {
             $allow = strtoupper(join(', ', $this->routeOptions['methods']));
         } else {
             $allow = strtoupper(join(', ', $this->supportedMethods));
         }
 
-        $response->withHeader('Allow', $allow);
-        $response->withHeader('Access-Control-Allow-Methods', $allow);
-
-
+        $response = $response->withHeader('Allow', $allow);
+        $response = $response->withHeader('Access-Control-Allow-Methods', $allow);
 
         return $response;
     }
