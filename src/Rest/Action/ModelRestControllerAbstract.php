@@ -35,6 +35,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      */
     protected $itemsPerPage = 25;
 
+    protected $supportedMethods = [
+        'delete', 'get', 'options', 'patch', 'post', 'structure',
+    ];
+
     /**
      * @var \MUtil_Model_ModelAbstract Gemstracker Model
      */
@@ -414,6 +418,24 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $headers;
     }
 
+    public function options(ServerRequestInterface $request, DelegateInterface $delegate)
+    {
+        $response = new EmptyResponse(200);
+
+        if (isset($this->routeOptions['methods'])) {
+            $allow = strtoupper(join(', ', $this->routeOptions['methods']));
+        } else {
+            $allow = strtoupper(join(', ', $this->supportedMethods));
+        }
+
+        $response->withHeader('Allow', $allow);
+        $response->withHeader('Access-Control-Allow-Methods', $allow);
+
+
+
+        return $response;
+    }
+
     public function post(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         if ($this->checkContentType($request) === false) {
@@ -676,12 +698,12 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $labeledFields = $this->model->getColNames('label');
             $types = $this->model->getCol('type');
 
-            $requiredFields = [];
-            foreach($labeledFields  as $labeledField) {
+            $requiredFields = $allRequiredFields;
+            /*foreach($labeledFields  as $labeledField) {
                 if (isset($allRequiredFields[$labeledField])) {
                     $requiredFields[$labeledField] = $allRequiredFields[$labeledField];
                 }
-            }
+            }*/
 
             $this->requiredFields = $requiredFields;
 
@@ -708,7 +730,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1) {
                     switch ($types[$columnName]) {
                         case \MUtil_Model::TYPE_STRING:
-                            $multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
+                            //$multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
                             break;
 
                         case \MUtil_Model::TYPE_NUMERIC:
