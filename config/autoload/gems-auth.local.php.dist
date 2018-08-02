@@ -11,6 +11,7 @@ return [
         ],
         'allow_origin_domains' => [
             'https://newproject.test',
-        ]
+        ],
+        'requested_width_check' => true,
     ],
 ];

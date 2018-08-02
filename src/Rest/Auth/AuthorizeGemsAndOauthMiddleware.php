@@ -58,6 +58,13 @@ class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
 
         if ($sessionName != null && isset($cookieParams[$sessionName]) && $currentUser = $this->currentUserRepository->getCurrentUserFromSession()) {
 
+
+            if (isset($config['gems_auth'], $config['gems_auth']['requested_width_check'])
+                && $config['gems_auth']['requested_width_check'] == true
+                && $request->getHeaderLine('X-Requested-With') != 'XMLHttpRequest') {
+                return new JsonResponse(['error' => 'no_ajax', 'message' => 'XmlHttpRequest needed'], 403);
+            }
+
             if (!$currentUser->hasPrivilege('pr.api')) {
                 return new JsonResponse(['error' => 'access_denied', 'message' => 'You do not have the correct privileges to access this.'], 401);
             } else {
