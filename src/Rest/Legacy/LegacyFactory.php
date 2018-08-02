@@ -145,7 +145,7 @@ class LegacyFactory implements FactoryInterface
             $exists = true;
         } else {
             $cacheBackend = 'File';
-            $cacheDir = GEMS_ROOT_DIR . "/var/cache/";
+            $cacheDir = GEMS_ROOT_DIR . "/data/cache/";
             $cacheBackendOptions = array('cache_dir' => $cacheDir);
             if (!file_exists($cacheDir)) {
                 if (@mkdir($cacheDir, 0777, true)) {

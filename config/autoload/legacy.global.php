@@ -3,7 +3,7 @@
 use Gems\Rest\Legacy\LegacyFactory;
 use Gems\Rest\Factory\ReflectionFactory;
 
-define('GEMS_ROOT_DIR', dirname(__DIR__));
+define('GEMS_ROOT_DIR', dirname(dirname(__DIR__)));
 defined('VENDOR_DIR') || define('VENDOR_DIR', GEMS_ROOT_DIR . '/vendor/');
 defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
 defined('MUTIL_LIBRARY_DIR') || define('MUTIL_LIBRARY_DIR', realpath(VENDOR_DIR . '/magnafacta/mutil/src'));
