@@ -6,6 +6,8 @@ namespace Gems\Rest;
 
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
+use Gems\Rest\Middleware\ApiGateMiddleware;
+use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 
 abstract class RestModelConfigProviderAbstract
@@ -34,6 +36,8 @@ abstract class RestModelConfigProviderAbstract
     {
         return [
             AuthorizeGemsAndOauthMiddleware::class,
+            ApiGateMiddleware::class,
+            ApiOrganizationGateMiddleware::class,
             SecurityHeadersMiddleware::class,
             ModelRestController::class,
         ];
