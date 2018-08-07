@@ -66,6 +66,17 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'organizations2' => [
                 'model' => 'Model\\OrganizationModel',
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
+                'allowed_fields' => [
+                    'gor_id_organization',
+                    'gor_user_class',
+                ],
+                'disallowed_fields' => [
+                    'gor_user_class'
+                ],
+                'readonly_fields' => [
+                    'gor_name',
+                ],
+                'organizationId' => 'gor_id_organization',
             ],
             'respondents' => [
                 'model' => 'Model_RespondentModel',
@@ -140,19 +151,19 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
-                'treatment-episodes',
+                'name' => 'treatment-episodes',
                 'path' => '/treatment-episodes/[{id:\d+}]',
                 'middleware' => $this->getCustomActionMiddleware(TreatmentEpisodesRestController::class),
                 'allowed_methods' => ['GET'],
             ],
             [
-                'track-fields',
+                'name' => 'track-fields',
                 'path' => '/track-fields/[{id:\d+}]',
                 'middleware' => $this->getCustomActionMiddleware(TrackfieldsRestController::class),
                 'allowed_methods' => ['GET'],
             ],
             [
-                'respondent-track-fields',
+                'name' => 'respondent-track-fields',
                 'path' => '/respondent-track-fields/[{id:\d+}]',
                 'middleware' => $this->getCustomActionMiddleware(RespondentTrackfieldsRestController::class),
                 'allowed_methods' => ['GET', 'PATCH'],
