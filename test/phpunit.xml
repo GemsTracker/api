@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
-         <!-- bootstrap="bootstrap.php" -->
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -12,7 +11,8 @@
          verbose="true"
          strict="true">
     <testsuite>
-        <directory>./</directory>
+        <directory>Gemstest</directory>
+        <directory>Rest</directory>
     </testsuite>
     <filter>
         <whitelist>
