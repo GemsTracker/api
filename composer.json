@@ -81,10 +81,6 @@
         },
         {
             "type": "git",
-            "url": "https://github.com/mddejong/Pulse.git"
-        },
-        {
-            "type": "git",
             "url": "https://github.com/GemsTracker/gemstracker-template.git"
         },
         {
