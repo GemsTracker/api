@@ -9,6 +9,7 @@ use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use GemsTest\Rest\Test\ZendDbTestCase;
 use Symfony\Component\Yaml\Yaml;
@@ -17,6 +18,7 @@ use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Diactoros\Uri;
 use Zend\Expressive\Helper\UrlHelper;
+use Zend\Expressive\Router\Route;
 use Zend\Expressive\Router\RouteResult;
 use Zend\ServiceManager\Config;
 
@@ -317,6 +319,7 @@ class ModelRestControllerTest extends ZendDbTestCase
             'created_by' => 3,
         ];
         $request = $this->getRequest('POST', [], [], $newData);
+
         $response = $controller->process(
             $request,
             $this->prophesize(DelegateInterface::class)->reveal()
@@ -791,9 +794,15 @@ class ModelRestControllerTest extends ZendDbTestCase
         $requestProphesy->getUri()->willReturn($this->prophesize(UriInterface::class)->reveal());
         $requestProphesy->getUri()->willReturn(new Uri($uri));
         $requestProphesy->getMethod()->willReturn($method);
+        $requestProphesy->getHeaderLine('content-type')->willReturn('application/json');
+
+        $routeProphecy = $this->prophesize(Route::class);
+        $route = $routeProphecy->reveal();
+
 
         $routeResultProphecy = $this->prophesize(RouteResult::class);
         $routeResultProphecy->getMatchedRouteName()->willReturn($uri);
+        $routeResultProphecy->getMatchedRoute()->willReturn($route);
         $routeResult = $routeResultProphecy->reveal();
 
         $requestProphesy->getAttribute('Zend\Expressive\Router\RouteResult')->willReturn($routeResult);
@@ -804,6 +813,12 @@ class ModelRestControllerTest extends ZendDbTestCase
         $requestProphesy->getQueryParams()->willReturn($queryParams);
 
         $requestProphesy->getParsedBody()->willReturn($postData);
+
+        $bodyProphecy = $this->prophesize(StreamInterface::class);
+        $bodyProphecy->getContents()->willReturn(json_encode($postData));
+        $body = $bodyProphecy->reveal();
+
+        $requestProphesy->getBody()->willReturn($body);
 
         return $requestProphesy->reveal();
     }

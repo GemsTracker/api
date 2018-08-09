@@ -18,12 +18,14 @@ class RestControllerFactoryTest extends TestCase
     {
         $factory = new RestControllerFactory();
 
-        $containerProphesy = $this->prophesize(ContainerInterface::class);
-        $urlHelper = $this->prophesize(UrlHelper::class)->reveal();
-        $loader    = $this->prophesize(ProjectOverloader::class)->reveal();
+        $containerProphesy  = $this->prophesize(ContainerInterface::class);
+        $urlHelper          = $this->prophesize(UrlHelper::class)->reveal();
+        $loader             = $this->prophesize(ProjectOverloader::class)->reveal();
+        $db                 = $this->prophesize(\Zend_Db_Adapter_Abstract::class)->reveal();
+
         $containerProphesy->get(UrlHelper::class)->willReturn($urlHelper);
         $containerProphesy->get('loader')->willReturn($loader);
-        $containerProphesy->get(\Zend_Db::class)->willReturn(null);
+        $containerProphesy->get('LegacyDb')->willReturn($db);
 
         $container = $containerProphesy->reveal();
 

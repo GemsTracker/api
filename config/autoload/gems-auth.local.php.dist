@@ -9,5 +9,9 @@ return [
             'application_env' => 'testing',
             'cookie_path' => '/',
         ],
+        'allow_origin_domains' => [
+            'https://newproject.test',
+        ],
+        'requested_width_check' => true,
     ],
 ];

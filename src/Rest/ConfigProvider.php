@@ -2,6 +2,9 @@
 
 namespace Gems\Rest;
 
+use Gems\Rest\Acl\AclFactory;
+use Gems\Rest\Acl\AclRepository;
+use Gems\Rest\Action\DevAction;
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Auth\AccessTokenAction;
 use Gems\Rest\Auth\AccessTokenRepository;
@@ -22,6 +25,9 @@ use Gems\Rest\Factory\ReflectionFactory;
 
 use Gems\Rest\Auth\AuthorizationServerFactory;
 use Gems\Rest\Auth\ResourceServerFactory;
+use Gems\Rest\Middleware\ApiGateMiddleware;
+use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
+use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -35,6 +41,7 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
+use Zend\Permissions\Acl\Acl;
 
 
 /**
@@ -83,8 +90,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         return [
             'invokables' => [
                 Action\PingAction::class => Action\PingAction::class,
+
             ],
             'factories'  => [
+
+                SecurityHeadersMiddleware::class => Factory\ReflectionFactory::class,
+
                 // Default test 
                 Action\HomePageAction::class => Action\HomePageFactory::class,
                 Action\TestModelAction::class => Factory\ReflectionFactory::class,
@@ -103,10 +114,14 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 // Middleware
                 AuthorizeGemsAndOauthMiddleware::class => ReflectionFactory::class,
+                ApiGateMiddleware::class => ReflectionFactory::class,
+                ApiOrganizationGateMiddleware::class => ReflectionFactory::class,
 
                 // Actions
                 AuthorizeAction::class => ReflectionFactory::class,
                 AccessTokenAction::class => ReflectionFactory::class,
+
+                DevAction::class => ReflectionFactory::class,
 
                 // Entity repositories
                 AccessTokenRepository::class => ReflectionFactory::class,
@@ -116,12 +131,17 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ScopeRepository::class => ReflectionFactory::class,
                 UserRepository::class => ReflectionFactory::class,
 
-                AccessTokenRepositoryInterface::class => ReflectionFactory::class,
-                AuthCodeRepositoryInterface::class => ReflectionFactory::class,
-                ClientRepositoryInterface::class => ReflectionFactory::class,
-                RefreshTokenRepositoryInterface::class => ReflectionFactory::class,
-                ScopeRepositoryInterface::class => ReflectionFactory::class,
-                UserRepositoryInterface::class => ReflectionFactory::class,
+                // Main repositories
+                AclRepository::class => ReflectionFactory::class,
+
+                Acl::class => AclFactory::class,
+
+                //AccessTokenRepositoryInterface::class => ReflectionFactory::class,
+                //AuthCodeRepositoryInterface::class => ReflectionFactory::class,
+                //ClientRepositoryInterface::class => ReflectionFactory::class,
+                //RefreshTokenRepositoryInterface::class => ReflectionFactory::class,
+                //ScopeRepositoryInterface::class => ReflectionFactory::class,
+                //UserRepositoryInterface::class => ReflectionFactory::class,
 
                 // Grants
                 AuthCodeGrant::class => AuthCodeGrantFactory::class,
@@ -129,6 +149,14 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ImplicitGrant::class => ImplicitGrantFactory::class,
                 PasswordGrant::class => ReflectionFactory::class,
                 RefreshTokenGrant::class => ReflectionFactory::class,
+            ],
+            'aliases' => [
+                AccessTokenRepositoryInterface::class => AccessTokenRepository::class,
+                AuthCodeRepositoryInterface::class => AuthCodeRepository::class,
+                ClientRepositoryInterface::class => ClientRepository::class,
+                RefreshTokenRepositoryInterface::class => RefreshTokenRepository::class,
+                ScopeRepositoryInterface::class => ScopeRepository::class,
+                UserRepositoryInterface::class => UserRepository::class,
             ],
         ];
     }
@@ -191,6 +219,14 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         $modelRoutes = parent::getRoutes();
 
         $routes = [
+            [
+                'name' => 'dev',
+                'path' => '/dev',
+                'middleware' => [
+                    DevAction::class,
+                ],
+                'allowed_methods' => ['GET'],
+            ],
             [
                 'name' => 'access_token',
                 'path' => '/access_token',

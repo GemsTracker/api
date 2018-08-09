@@ -14,10 +14,12 @@ use Zend\Expressive\Router\RouteResult;
 
 abstract class ModelRestControllerAbstract extends RestControllerAbstract
 {
+    protected $allowedContentTypes = ['application/json'];
+
     protected $apiNames;
 
     /**
-     * @var db1 \Zend_Db_Adapter
+     * @var db1 \Zend_Db_Adapter_Abstract
      */
     protected $db1;
 
@@ -32,6 +34,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      * @var int number of items per page for pagination
      */
     protected $itemsPerPage = 25;
+
+    protected $supportedMethods = [
+        'delete', 'get', 'options', 'patch', 'post', 'structure',
+    ];
 
     /**
      * @var \MUtil_Model_ModelAbstract Gemstracker Model
@@ -61,6 +67,24 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $this->db1 = $LegacyDb;
     }
 
+    /**
+     * Check if current content type is allowed for the current method
+     *
+     * @param ServerRequestInterface $request
+     * @return bool
+     */
+    protected function checkContentType(ServerRequestInterface $request)
+    {
+        $contentTypeHeader = $request->getHeaderLine('content-type');
+        foreach ($this->allowedContentTypes as $contentType) {
+            if (strpos($contentTypeHeader, $contentType) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $id = $request->getAttribute('id');
@@ -87,18 +111,63 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return new EmptyResponse(204);
     }
 
+    /**
+     * Filter the columns of a row with routeoptions like allowed_fields, disallowed_fields and readonly_fields
+     *
+     * @param $row Row with model values
+     * @param bool $save Will the row be saved after filter (enables readonly
+     * @param bool $useKeys Use keys or values in the filter of the row
+     * @return array Filtered array
+     */
+    protected function filterColumns($row, $save=false, $useKeys=true)
+    {
+        $flag = ARRAY_FILTER_USE_KEY;
+        if ($useKeys === false) {
+            $flag = ARRAY_FILTER_USE_BOTH;
+        }
+
+        if (isset($this->routeOptions['allowed_fields'])) {
+            $allowedFields = $this->routeOptions['allowed_fields'];
+
+            $row = array_filter($row, function ($key) use ($allowedFields) {
+                return in_array($key, $allowedFields);
+            }, $flag);
+        }
+
+        if (isset($this->routeOptions['disallowed_fields'])) {
+            $disallowedFields = $this->routeOptions['disallowed_fields'];
+
+            $row = array_filter($row, function ($key) use ($disallowedFields) {
+                return !in_array($key, $disallowedFields);
+            }, $flag);
+
+        }
+
+        if ($save && isset($this->routeOptions['readonly_fields'])) {
+            $readonlyFields = $this->routeOptions['readonly_fields'];
+
+            $row = array_filter($row, function ($key) use ($readonlyFields) {
+                return !in_array($key, $readonlyFields);
+            }, $flag);
+
+        }
+
+        return $row;
+    }
+
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $id = $request->getAttribute('id');
+        $id = $this->getId($request);
+
         if ($id !== null) {
             $idField = $this->getIdField();
             if ($idField) {
-                $filter = [
-                    $idField => $id,
-                ];
+                $filter = $this->getIdFilter($id, $idField);
+
                 $row = $this->model->loadFirst($filter);
                 if (is_array($row)) {
                     $row = $this->translateRow($row);
+                    $row = $this->filterColumns($row);
                     return new JsonResponse($row);
                 }
             }
@@ -124,6 +193,25 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $this->apiNames;
     }
 
+    protected function getId(ServerRequestInterface $request)
+    {
+        if (isset($this->routeOptions['idField'])) {
+            if (is_array($this->routeOptions['idField'])) {
+                $id = [];
+                foreach($this->routeOptions['idField'] as $idField) {
+                    $id[] = $request->getAttribute($idField);
+                }
+            } else {
+                $id = $request->getAttribute($this->routeOptions['idField']);
+            }
+
+        } else {
+            $id = $request->getAttribute('id');
+        }
+
+        return $id;
+    }
+
     protected function getIdField()
     {
         if (!$this->idField) {
@@ -136,6 +224,22 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $this->idField;
     }
 
+    protected function getIdFilter($id, $idField)
+    {
+        if (is_array($id) && is_array($idField)) {
+            $filter = [];
+            foreach($idField as $key=>$singleField) {
+                $filter[$singleField] = $id[$key];
+            }
+        } else {
+            $filter = [
+                $idField => $id,
+            ];
+        }
+
+        return $filter;
+    }
+
     public function getList(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $filters = $this->getListFilter($request);
@@ -143,7 +247,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $paginatedFilters = $this->getListPagination($request, $filters);
         $headers = $this->getPaginationHeaders($request, $filters);
         if ($headers === false) {
-            //return new EmptyResponse(204);
+            return new EmptyResponse(204);
         }
 
         $rows = $this->model->load($paginatedFilters, $order);
@@ -151,6 +255,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $translatedRows = [];
         foreach($rows as $key=>$row) {
             $translatedRows[$key] = $this->translateRow($row);
+            $translatedRows[$key] = $this->filterColumns($row);
         }
 
         return new JsonResponse($translatedRows, 200, $headers);
@@ -168,10 +273,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $keywords = array_flip($keywords);
 
-        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
-        $route = $routeResult->getMatchedRoute();
-        $routeOptions = $route->getOptions();
-
         $itemNames = array_flip($this->model->getItemNames());
         $translations = $this->getApiNames(true);
 
@@ -182,9 +283,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 continue;
             }
 
-            if (isset($routeOptions['multiOranizationField'], $routeOptions['multiOranizationField']['field']) && $key == $routeOptions['multiOranizationField']['field']) {
-                $field = $routeOptions['multiOranizationField']['field'];
-                $separator = $routeOptions['multiOranizationField']['separator'];
+            if (isset($this->routeOptions['multiOranizationField'], $this->routeOptions['multiOranizationField']['field'])
+                && $key == $this->routeOptions['multiOranizationField']['field']) {
+                $field = $this->routeOptions['multiOranizationField']['field'];
+                $separator = $this->routeOptions['multiOranizationField']['separator'];
                 $filters[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $value . $separator . '%');
                 continue;
             }
@@ -193,9 +295,42 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             if (isset($translations[$key])) {
                 $colName = $translations[$key];
             }
-
+            
             if (isset($itemNames[$colName])) {
-                $filters[$colName] = $value;
+                if (strpos($value, '[') === 0 && strpos($value, ']') === strlen($value)-1) {
+                    $values = explode(',', str_replace(['[', ']'], '', $value));
+                    $firstValue = reset($values);
+                    switch ($firstValue) {
+                        case '<':
+                        case '>':
+                        case '<=':
+                        case '>=':
+                        case '!=':
+                        case 'LIKE':
+                        case 'NOT LIKE':
+                            $secondValue = end($values);
+                            if (is_numeric($secondValue)) {
+                                $secondValue = ($secondValue == (int) $secondValue) ? (int) $secondValue : (float) $secondValue;
+                            }
+                            if ($firstValue == 'LIKE' || $firstValue == 'NOT LIKE') {
+                                $secondValue = $this->db1->quote($secondValue);
+                            }
+                            $filters[] = $colName . ' ' . $firstValue . ' ' . $secondValue;
+                            break;
+                        default:
+                            $filters[$colName] = $values;
+                            break;
+                    }
+                } else {
+                    switch (strtoupper($value)) {
+                        case 'IS NULL':
+                        case 'IS NOT NULL':
+                            $filters[] = $colName . ' ' . $value;
+                            break;
+                        default:
+                            $filters[$colName] = $value;
+                    }
+                }
             }
         }
 
@@ -329,27 +464,52 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $headers;
     }
 
+    public function options(ServerRequestInterface $request, DelegateInterface $delegate)
+    {
+        $response = new EmptyResponse(200);
+
+        $allow = null;
+
+        if (isset($this->routeOptions['methods'])) {
+            $allow = strtoupper(join(', ', $this->routeOptions['methods']));
+        } else {
+            $allow = strtoupper(join(', ', $this->supportedMethods));
+        }
+
+        $response = $response->withHeader('Allow', $allow);
+        $response = $response->withHeader('Access-Control-Allow-Methods', $allow);
+
+        return $response;
+    }
+
     public function post(ServerRequestInterface $request, DelegateInterface $delegate)
     {
+        if ($this->checkContentType($request) === false) {
+            return new EmptyResponse(415);
+        }
+
         $row = $this->translateRow($request->getParsedBody(), true);
         return $this->saveRow($request, $row);
     }
 
     public function patch(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        //$parsedBody = json_decode($request->getBody()->getContents(), true);
-        $parsedBody = $request->getParsedBody();
-        $newRowData = $this->translateRow($parsedBody, true);
+        $id = $this->getId($request);
 
-        $id = $request->getAttribute('id');
         $idField = $this->getIdField();
         if ($id === null || !$idField) {
             return new EmptyResponse(404);
         }
 
-        $filter = [
-            $idField => $id,
-        ];
+        if ($this->checkContentType($request) === false) {
+            return new EmptyResponse(415);
+        }
+
+        $parsedBody = json_decode($request->getBody()->getContents(), true);
+        $newRowData = $this->translateRow($parsedBody, true);
+
+        $filter = $this->getIdFilter($id, $idField);
+
         $row = $this->model->loadFirst($filter);
 
         $row = $newRowData + $row;
@@ -376,6 +536,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             return new EmptyResponse(400);
         }
 
+        $row = $this->filterColumns($row, true);
+
         try {
             $this->validateRow($row);
         } catch (Exception $e) {
@@ -389,18 +551,32 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         }
 
         $idField = $this->getIdField();
-        if (isset($newRow[$idField])) {
+
+        $routeParams = [];
+        if (is_array($idField)) {
+
+
+            foreach($idField as $key=>$singleField) {
+                if (isset($newRow[$singleField])) {
+                    $routeParams[$singleField] =     $newRow[$singleField];
+                } else {
+                    return new EmptyResponse(201);
+                }
+            }
+        } elseif (isset($newRow[$idField])) {
+            $routeParams[$idField] = $newRow[$idField];
+        }
+
+        if (!empty($routeParams)) {
 
             $result = $request->getAttribute(RouteResult::class);
             $routeName = $result->getMatchedRouteName();
-
 
             $routeParts = explode('.', $routeName);
             array_pop($routeParts);
             $getRouteName = join('.', $routeParts) . '.get';
 
-            $id = $newRow[$idField];
-            $location = $this->helper->generate($getRouteName, ['id' => $id]);
+            $location = $this->helper->generate($getRouteName, $routeParams);
             if ($location !== null) {
                 return new EmptyResponse(
                     201,
@@ -433,6 +609,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             ];
 
             $structure = [];
+
+            $columns = $this->filterColumns($columns, false, false);
+
             foreach ($columns as $columnName) {
 
                 $columnLabel = $columnName;
@@ -534,13 +713,18 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $translatedRow;
     }
 
-    public function getValidator($validator)
+    public function getValidator($validator, $options=null)
     {
         if ($validator instanceof \Zend_Validate_Interface) {
             return $validator;
         } elseif (is_string($validator)) {
             $validatorName = $validator;
-            $validator = $this->loader->create('Validate_'.$validator);
+            if ($options !== null) {
+                $validator = $this->loader->create('Validate_' . $validator, $options);
+            } else {
+                $validator = $this->loader->create('Validate_'.$validator);
+            }
+
             if ($validator) {
                 return $validator;
             } else {
@@ -561,7 +745,16 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         if (!$this->validators) {
             $multiValidators = $this->model->getCol('validators');
             $singleValidators = $this->model->getCol('validator');
-            $requiredFields = $this->model->getCol('required');
+            $allRequiredFields = $this->model->getCol('required');
+            $labeledFields = $this->model->getColNames('label');
+            $types = $this->model->getCol('type');
+
+            $requiredFields = $allRequiredFields;
+            /*foreach($labeledFields  as $labeledField) {
+                if (isset($allRequiredFields[$labeledField])) {
+                    $requiredFields[$labeledField] = $allRequiredFields[$labeledField];
+                }
+            }*/
 
             $this->requiredFields = $requiredFields;
 
@@ -580,6 +773,29 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
                 if ($required && $this->model->get($columnName, 'autoInsertNotEmptyValidator') !== false) {
                     $multiValidators[$columnName][] = $this->getValidator('NotEmpty');
+
+                } else {
+                    $this->requiredFields[$columnName] = false;
+                }
+
+                if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1) {
+                    switch ($types[$columnName]) {
+                        case \MUtil_Model::TYPE_STRING:
+                            //$multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
+                            break;
+
+                        case \MUtil_Model::TYPE_NUMERIC:
+                            $multiValidators[$columnName][] = $this->getValidator('Float');
+                            break;
+
+                        case \MUtil_Model::TYPE_DATE:
+                            $multiValidators[$columnName][] = $this->getValidator('Date');
+                            break;
+
+                        case \MUtil_Model::TYPE_DATETIME:
+                            $multiValidators[$columnName][] = $this->getValidator('Date', ['format' => \Zend_Date::ISO_8601]);
+                            break;
+                    }
                 }
             }
 

@@ -5,14 +5,17 @@ namespace Gems\Rest\Auth;
 
 
 use Gems\Rest\Legacy\CurrentUserRepository;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
+use Zend\Diactoros\Response;
 use Zend\Diactoros\Response\JsonResponse;
 
-class AuthorizeGemsAndOauthMiddleware
+class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
 {
     protected $server;
 
@@ -28,16 +31,19 @@ class AuthorizeGemsAndOauthMiddleware
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface      $response
-     * @param callable               $next
+     * Process an incoming server request and return a response, optionally delegating
+     * to the next middleware component to create the response.
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param ServerRequestInterface $request
+     * @param DelegateInterface $delegate
+     *
+     * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $config = $this->config;
         $sessionName = null;
+        $gemsAuth = false;
 
         if (isset($config['gems_auth'])
             && isset($config['gems_auth']['use_linked_gemstracker_session'])
@@ -52,10 +58,18 @@ class AuthorizeGemsAndOauthMiddleware
 
         if ($sessionName != null && isset($cookieParams[$sessionName]) && $currentUser = $this->currentUserRepository->getCurrentUserFromSession()) {
 
+
+            if (isset($config['gems_auth'], $config['gems_auth']['requested_width_check'])
+                && $config['gems_auth']['requested_width_check'] == true
+                && $request->getHeaderLine('X-Requested-With') != 'XMLHttpRequest') {
+                return new JsonResponse(['error' => 'no_ajax', 'message' => 'XmlHttpRequest needed'], 403);
+            }
+
             if (!$currentUser->hasPrivilege('pr.api')) {
                 return new JsonResponse(['error' => 'access_denied', 'message' => 'You do not have the correct privileges to access this.'], 401);
             } else {
                 $request->withAttribute('user_id', $currentUser->getLoginName() . '@' . $currentUser->getBaseOrganizationId());
+                $gemsAuth = true;
             }
         } else {
 
@@ -65,18 +79,38 @@ class AuthorizeGemsAndOauthMiddleware
                     $request->withAttribute('user_id', $userId);
                     list($loginName, $loginOrganization) = explode('@', $userId);
                     $this->currentUserRepository->setCurrentUserCredentials($loginName, $loginOrganization);
+
+
                 }
             } catch (OAuthServerException $exception) {
+                $response = new Response();
                 return $exception->generateHttpResponse($response);
                 // @codeCoverageIgnoreStart
             } catch (\Exception $exception) {
+                $response = new Response();
                 return (new OAuthServerException($exception->getMessage(), 0, 'unknown_error', 500))
                     ->generateHttpResponse($response);
                 // @codeCoverageIgnoreEnd
             }
         }
 
-        // Pass the request and response on to the next responder in the chain
-        return $next($request, $response);
+        $response = $delegate->process($request);
+
+        if ($gemsAuth && isset($config['gems_auth']['allow_origin_domains']) && is_array($config['gems_auth']['allow_origin_domains'])) {
+            $currentSite = null;
+            if ($origin = $request->getHeaderLine('origin')) {
+                $currentSite = $origin;
+            } elseif($referer = $request->getHeaderLine('referer')) {
+                $currentSite = $referer;
+            }
+
+            foreach($config['gems_auth']['allow_origin_domains'] as $domain) {
+                if (strpos($currentSite, $domain) === 0) {
+                    $response = $response->withHeader('Access-Control-Allow-Origin', $domain);
+                }
+            }
+        }
+
+        return $response;
     }
 }
