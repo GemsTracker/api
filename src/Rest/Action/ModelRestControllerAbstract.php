@@ -199,7 +199,12 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             if (is_array($this->routeOptions['idField'])) {
                 $id = [];
                 foreach($this->routeOptions['idField'] as $idField) {
-                    $id[] = $request->getAttribute($idField);
+                    if ($subId = $request->getAttribute($idField)) {
+                        $id[] = $request->getAttribute($idField);
+                    }
+                }
+                if ($id === []) {
+                    $id = null;
                 }
             } else {
                 $id = $request->getAttribute($this->routeOptions['idField']);
@@ -746,7 +751,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $multiValidators = $this->model->getCol('validators');
             $singleValidators = $this->model->getCol('validator');
             $allRequiredFields = $this->model->getCol('required');
-            $labeledFields = $this->model->getColNames('label');
+            //$labeledFields = $this->model->getColNames('label');
             $types = $this->model->getCol('type');
 
             $requiredFields = $allRequiredFields;
