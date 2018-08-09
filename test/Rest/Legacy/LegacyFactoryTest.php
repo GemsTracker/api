@@ -79,7 +79,7 @@ class LegacyFactoryTest extends TestCase
         $cacheFactoryWrapper = $this->prophesize(LegacyCacheFactoryWrapper::class);
         $cacheFactoryWrapper->factory(Argument::cetera())->willReturn($cache);
 
-        $this->assertFalse($this->fileSystem->hasChild(GEMS_ROOT_DIR . '/var/cache/'));
+        $this->assertFalse($this->fileSystem->hasChild(GEMS_ROOT_DIR . '/data/cache/'));
 
         $container = $this->getContainer([\Zend_Cache::class => $cache], ['LegacyProject' => $projectSettings]);
         $legacyFactory = new LegacyFactory();
@@ -96,7 +96,7 @@ class LegacyFactoryTest extends TestCase
         \Zend_Translate::removeCache();
         \Zend_Locale::removeCache();
 
-        $this->assertDirectoryExists($this->fileSystem->url() . '/var/cache/');
+        $this->assertDirectoryExists($this->fileSystem->url() . '/data/cache/');
     }
 
     public function testGetCacheNoCache()
