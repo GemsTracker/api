@@ -1,3 +1,6 @@
+# GemsTracker REST API project
+[![Build Status](https://travis-ci.org/GemsTracker/api.svg?branch=master)](https://travis-ci.org/GemsTracker/api)
+
 A new project installation for Gemstracker in Zend Expressive 2.x
 
 It can use Gemstracker library or project specific code.
