@@ -13,8 +13,6 @@ use Zend\Db\Sql\Where;
 
 class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTokenRepositoryInterface
 {
-    protected $canUpdate = false;
-
     protected $entity = 'Rest\\Auth\\AccessTokenEntity';
 
     protected $table = 'gems__oauth_access_tokens';
@@ -23,10 +21,14 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
     {
         $data = parent::filterDataForSave($data);
 
-        if (isset($data['scopes'])) {
+        if (isset($data['scopes']) && is_array($data['scopes'])) {
             $scopeNames = [];
-            foreach($data['scopes'] as $scope) {
-                $scopeNames[] = $scope->getIdentifier();
+            foreach ($data['scopes'] as $scope) {
+                if ($scope instanceof ScopeEntity) {
+                    $scopeNames[] = $scope->getIdentifier();
+                } elseif(is_string($scope)) {
+                    $scopeNames[] = $scope;
+                }
             }
             $data['scopes'] = join(',', $scopeNames);
         }
@@ -97,19 +99,14 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
      */
     public function revokeAccessToken($tokenId)
     {
-        $newValues = [
-            'revoked' => 1,
-            'id' => $tokenId,
-        ];
+        $filter = ['id' => $tokenId];
 
-        $this->save($newValues);
-
-        /*if ($accessToken = $this->loadFirst($filter)) {
-            $accessToken->revoked = 1;
+        if ($accessToken = $this->loadFirst($filter)) {
+            $accessToken->setRevoked(true);
             $this->save($accessToken);
         } else {
             return false;
-        }*/
+        }
     }
 
     /**

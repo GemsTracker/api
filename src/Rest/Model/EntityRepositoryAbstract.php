@@ -250,7 +250,7 @@ class EntityRepositoryAbstract
         }
 
         $update = false;
-        if ($this->canUpdate) {
+        if ($this->canUpdate !== false) {
             foreach ($this->getTableKeys() as $key) {
                 //if (!isset($data[$key]) || (0 !== strlen($data[$key]))) {
                 if (isset($data[$key]) && (0 !== strlen($data[$key]))) {

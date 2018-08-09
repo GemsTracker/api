@@ -11,8 +11,6 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 
 class RefreshTokenRepository extends EntityRepositoryAbstract implements RefreshTokenRepositoryInterface
 {
-    protected $canUpdate = false;
-
     protected $entity = 'Rest\\Auth\\RefreshTokenEntity';
 
     protected $table = 'gems__oauth_refresh_tokens';
