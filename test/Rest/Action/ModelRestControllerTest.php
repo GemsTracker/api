@@ -470,6 +470,7 @@ class ModelRestControllerTest extends ZendDbTestCase
                 'required' => false,
                 'type' => 'string',
                 'name' => 'changed',
+                'default' => 'current_timestamp'
             ],
             'changed_by' => [
                 'required' => true,
@@ -479,7 +480,6 @@ class ModelRestControllerTest extends ZendDbTestCase
             'created' => [
                 'required' => true,
                 'type' => 'string',
-                'default' => 'current_timestamp',
                 'name' => 'created',
             ],
             'created_by' => [
