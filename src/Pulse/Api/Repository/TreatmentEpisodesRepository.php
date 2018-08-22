@@ -98,7 +98,7 @@ class TreatmentEpisodesRepository
         $respondentTrackModel = $this->tracker->getRespondentTrackModel();
 
         $sort = [
-            'gr2t_created DESC'
+            'gr2t_start_date' => SORT_DESC
         ];
 
         $respondentTrackData = $respondentTrackModel->loadFirst($filters, $sort);
