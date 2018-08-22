@@ -8,11 +8,14 @@ use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use Gems\Rest\RestModelConfigProviderAbstract;
+use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
 use Pulse\Api\Action\TokenAnswersRestController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
+use Pulse\Api\Model\TreatmentWithNormsModel;
+use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\RespondentTrackfieldsRepository;
 use Pulse\Api\Repository\SurveyQuestionsRepository;
 use Pulse\Api\Repository\TokenAnswerRepository;
@@ -56,6 +59,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 RespondentTrackfieldsRestController::class => ReflectionFactory::class,
                 RespondentTrackfieldsRepository::class => ReflectionFactory::class,
+
+                ChartsController::class => ReflectionFactory::class,
+                ChartRepository::class => ReflectionFactory::class,
             ]
         ];
     }
@@ -130,6 +136,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Model\\OutcomeVariableModel',
                 'methods' => ['GET'],
             ],
+            'treatments-with-norms' => [
+                'model' => TreatmentWithNormsModel::class,
+                'methods' => ['GET'],
+            ],
         ];
     }
 
@@ -168,6 +178,13 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'middleware' => $this->getCustomActionMiddleware(RespondentTrackfieldsRestController::class),
                 'allowed_methods' => ['GET', 'PATCH'],
             ],
+            [
+                'name' => 'chartdata',
+                'path' => '/chartdata/[{id:\d+}]',
+                'middleware' => $this->getCustomActionMiddleware(ChartsController::class),
+                'allowed_methods' => ['GET'],
+            ],
+
         ];
 
 
