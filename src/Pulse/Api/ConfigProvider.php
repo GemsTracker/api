@@ -3,10 +3,7 @@
 
 namespace Pulse\Api;
 
-
-use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\Factory\ReflectionFactory;
-use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
@@ -14,13 +11,15 @@ use Pulse\Api\Action\SurveyQuestionsRestController;
 use Pulse\Api\Action\TokenAnswersRestController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
-use Pulse\Api\Model\TreatmentWithNormsModel;
+use Pulse\Api\Action\TreatmentsWithNormsController;
 use Pulse\Api\Repository\ChartRepository;
+use Pulse\Api\Repository\RespondentResults;
 use Pulse\Api\Repository\RespondentTrackfieldsRepository;
 use Pulse\Api\Repository\SurveyQuestionsRepository;
 use Pulse\Api\Repository\TokenAnswerRepository;
 use Pulse\Api\Repository\TrackfieldsRepository;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
+use Pulse\Api\Repository\TreatmentsWithNormsRepository;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
 {
@@ -62,6 +61,11 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 ChartsController::class => ReflectionFactory::class,
                 ChartRepository::class => ReflectionFactory::class,
+
+                TreatmentsWithNormsController::class => ReflectionFactory::class,
+                TreatmentsWithNormsRepository::class => ReflectionFactory::class,
+
+                RespondentResults::class => ReflectionFactory::class,
             ]
         ];
     }
@@ -74,14 +78,16 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
                 'allowed_fields' => [
                     'gor_id_organization',
-                    'gor_user_class',
+                    'gor_name',
+                    'gor_url',
+                    'gor_task',
                 ],
-                'disallowed_fields' => [
+                /*'disallowed_fields' => [
                     'gor_user_class'
                 ],
                 'readonly_fields' => [
                     'gor_name',
-                ],
+                ],*/
                 'organizationId' => 'gor_id_organization',
             ],
             'respondents' => [
@@ -136,10 +142,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Model\\OutcomeVariableModel',
                 'methods' => ['GET'],
             ],
-            'treatments-with-norms' => [
+            /*'treatments-with-norms' => [
                 'model' => TreatmentWithNormsModel::class,
                 'methods' => ['GET'],
-            ],
+            ],*/
         ];
     }
 
@@ -184,7 +190,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'middleware' => $this->getCustomActionMiddleware(ChartsController::class),
                 'allowed_methods' => ['GET'],
             ],
-
+            [
+                'name' => 'treatments-with-norms',
+                'path' => '/treatments-with-norms',
+                'middleware' => $this->getCustomActionMiddleware(TreatmentsWithNormsController::class),
+                'allowed_methods' => ['GET'],
+            ],
         ];
 
 

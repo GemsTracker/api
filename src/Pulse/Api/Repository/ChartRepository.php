@@ -4,6 +4,7 @@
 namespace Pulse\Api\Repository;
 
 
+use MUtil\Translate\TranslateableTrait;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Predicate\Predicate;
@@ -11,6 +12,9 @@ use Zend\Db\Sql\Sql;
 
 class ChartRepository
 {
+
+    use TranslateableTrait;
+
     /**
      * @var array list of chart data
      */
@@ -56,6 +60,11 @@ class ChartRepository
     protected $tracker;
 
     /**
+     * @var \Zend_Translate_Adapter
+     */
+    protected $translateAdapter;
+
+    /**
      * @var string internal name of the treatment field
      */
     protected $treatmentFieldName = 'treatment';
@@ -70,11 +79,12 @@ class ChartRepository
      */
     protected $type;
 
-    public function __construct(Adapter $db, \Zend_Locale $locale, \Gems_Tracker $tracker)
+    public function __construct(Adapter $db, \Zend_Locale $locale, \Gems_Tracker $tracker, \Zend_Translate_Adapter $translateAdapter)
     {
         $this->db = $db;
         $this->locale = $locale;
         $this->tracker = $tracker;
+        $this->translateAdapter = $translateAdapter;
     }
 
     /**
