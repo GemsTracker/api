@@ -259,8 +259,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $translatedRows = [];
         foreach($rows as $key=>$row) {
-            $translatedRows[$key] = $this->translateRow($row);
-            $translatedRows[$key] = $this->filterColumns($row);
+            $translatedRows[$key] = $this->filterColumns($this->translateRow($row));
         }
 
         return new JsonResponse($translatedRows, 200, $headers);
