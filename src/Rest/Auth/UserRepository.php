@@ -37,7 +37,8 @@ class UserRepository extends EntityRepositoryAbstract implements UserRepositoryI
 
         // Check if this user is allowed to use this grant
 
-        $userEntity = new UserEntity($username . '@' . $organizationId);
+        //$userEntity = new UserEntity($username . '@' . $organizationId);
+        $userEntity = new UserEntity($user->getUserId());
 
         return $userEntity;
     }
