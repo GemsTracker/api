@@ -3,6 +3,7 @@
 
 namespace Gems\Rest\Auth;
 
+use Gems\Rest\Repository\LoginAttemptsRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface as ServerMiddlewareInterface;
 use League\OAuth2\Server\AuthorizationServer;
@@ -29,6 +30,7 @@ class AuthorizeAction implements ServerMiddlewareInterface
         ClientRepository $clientRepository,
         UserRepository $userRepository,
         AuthorizationServer $server,
+        LoginAttemptsRepository $loginAttemptsRepository,
         TemplateRendererInterface $template = null
     )
     {
@@ -38,6 +40,8 @@ class AuthorizeAction implements ServerMiddlewareInterface
         $this->clientRepository = $clientRepository;
         $this->userRepository = $userRepository;
         $this->template = $template;
+
+        $this->loginAttemptsRepository = $loginAttemptsRepository;
     }
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
@@ -59,8 +63,13 @@ class AuthorizeAction implements ServerMiddlewareInterface
                     $authRequest->getClient()
                 );
 
+                $infoArray = explode('@', $body['username']);
+                list($username, $organizationId) = array_values($infoArray);
                 if ($user instanceof UserEntityInterface) {
+                    $this->loginAttemptsRepository->setLoginAttempt($username, $organizationId);
                     return $this->approveRequest($authRequest, $user);
+                } else {
+                    $this->loginAttemptsRepository->setLoginAttempt($username, $organizationId, true);
                 }
             }
         }
