@@ -9,6 +9,7 @@ use Gems\Rest\Auth\AuthorizeAction;
 use Gems\Rest\Auth\ClientRepository;
 use Gems\Rest\Auth\UserEntity;
 use Gems\Rest\Auth\UserRepository;
+use Gems\Rest\Repository\LoginAttemptsRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
@@ -54,6 +55,10 @@ class AuthorizeActionTest extends TestCase
             Argument::type(Response::class)
         )->willReturn($this->prophesize(RedirectResponse::class)->reveal());
 
+        $loginAttemptsRepository = $this->prophesize(LoginAttemptsRepository::class);
+        $loginAttemptsRepository->setLoginAttempt(Argument::type('string'), Argument::type('numeric'))
+            ->willReturn(null);
+
         $templateRenderer = $this->prophesize(TemplateRendererInterface::class);
         $templateRenderer->render(Argument::type('string'))->willReturn('Test content!');
 
@@ -62,12 +67,13 @@ class AuthorizeActionTest extends TestCase
             $clientRepository->reveal(),
             $userRepository->reveal(),
             $authorizationServer->reveal(),
+            $loginAttemptsRepository->reveal(),
             $templateRenderer->reveal()
         );
 
         $serverRequest = $this->prophesize(ServerRequestInterface::class);
         $serverRequest->getMethod()->willReturn('POST');
-        $serverRequest->getParsedBody()->willReturn(['username' => 'testUser', 'password' => 'testPassword']);
+        $serverRequest->getParsedBody()->willReturn(['username' => 'testUser@71', 'password' => 'testPassword']);
 
 
         $delegate = $this->prophesize(DelegateInterface::class);
