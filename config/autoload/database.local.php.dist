@@ -17,7 +17,8 @@ return [
     'dependencies' => [
         'aliases' => [
             'db' => Adapter::class,
-            'LegacyDb' => Db::class
+            'LegacyDb' => Db::class,
+            'LegacyDb2' => Adapter::class,
         ],
         'factories' => [
             Adapter::class => AdapterServiceFactory::class,
