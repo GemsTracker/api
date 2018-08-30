@@ -228,7 +228,7 @@ class EntityRepositoryAbstract
         if ($removeEmptyValues) {
             foreach($values as $key=>$value) {
                 if (null === $value) {
-                    unset($value);
+                    unset($values[$key]);
                 }
             }
         }
@@ -241,16 +241,16 @@ class EntityRepositoryAbstract
      *
      * @param $data Gems\Rest\Model\EntityInterface|array
      * @param array $filter
+     * @param boolean $update forces update when set to true, even if table keys are not given
      * @return ResultInterface
      */
-    public function save($data, $filter=[])
+    public function save($data, $filter=[], $update=false)
     {
         if ($data instanceof EntityInterface) {
             $data = $this->getEntityValues($data, true);
         }
 
-        $update = false;
-        if ($this->canUpdate !== false) {
+        if ($update!== true && $this->canUpdate !== false) {
             foreach ($this->getTableKeys() as $key) {
                 //if (!isset($data[$key]) || (0 !== strlen($data[$key]))) {
                 if (isset($data[$key]) && (0 !== strlen($data[$key]))) {

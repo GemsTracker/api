@@ -69,12 +69,14 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
      */
     public function revokeRefreshToken($tokenId)
     {
-        $newValues = [
-            'revoked' => 1,
+        $refreshToken = new RefreshTokenEntity();
+        $refreshToken->setRevoked(true);
+
+        $filter = [
             'id' => $tokenId
         ];
 
-        $result = $this->save($newValues);
+        $result = $this->save($refreshToken, $filter, true);
         if ($result->getAffectedRows() === 0) {
             throw new \Exception('Refresh token not revoked');
         }

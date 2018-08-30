@@ -102,9 +102,19 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
      */
     public function revokeAccessToken($tokenId)
     {
-        $filter = ['id' => $tokenId];
+        $accessToken = new AccessTokenEntity();
+        $accessToken->setRevoked(true);
 
-        if ($accessToken = $this->loadFirst($filter)) {
+        $filter = [
+            'id' => $tokenId
+        ];
+
+        $result = $this->save($accessToken, $filter, true);
+        if ($result->getAffectedRows() === 0) {
+            throw new \Exception('Access token not revoked');
+        }
+
+        /*if ($accessToken = $this->loadFirst($filter)) {
             $accessToken->setRevoked(true);
             $result = $this->save($accessToken);
             if ($result->getAffectedRows() === 0) {
@@ -112,7 +122,7 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
             }
         } else {
             return false;
-        }
+        }*/
     }
 
     /**
