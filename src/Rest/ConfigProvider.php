@@ -191,10 +191,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'code_valid' => 'PT10M', // Time an auth code can be exchanged for a token
                     'token_valid' => 'PT1H', // Time a token is valid
                 ],
-                'client_credentials' => [
+                /*'client_credentials' => [
                     'class' => ClientCredentialsGrant::class,
                     'token_valid' => 'PT1H', // Time a token is valid
-                ],
+                ],*/
                 'implicit' => [
                     'class' => ImplicitGrant::class,
                     'code_valid' => 'PT1H',
