@@ -89,7 +89,10 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
      */
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity)
     {
-        $this->save($accessTokenEntity);
+        $result = $this->save($accessTokenEntity);
+        if ($result->getAffectedRows() === 0) {
+            throw \Exception('Access token not saved');
+        }
     }
 
     /**
@@ -103,7 +106,10 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
 
         if ($accessToken = $this->loadFirst($filter)) {
             $accessToken->setRevoked(true);
-            $this->save($accessToken);
+            $result = $this->save($accessToken);
+            if ($result->getAffectedRows() === 0) {
+                throw \Exception('Access token not revoked');
+            }
         } else {
             return false;
         }

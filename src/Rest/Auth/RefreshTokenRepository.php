@@ -56,13 +56,10 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
     {
-        if ($this->save($refreshTokenEntity)) {
-
-        } else {
+        $result = $this->save($refreshTokenEntity);
+        if ($result->getAffectedRows() === 0) {
             throw \Exception('Refresh token not saved');
         }
-
-
     }
 
     /**
@@ -77,7 +74,10 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
             'id' => $tokenId
         ];
 
-        $this->save($newValues);
+        $result = $this->save($newValues);
+        if ($result->getAffectedRows() === 0) {
+            throw \Exception('Refresh token not revoked');
+        }
     }
 
     /**

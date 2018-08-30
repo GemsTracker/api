@@ -61,7 +61,10 @@ class AuthCodeRepository extends EntityRepositoryAbstract implements AuthCodeRep
      */
     public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity)
     {
-        $this->save($authCodeEntity);
+        $result = $this->save($authCodeEntity);
+        if ($result->getAffectedRows() === 0) {
+            throw \Exception('Auth code not saved');
+        }
     }
 
     /**
@@ -76,7 +79,11 @@ class AuthCodeRepository extends EntityRepositoryAbstract implements AuthCodeRep
             'revoked' => 1
         ];
 
-        $this->save($newValues);
+        $result = $this->save($newValues);
+
+        if ($result->getAffectedRows() === 0) {
+            throw \Exception('Auth code not revoked');
+        }
 
         /*if ($authCode = $this->loadFirst($filter)) {
             $authCode->revoked = 1;
