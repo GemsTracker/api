@@ -6,6 +6,7 @@ use Gems\Rest\Acl\AclFactory;
 use Gems\Rest\Acl\AclRepository;
 use Gems\Rest\Action\DevAction;
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Action\PingController;
 use Gems\Rest\Auth\AccessTokenAction;
 use Gems\Rest\Auth\AccessTokenRepository;
 use Gems\Rest\Auth\AuthCodeGrantFactory;
@@ -122,6 +123,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AuthorizeAction::class => ReflectionFactory::class,
                 AccessTokenAction::class => ReflectionFactory::class,
 
+                PingController::class => ReflectionFactory::class,
                 DevAction::class => ReflectionFactory::class,
 
                 // Entity repositories
@@ -246,6 +248,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     AuthorizeAction::class
                 ],
                 'allowed_methods' => ['GET', 'POST'],
+            ],
+            [
+                'name' => 'ping',
+                'path' => '/ping',
+                'middleware' => $this->getCustomActionMiddleware(PingController::class),
+                'allowed_methods' => ['GET'],
             ],
         ];
 
