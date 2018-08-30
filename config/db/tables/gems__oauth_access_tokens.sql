@@ -1,4 +1,5 @@
 CREATE TABLE gems__oauth_access_tokens (
+  access_token_id bigint(20) not null auto_increment,
   id varchar(100) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' not null,
   user_id varchar(255) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' null,
   client_id varchar(255) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' not null,
@@ -10,6 +11,6 @@ CREATE TABLE gems__oauth_access_tokens (
   created timestamp not null,
   created_by bigint(20) not null,
 
-  PRIMARY KEY (id),
-  INDEX (user_id)
+  PRIMARY KEY (access_token_id),
+  INDEX (id, user_id)
 );
