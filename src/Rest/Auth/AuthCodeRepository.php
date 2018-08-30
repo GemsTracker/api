@@ -63,7 +63,7 @@ class AuthCodeRepository extends EntityRepositoryAbstract implements AuthCodeRep
     {
         $result = $this->save($authCodeEntity);
         if ($result->getAffectedRows() === 0) {
-            throw \Exception('Auth code not saved');
+            throw new \Exception('Auth code not saved');
         }
     }
 
@@ -82,7 +82,7 @@ class AuthCodeRepository extends EntityRepositoryAbstract implements AuthCodeRep
         $result = $this->save($newValues);
 
         if ($result->getAffectedRows() === 0) {
-            throw \Exception('Auth code not revoked');
+            throw new \Exception('Auth code not revoked');
         }
 
         /*if ($authCode = $this->loadFirst($filter)) {

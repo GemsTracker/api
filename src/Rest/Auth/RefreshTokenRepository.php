@@ -58,7 +58,7 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
     {
         $result = $this->save($refreshTokenEntity);
         if ($result->getAffectedRows() === 0) {
-            throw \Exception('Refresh token not saved');
+            throw new \Exception('Refresh token not saved');
         }
     }
 
@@ -76,7 +76,7 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
 
         $result = $this->save($newValues);
         if ($result->getAffectedRows() === 0) {
-            throw \Exception('Refresh token not revoked');
+            throw new \Exception('Refresh token not revoked');
         }
     }
 

@@ -91,7 +91,7 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
     {
         $result = $this->save($accessTokenEntity);
         if ($result->getAffectedRows() === 0) {
-            throw \Exception('Access token not saved');
+            throw new \Exception('Access token not saved');
         }
     }
 
@@ -108,7 +108,7 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
             $accessToken->setRevoked(true);
             $result = $this->save($accessToken);
             if ($result->getAffectedRows() === 0) {
-                throw \Exception('Access token not revoked');
+                throw new \Exception('Access token not revoked');
             }
         } else {
             return false;
