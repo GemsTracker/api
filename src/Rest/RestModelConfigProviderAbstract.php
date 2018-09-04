@@ -60,6 +60,11 @@ abstract class RestModelConfigProviderAbstract
             $idField = 'id';
             $idRegex = '\d+';
 
+            $middleware = $this->getMiddleware();
+            if (isset($settings['customAction'])) {
+                $middleware = $this->getCustomActionMiddleware($settings['customAction']);
+            }
+
             if (isset($settings['idFieldRegex'])) {
                 $idRegex = $settings['idFieldRegex'];
             }
@@ -81,7 +86,7 @@ abstract class RestModelConfigProviderAbstract
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.structure',
                     'path' => '/' . $endpoint . '/structure',
-                    'middleware' => $this->getMiddleware(),
+                    'middleware' => $middleware,
                     'options' => $settings,
                     'allowed_methods' => ['GET']
                 ];
@@ -91,7 +96,7 @@ abstract class RestModelConfigProviderAbstract
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.get',
                     'path' => '/' . $endpoint . '['.$routeParameters.']',
-                    'middleware' => $this->getMiddleware(),
+                    'middleware' => $middleware,
                     'options' => $settings,
                     'allowed_methods' => ['GET']
                 ];
@@ -105,7 +110,7 @@ abstract class RestModelConfigProviderAbstract
             $routes[] = [
                 'name' => 'api.' . $endpoint,
                 'path' => '/' . $endpoint,
-                'middleware' => $this->getMiddleware(),
+                'middleware' => $middleware,
                 'options' => $settings,
                 'allowed_methods' => $defaultPathMethods,
             ];
@@ -123,7 +128,7 @@ abstract class RestModelConfigProviderAbstract
                 $routes[] = [
                     'name' => 'api.' . $endpoint . '.fixed',
                     'path' => '/' . $endpoint . $routeParameters,
-                    'middleware' => $this->getMiddleware(),
+                    'middleware' => $middleware,
                     'options' => $settings,
                     'allowed_methods' => $fixedRouteMethods,
                 ];
