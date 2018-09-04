@@ -7,11 +7,13 @@ use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
+use Pulse\Api\Action\RespondentTrackRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
 use Pulse\Api\Action\TokenAnswersRestController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
+use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\RespondentResults;
 use Pulse\Api\Repository\RespondentTrackfieldsRepository;
@@ -66,6 +68,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 TreatmentsWithNormsRepository::class => ReflectionFactory::class,
 
                 RespondentResults::class => ReflectionFactory::class,
+
+                RespondentTrackRestController::class => ReflectionFactory::class,
             ]
         ];
     }
@@ -92,7 +96,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'respondents' => [
                 'model' => 'Model_RespondentModel',
-                'methods' => ['GET', 'PATCH'],
+                'methods' => ['GET', 'POST', 'PATCH'],
                 'applySettings' => 'applyEditSettings',
                 'idField' => [
                     'gr2o_patient_nr',
@@ -130,9 +134,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
             ],
             'respondent-tracks' => [
-                'model' => 'Tracker_Model_RespondentTrackModel',
-                'methods' => ['GET', 'PATCH'],
+                'model' => RespondentTrackModel::class,
+                'methods' => ['GET', 'PATCH', 'POST'],
                 'idField' => 'gr2t_id_respondent_track',
+                'customAction' => RespondentTrackRestController::class,
             ],
             'extreme-values' => [
                 'model' => 'Model\\EvdModel',
