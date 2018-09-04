@@ -6,6 +6,7 @@ namespace Pulse\Api;
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\ChartsController;
+use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\RespondentTrackRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
@@ -70,6 +71,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 RespondentResults::class => ReflectionFactory::class,
 
                 RespondentTrackRestController::class => ReflectionFactory::class,
+
+                InsertTrackTokenController::class => ReflectionFactory::class,
             ]
         ];
     }
@@ -201,6 +204,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'middleware' => $this->getCustomActionMiddleware(TreatmentsWithNormsController::class),
                 'allowed_methods' => ['GET'],
             ],
+            [
+                'name' => 'insert-track-token',
+                'path' => '/insert-track-token',
+                'middleware' => $this->getCustomActionMiddleware(InsertTrackTokenController::class),
+                'allowed_methods' => ['POST'],
+            ]
         ];
 
 
