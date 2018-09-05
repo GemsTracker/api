@@ -64,21 +64,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function __invoke()
     {
         return [
-            'certificates' => $this->getCertificates(),
             'oauth2' => $this->getOauth2(),
             'dependencies' => $this->getDependencies(),
             'templates'    => $this->getTemplates(),
             'routes'       => $this->getRoutes(),
-        ];
-    }
-
-    public function getCertificates()
-    {
-        return [
-            //'public' => 'file://' . GEMS_ROOT_DIR . '/var/settings/gems.public.key',
-            //'private' => 'file://' . GEMS_ROOT_DIR . '/var/settings/gems.private.key',
-            'public' => 'file:///var/www/expressive/var/settings/gems.public.key',
-            'private' => 'file:///var/www/expressive/var/settings/gems.private.key',
         ];
     }
 
