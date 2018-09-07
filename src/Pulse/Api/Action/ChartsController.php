@@ -26,7 +26,11 @@ class ChartsController extends RestControllerAbstract
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $id = $request->getAttribute('id');
-        $respondentTrackId = $request->getAttribute('respondentTrackId');
+        $params = $request->getQueryParams();
+        $respondentTrackId = null;
+        if (isset($params['respondent-track-id'])) {
+            $respondentTrackId = $params['respondent-track-id'];
+        }
 
         $outcomeVariable = $this->chartRepository->getChart($id, $respondentTrackId);
 
