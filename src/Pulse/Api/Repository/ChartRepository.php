@@ -96,7 +96,8 @@ class ChartRepository
      */
     protected function addChartDataFromScores($norms, $normType='')
     {
-        $area = false;
+        $area = [];
+        $order = [];
 
         $blankDescriptive = true;
         $nValues = [];
@@ -109,6 +110,10 @@ class ChartRepository
             $descriptive = $norm['gno_descriptive'];
             $round = $norm['gro_round_description'];
             $scores[$descriptive][$round] = (float)$norm['gno_value'];
+
+            $order[$norm['gno_order']] = $descriptive;
+
+            $area[$descriptive] = false;
             if ($norm['gno_value'] != 0) {
                 $blankDescriptive = false;
             }
@@ -116,7 +121,7 @@ class ChartRepository
             $nValues[$round] = $norm['gno_n'];
 
             if (isset($norm['gno_group']) && $norm['gno_group'] != 0) {
-                $area = $norm['gno_order'];
+                $area[$descriptive] = $norm['gno_order'];
             }
 
             if ($range === false && isset($norm['gno_range'])) {
@@ -145,8 +150,12 @@ class ChartRepository
             }
         }
 
+        ksort($order);
+
         $descriptiveCount = 1;
-        foreach($scores as $descriptive=>$scores) {
+
+        foreach($order as $descriptive) {
+            $descriptiveScores = $scores[$descriptive];
             if (!empty($normType)) {
                 $descriptiveVariableNames[] = $variableName = $normType . '_descriptive_' . $descriptiveCount;
             } else {
@@ -160,14 +169,14 @@ class ChartRepository
             }
 
             $descriptiveData = [
-                'x' => array_keys($scores),
-                'y' => array_values($scores),
+                'x' => array_keys($descriptiveScores),
+                'y' => array_values($descriptiveScores),
                 'name' => $descriptiveLabel,
                 'type' => $this->type,
             ];
             $descriptiveCount++;
 
-            $descriptiveData = $this->addDescriptiveStyle($variableName, $descriptiveData, $normType, $area, false, $this->type);
+            $descriptiveData = $this->addDescriptiveStyle($variableName, $descriptiveData, $normType, $area[$descriptive], false, $this->type);
             $this->chartData[] = $descriptiveData;
         }
 
@@ -229,8 +238,13 @@ class ChartRepository
         $select->from('gems__norms')
             ->join('pulse__treatment2outcomevariable',
                 'gno_survey_id = pt2o_id_survey AND gno_answer_code = pt2o_question_code AND gno_field_1 = pt2o_id_treatment')
-            ->join('gems__rounds', 'gems__norms.gno_round_id = gems__rounds.gro_id_round')
-            ->where(['pt2o_id' => $outcomeVariableId]);
+            ->join('gems__rounds',
+                'gems__norms.gno_round_id = gems__rounds.gro_id_round AND pulse__treatment2outcomevariable.pt2o_id_track = gems__rounds.gro_id_track')
+            ->where(['pt2o_id' => $outcomeVariableId])
+            ->order('gro_id_order');
+
+        $select->where->notEqualTo('gro_id_round', 0);
+        $select->where->notEqualTo('gro_round_description', 'Stand-alone survey');
             //->where(['pt2o_id' => $outcomeVariableId]);
 
         foreach($normFieldToDbField as $normFieldName=>$dbFieldName) {
@@ -287,11 +301,11 @@ class ChartRepository
 
     protected function getChartLayouts()
     {
-        if ($this->surveyId && $this->questionCode && $this->treatmentId) {
+        if ($this->surveyId && $this->questionCodes && $this->treatmentId) {
             $treatmentName = $this->getTreatmentName($this->treatmentId);
             $title = $treatmentName . ': ' . $title = $this->name;
             if (empty($this->name) && ($surveyName = $this->getSurvey($this->surveyId))) {
-                $title = $treatmentName . ': ' . $surveyName . ': ' . $this->questionCode;
+                $title = $treatmentName . ': ' . $surveyName . ': ' . join(' & ', $this->questionCodes);
             }
 
             $chartLayout = [
@@ -330,7 +344,6 @@ class ChartRepository
 
             if (isset($this->range)) {
                 $chartLayout['yaxis']['range'] = $this->range;
-                //$chartLayout['yaxis']['autorange'] = false;
                 $chartLayout['yaxis']['title'] .= "<br>" . join('-', $this->range);
             }
             return $chartLayout;
@@ -391,27 +404,55 @@ class ChartRepository
         if ($respondentScores = $this->getRespondentScores($respondentTrackId)) {
             //\MUtil_Echo::track($respondentScores);
 
-            $patientNumber = $this->getPatientNumber($respondentTrackId, $this->currentUser->getCurrentOrganizationId());
+            $patientNumber = $this->getPatientNumber($respondentTrackId);
 
-            $type = $this->outcomeVariables['pt2o_graph'];
-            if ($type == 'errorbar') {
-                $type = 'bar';
+            if ($this->type == 'errorbar') {
+                $this->type = 'bar';
             }
 
-            $this->chartData['respondent'] = array(
-                'x' => array_keys($respondentScores),
-                'y' => array_values($respondentScores),
-                'type' => $type,
-                'name' => $patientNumber,
-            );
+            $key=0;
 
-            $this->setDescriptiveStyle('respondent', 'respondent', false, false, $type);
+            foreach($respondentScores as $questionCode=>$questionScores) {
+
+                $variableName = 'respondent';
+                if ($key > 0) {
+                    $variableName .= $key;
+                }
+
+                $legendName = $patientNumber;
+                if (!empty($this->respondentLabels)) {
+                    //$legendName .= ' - ' . $outcomeVariable['pt2o_respondent_labels'];
+                    $labels = explode('|', $this->respondentLabels);
+                    if (isset($labels[$key])) {
+                        $legendName .= ' - ' . $labels[$key];
+                    }
+                }
+
+                $respondentData = array(
+                    'x' => array_keys($questionScores),
+                    'y' => array_values($questionScores),
+                    'type' => $this->type,
+                    'name' => $legendName,
+                );
+
+                $respondentData = $this->addDescriptiveStyle(
+                    $variableName,
+                    $respondentData,
+                    $variableName,
+                    false,
+                    false,
+                    'scatter');
+
+                $this->chartData[] = $respondentData;
+                $key++;
+            }
+            $test = false;
         }
     }
 
     protected function getRespondentScores($respondentTrackId)
     {
-        if ($this->questionCode && $this->surveyId && $this->trackId) {
+        if ($this->questionCodes && $this->surveyId && $this->trackId) {
 
             $sql = new Sql($this->db);
             $tokenSelect = $sql->select();
@@ -423,11 +464,12 @@ class ChartRepository
                         'gto_id_track' => $this->trackId,
                         'gto_id_survey' => $this->surveyId,
                     ])
-                ->where->notEqualTo('gto_round_description', 'Stand-alone survey')
-                ->order('gto_round_order');
+                ->order('gto_round_order')
+                ->where->notEqualTo('gto_round_description', 'Stand-alone survey');
 
             $statement = $sql->prepareStatementForSqlObject($tokenSelect);
             $result = $statement->execute();
+
             $tokens = iterator_to_array($result);
 
             $survey = $this->tracker->getSurvey($this->surveyId);
@@ -440,17 +482,19 @@ class ChartRepository
             foreach($tokens as $currentToken) {
                 $token = $this->tracker->getToken($currentToken['gto_id_token']);
                 $tokenAnswers = $token->getRawAnswers();
-                if (isset($tokenAnswers[$this->questionCode])) {
-                    $answer = $tokenAnswers[$this->questionCode];
-                    if (isset($questionInformation[$this->questionCode], $questionInformation[$this->questionCode]['answers'])
-                        && is_array($questionInformation[$this->questionCode]['answers'])
-                        && isset($questionInformation[$this->questionCode]['answers'][$answer])
-                    ) {
-                        $answer = $questionInformation[$this->questionCode]['answers'][$answer];
-                    }
+                foreach($this->questionCodes as $questionCode) {
+                    if (isset($tokenAnswers[$questionCode])) {
+                        $answer = $tokenAnswers[$questionCode];
+                        if (isset($questionInformation[$questionCode], $questionInformation[$questionCode]['answers'])
+                            && is_array($questionInformation[$questionCode]['answers'])
+                            && isset($questionInformation[$questionCode]['answers'][$answer])
+                        ) {
+                            $answer = $questionInformation[$questionCode]['answers'][$answer];
+                        }
 
-                    if (is_numeric($answer)) {
-                        $respondentScores[$currentToken['gto_round_description']] = $answer;
+                        if (is_numeric($answer)) {
+                            $respondentScores[$questionCode][$currentToken['gto_round_description']] = $answer;
+                        }
                     }
                 }
             }
@@ -499,6 +543,9 @@ class ChartRepository
         } elseif ($normType == 'respondent') {
             $lineColor = 'rgb(215,0,76)';
             $barColor = 'rgba(215,0,76,.75)';
+        } elseif ($normType == 'respondent1') {
+            $lineColor = 'rgb(255,217,102)';
+            $barColor = 'rgba(255,217,102,.75)';
         }
 
         if (($type == 'bar' || $type == 'errorbar') && isset($barColor)) {
@@ -573,7 +620,8 @@ class ChartRepository
     protected function setInitialValues($row)
     {
         $this->name = $row['pt2o_name'];
-        $this->questionCode = $row['pt2o_question_code'];
+        $this->questionCodes = explode('|', $row['pt2o_question_code']);
+        $this->respondentLabels = $row['pt2o_respondent_labels'];
         $this->surveyId = $row['pt2o_id_survey'];
         $this->trackId = $row['pt2o_id_track'];
         $this->treatmentId = $row['pt2o_id_treatment'];
