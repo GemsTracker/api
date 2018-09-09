@@ -28,6 +28,28 @@ abstract class RestControllerAbstract implements MiddlewareInterface
      */
     protected $routeOptions;
 
+    /**
+     * @var string|null Current User ID
+     */
+    protected $userId;
+
+    /**
+     * @var string|null Current User login name
+     */
+    protected $userName;
+
+    /**
+     * @var string|null Current user base organization
+     */
+    protected $userOrganization;
+
+    protected function getUserAtributesFromRequest(ServerRequestInterface $request)
+    {
+        $this->userId = $request->getAttribute('user_id');
+        $this->userName = $request->getAttribute('user_name');
+        $this->userOrganization = $request->getAttribute('user_organization');
+    }
+
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $method = strtolower($request->getMethod());
@@ -43,6 +65,8 @@ abstract class RestControllerAbstract implements MiddlewareInterface
         ) {
                 return new EmptyResponse(405);
         }
+
+        $this->getUserAtributesFromRequest($request);
 
         if (($method == 'get') && (substr($path, -10) === '/structure')) {
             if (method_exists($this, 'structure')) {

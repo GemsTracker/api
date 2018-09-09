@@ -99,7 +99,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $columns = $this->model->getItemNames();
         foreach ($columns as $itemName) {
             if (strpos($itemName, '_changed_by') !== false) {
-                $row[$itemName] = 0;
+                $row[$itemName] = $this->userId;
             } elseif (strpos($itemName, '_changed') !== false) {
                 $now = new \DateTime();
                 $row[$itemName] = $now->format('c');
@@ -119,7 +119,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $columns = $this->model->getItemNames();
         foreach ($columns as $itemName) {
             if (strpos($itemName, '_created_by') !== false) {
-                $row[$itemName] = 0;
+                $row[$itemName] = $this->userId;
             } elseif (strpos($itemName, '_created') !== false) {
                 $now = new \DateTime();
                 $row[$itemName] = $now->format('c');

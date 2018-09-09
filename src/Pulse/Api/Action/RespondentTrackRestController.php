@@ -61,7 +61,7 @@ class RespondentTrackRestController extends ModelRestController
             $trackEngine = $this->tracker->getTrackEngine($newRow);
 
             // Create the actual tokens!!!!
-            $trackEngine->checkRoundsFor($respondentTrack, 0);
+            $trackEngine->checkRoundsFor($respondentTrack, $this->userId);
             $refresh = true;
 
         } elseif($changed) {
@@ -73,7 +73,7 @@ class RespondentTrackRestController extends ModelRestController
         if ($refresh) {
             // Perform a refresh from the database, to avoid date trouble
             $respondentTrack->refresh();
-            $respondentTrack->checkTrackTokens(0);
+            $respondentTrack->checkTrackTokens($this->userId);
         }
 
         return parent::afterSaveRow($newRow);
