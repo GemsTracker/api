@@ -1105,7 +1105,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                     $this->model->set($columnName, 'dateFormat', \MUtil_Date::ISO_8601);
                 }
 
-                if (strpos($value, '+') === 19) {
+                if (strpos($value, '+') === 19 || strpos($value, '.') === 19) {
                     $row[$columnName] = substr($value, 0, 19);
                 }
             }
