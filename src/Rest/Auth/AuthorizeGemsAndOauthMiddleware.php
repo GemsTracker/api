@@ -68,9 +68,10 @@ class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
             if (!$currentUser->hasPrivilege('pr.api')) {
                 return new JsonResponse(['error' => 'access_denied', 'message' => 'You do not have the correct privileges to access this.'], 401);
             } else {
-                $request->withAttribute('user_id', $currentUser->getUserId());
-                $request->withAttribute('user_name', $currentUser->getLoginName());
-                $request->withAttribute('user_organization', $currentUser->getBaseOrganizationId());
+                $request = $request->withAttribute('user_id', $currentUser->getUserId());
+                $request = $request->withAttribute('user_name', $currentUser->getLoginName());
+                $request = $request->withAttribute('user_organization', $currentUser->getBaseOrganizationId());
+
                 $gemsAuth = true;
             }
         } else {
@@ -80,9 +81,9 @@ class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
                 if ($oauthUserId = $request->getAttribute('oauth_user_id')) {
 
                     list($userId, $loginName, $loginOrganization) = explode('@', $oauthUserId);
-                    $request->withAttribute('user_id', $userId);
-                    $request->withAttribute('user_name', $loginName);
-                    $request->withAttribute('user_organization', $loginOrganization);
+                    $request = $request->withAttribute('user_id', $userId);
+                    $request = $request->withAttribute('user_name', $loginName);
+                    $request = $request->withAttribute('user_organization', $loginOrganization);
 
                     $this->currentUserRepository->setCurrentUserCredentials($loginName, $loginOrganization);
                 }
