@@ -5,8 +5,10 @@ namespace Pulse\Api;
 
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
+use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\InsertTrackTokenController;
+use Pulse\Api\Action\RespondentRestController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\RespondentTrackRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
@@ -71,6 +73,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 RespondentResults::class => ReflectionFactory::class,
 
                 RespondentTrackRestController::class => ReflectionFactory::class,
+                RespondentRestController::class => ReflectionFactory::class,
+                AppointmentRestController::class => ReflectionFactory::class,
 
                 InsertTrackTokenController::class => ReflectionFactory::class,
             ]
@@ -80,6 +84,27 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function getRestModels()
     {
         return [
+            'emma/appointments' => [
+                'model' => 'Model_AppointmentModel',
+                'methods' => ['GET', 'POST', 'PATCH'],
+                'customAction' => AppointmentRestController::class,
+                'idField' => 'gap_id_in_source',
+
+            ],
+            'emma/respondents' => [
+                'model' => 'Model_RespondentModel',
+                'methods' => ['GET', 'POST', 'PATCH'],
+                'applySettings' => 'applyEditSettings',
+                'customAction' => RespondentRestController::class,
+                'idField' => [
+                    'gr2o_patient_nr',
+                    'gr2o_id_organization',
+                ],
+                'idFieldRegex' => [
+                    '[0-9]{6}-A[0-9]{3}',
+                    '\d+',
+                ],
+            ],
             'organizations2' => [
                 'model' => 'Model\\OrganizationModel',
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -96,19 +121,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gor_name',
                 ],*/
                 'organizationId' => 'gor_id_organization',
-            ],
-            'respondents' => [
-                'model' => 'Model_RespondentModel',
-                'methods' => ['GET', 'POST', 'PATCH'],
-                'applySettings' => 'applyEditSettings',
-                'idField' => [
-                    'gr2o_patient_nr',
-                    'gr2o_id_organization',
-                ],
-                'idFieldRegex' => [
-                    '[0-9]{6}-A[0-9]{3}',
-                    '\d+',
-                ],
             ],
             'tracks' => [
                 'model' => 'Tracker_Model_TrackModel',
