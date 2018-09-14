@@ -808,13 +808,16 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
                 foreach($this->model->getCol('table') as $colName=>$table) {
                     if (isset($saveableTables[$table])) {
-                        if ($columnValidators = $this->model->get($colName, 'validators') !== null) {
+                        $columnValidators = $this->model->get($colName, 'validators');
+                        if ($columnValidators !== null) {
                             $multiValidators[$colName] = $columnValidators;
                         }
-                        if ($columnValidator = $this->model->get($colName, 'validator') !== null) {
+                        $columnValidator = $this->model->get($colName, 'validator');
+                        if ($columnValidator) {
                             $singleValidators[$colName] = $columnValidator;
                         }
-                        if ($columnRequired = $this->model->get($colName, 'required') === true) {
+                        $columnRequired = $this->model->get($colName, 'required');
+                        if ($columnRequired === true) {
                             if ($this->method != 'post' || $this->model->get($colName, 'key') !== true) {
                                 $allRequiredFields[$colName] = $columnRequired;
                             }
