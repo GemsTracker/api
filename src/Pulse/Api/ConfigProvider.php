@@ -166,6 +166,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'methods' => ['GET', 'PATCH', 'POST'],
                 'idField' => 'gr2t_id_respondent_track',
                 'customAction' => RespondentTrackRestController::class,
+                'organizationId' => 'gr2t_id_organization',
             ],
             'extreme-values' => [
                 'model' => 'Model\\EvdModel',
