@@ -341,8 +341,11 @@ class ModelRestControllerTest extends ZendDbTestCase
         // Test the exception thrown in a model delete. Currently no models throw an exception
         $mockedModelController = $this->getArrayModelRestController();
         $mockedModelProphecy = $this->prophesize(\MUtil_Model_TableModel::class);
+        $mockedModelProphecy->get(Argument::type('string'), 'type')->willReturn(\MUtil_Model::TYPE_STRING);
         $mockedModelProphecy->getKeys()->willReturn(['id' => 'id']);
         $mockedModelProphecy->getCol(Argument::type('string'))->willReturn([]);
+        $mockedModelProphecy->loadNew()->willReturn([]);
+        $mockedModelProphecy->getItemNames()->willReturn([]);
         $exception = new \Exception('Saving of the item has failed');
         $mockedModelProphecy->save(Argument::type('array'))->willThrow($exception);
 
@@ -788,13 +791,16 @@ class ModelRestControllerTest extends ZendDbTestCase
         return new TestMessageModelRestController($loader, $urlHelper, $this->db1);
     }
 
-    private function getRequest($method='GET',$attributes=[], $queryParams=[],$postData=[], $uri='/')
+    private function getRequest($method='GET',$attributes=[], $queryParams=[],$postData=[], $uri='')
     {
         $requestProphesy = $this->prophesize(ServerRequestInterface::class);
         $requestProphesy->getUri()->willReturn($this->prophesize(UriInterface::class)->reveal());
         $requestProphesy->getUri()->willReturn(new Uri($uri));
         $requestProphesy->getMethod()->willReturn($method);
         $requestProphesy->getHeaderLine('content-type')->willReturn('application/json');
+        $requestProphesy->getAttribute('user_id')->willReturn(0);
+        $requestProphesy->getAttribute('user_name')->willReturn('testUser');
+        $requestProphesy->getAttribute('user_organization')->willReturn(0);
 
         $routeProphecy = $this->prophesize(Route::class);
         $route = $routeProphecy->reveal();
