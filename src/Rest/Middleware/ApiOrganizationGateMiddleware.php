@@ -26,13 +26,11 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $allowedOrganizations = array_keys($this->currentUser->getAllowedOrganizations());
-
-
-
         $method = $request->getMethod();
         $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
         $route = $routeResult->getMatchedRoute();
+        $test = $route->getPath();
+
         $routeOptions = $route->getOptions();
         if (!isset($routeOptions['organizationId']) || empty($routeOptions['organizationId'])) {
             $response = $delegate->process($request);
@@ -40,9 +38,11 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
         }
 
         if ($method == 'GET') {
+            $allowedOrganizations = array_keys($this->currentUser->getAllowedOrganizations());
+
             $filters = $request->getQueryParams();
             $filters = $this->getRouteFilters($filters, $routeOptions, $allowedOrganizations);
-            $request->withQueryParams($filters);
+            $request = $request->withQueryParams($filters);
         } /*elseif ($method == 'POST' || $method == 'PATCH') {
             //$filters = $request->getParsedBody();
             $body = $request->getBody();
@@ -59,16 +59,16 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
     protected function getRouteFilters($filters, $routeOptions, $allowedOrganizations)
     {
         if (!isset($filters[$routeOptions['organizationId']])) {
-            $filters[$routeOptions['organizationId']] = $allowedOrganizations;
+            $filters[$routeOptions['organizationId']] = $allowedOrganizations;//'['.join(',', $allowedOrganizations).']';
         } else {
-            $selectedOrganizationIds = join(',', $filters[$routeOptions['organizationId']]);
+            $selectedOrganizationIds = '['.join(',', $filters[$routeOptions['organizationId']]).']';
             $filteredOrganizationIds = [];
             foreach($selectedOrganizationIds as $organizationId) {
                 if (in_array($organizationId, $selectedOrganizationIds)) {
                     $filteredOrganizationIds[] = $organizationId;
                 }
             }
-            $filters[$routeOptions['organizationId']] = $allowedOrganizations;
+            $filters[$routeOptions['organizationId']] = $filteredOrganizationIds;
         }
         return $filters;
     }
