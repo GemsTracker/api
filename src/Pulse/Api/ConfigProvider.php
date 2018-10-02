@@ -105,14 +105,27 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     '\d+',
                 ],
             ],
-            'organizations2' => [
+            'respondents' => [
+                'model' => 'Model_RespondentModel',
+                'methods' => ['GET', 'POST', 'PATCH'],
+                'applySettings' => 'applyEditSettings',
+                'idField' => [
+                    'gr2o_patient_nr',
+                    'gr2o_id_organization',
+                ],
+                'idFieldRegex' => [
+                    '[0-9]{6}-A[0-9]{3}',
+                    '\d+',
+                ],
+            ],
+            'organizations' => [
                 'model' => 'Model\\OrganizationModel',
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
                 'allowed_fields' => [
                     'gor_id_organization',
                     'gor_name',
-                    'gor_url',
-                    'gor_task',
+                    'gor_code',
+                    'gor_style',
                 ],
                 /*'disallowed_fields' => [
                     'gor_user_class'
