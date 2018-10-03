@@ -458,38 +458,40 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             }
             
             if (isset($itemNames[$colName])) {
-                if (strpos($value, '[') === 0 && strpos($value, ']') === strlen($value)-1) {
-                    $values = explode(',', str_replace(['[', ']'], '', $value));
-                    $firstValue = reset($values);
-                    switch ($firstValue) {
-                        case '<':
-                        case '>':
-                        case '<=':
-                        case '>=':
-                        case '!=':
-                        case 'LIKE':
-                        case 'NOT LIKE':
-                            $secondValue = end($values);
-                            if (is_numeric($secondValue)) {
-                                $secondValue = ($secondValue == (int) $secondValue) ? (int) $secondValue : (float) $secondValue;
-                            }
-                            if ($firstValue == 'LIKE' || $firstValue == 'NOT LIKE') {
-                                $secondValue = $this->db1->quote($secondValue);
-                            }
-                            $filters[] = $colName . ' ' . $firstValue . ' ' . $secondValue;
-                            break;
-                        default:
-                            $filters[$colName] = $values;
-                            break;
-                    }
-                } else {
-                    switch (strtoupper($value)) {
-                        case 'IS NULL':
-                        case 'IS NOT NULL':
-                            $filters[] = $colName . ' ' . $value;
-                            break;
-                        default:
-                            $filters[$colName] = $value;
+                if (is_string($value)) {
+                    if (strpos($value, '[') === 0 && strpos($value, ']') === strlen($value) - 1) {
+                        $values = explode(',', str_replace(['[', ']'], '', $value));
+                        $firstValue = reset($values);
+                        switch ($firstValue) {
+                            case '<':
+                            case '>':
+                            case '<=':
+                            case '>=':
+                            case '!=':
+                            case 'LIKE':
+                            case 'NOT LIKE':
+                                $secondValue = end($values);
+                                if (is_numeric($secondValue)) {
+                                    $secondValue = ($secondValue == (int)$secondValue) ? (int)$secondValue : (float)$secondValue;
+                                }
+                                if ($firstValue == 'LIKE' || $firstValue == 'NOT LIKE') {
+                                    $secondValue = $this->db1->quote($secondValue);
+                                }
+                                $filters[] = $colName . ' ' . $firstValue . ' ' . $secondValue;
+                                break;
+                            default:
+                                $filters[$colName] = $values;
+                                break;
+                        }
+                    } else {
+                        switch (strtoupper($value)) {
+                            case 'IS NULL':
+                            case 'IS NOT NULL':
+                                $filters[] = $colName . ' ' . $value;
+                                break;
+                            default:
+                                $filters[$colName] = $value;
+                        }
                     }
                 }
             }
