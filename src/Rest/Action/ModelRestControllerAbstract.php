@@ -941,6 +941,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $parsedBody = json_decode($request->getBody()->getContents(), true);
 
+        if (empty($parsedBody)) {
+            return new EmptyResponse(400);
+        }
+
         $row = $this->translatePostRow($parsedBody);
 
         return $this->saveRow($request, $row);
