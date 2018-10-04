@@ -39,6 +39,7 @@ class LegacyFactory implements FactoryInterface
             case Util::class:
             case Util_BasePath::class:
             case \Gems_Tracker::class:
+            case \Gems_Events::class:
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
 
