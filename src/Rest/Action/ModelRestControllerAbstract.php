@@ -88,6 +88,11 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $this->db1 = $LegacyDb;
     }
 
+    protected function addCurrentUserToModel()
+    {
+        \Gems_Model::setCurrentUserId($this->userId);
+    }
+
     /**
      * Add _changed and _changed_by fields, if they exist in the model
      *
@@ -989,7 +994,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $row = $newRowData + $row;
 
-        $row = $this->addChangeFields($row);
+        //$row = $this->addChangeFields($row);
 
         return $this->saveRow($request, $row);
     }
@@ -1004,6 +1009,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      */
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
+        $this->getUserAtributesFromRequest($request);
+        $this->addCurrentUserToModel();
+
         $this->model = $this->createModel();
         if (!$this->model instanceof \MUtil_Model_ModelAbstract) {
             throw new \Exception('No valid model loaded');
@@ -1150,10 +1158,11 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $row = $this->translateRow($row, true);
         $row = $this->setModelDates($row);
 
-        $row = $this->addNewModelRow($row);
-
-        $row = $this->addChangeFields($row);
-        $row = $this->addCreateFields($row);
+        if (!empty($row)) {
+            $row = $this->addNewModelRow($row);
+            //$row = $this->addChangeFields($row);
+            //$row = $this->addCreateFields($row);
+        }
 
         return $row;
     }
