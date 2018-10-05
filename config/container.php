@@ -48,4 +48,11 @@ $container->setService('config', $config);
 // Inject the ProjectOverloader
 $container->setService(ProjectOverloader::class, $loader);
 
+// Set the used namespaces and a registry source in the \MUtil_Model
+$source = new \Gems\Rest\Legacy\ServiceManagerRegistrySource($container);
+\MUtil_Model::addNameSpace('Gems');
+\MUtil_Model::addNameSpace($config['project']['name']);
+\MUtil_Model::setSource($source);
+
+
 return $container;
