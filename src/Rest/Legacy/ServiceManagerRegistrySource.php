@@ -15,7 +15,7 @@ class ServiceManagerRegistrySource implements \MUtil_Registry_SourceInterface
 
     public function __construct(ServiceManager $container)
     {
-        $this->container = $container;
+        $this->containers[] = $container;
     }
 
     /**
@@ -57,11 +57,7 @@ class ServiceManagerRegistrySource implements \MUtil_Registry_SourceInterface
     {
         foreach ($target->getRegistryRequests() as $name) {
             if (! $this->applySourceContainers($target, $name)) {
-                if (self::$verbose) {
-                    \MUtil_Echo::r('Missed resource: ' . get_class($target) . '->' . $name);
-                } /* else {
-                echo '<br/>missed ' . $name . "\n";
-                } // */
+                // Log that source could not be found
             }
         }
 
@@ -82,19 +78,16 @@ class ServiceManagerRegistrySource implements \MUtil_Registry_SourceInterface
     {
         $resource = null;
         foreach ($this->containers as $container) {
-            if ($container instanceof ServiceManager && $container->has($name)) {
-                $resource = $container->get($name);
+            $legacyName = 'Legacy' . ucfirst($name);
+            if ($container instanceof ServiceManager && $container->has($legacyName)) {
+                $resource = $container->get($legacyName);
             } elseif(isset($container->$name)) {
                 $resource = $container->$name;
             }
 
             if ($resource) {
                 if ($target->answerRegistryRequest($name, $resource)) {
-                    if (self::$verbose) {
-                        \MUtil_Echo::r('Resource set: ' . get_class($target) . '->' . $name .
-                            ' type "' . (is_object($resource) ? get_class($resource) : gettype($resource)) .
-                            '" from ' . get_class($container));
-                    }
+                    // Log that source has been found
                     return true;
                 }
             }
