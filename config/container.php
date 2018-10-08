@@ -3,6 +3,7 @@
 use Zend\ServiceManager\Config;
 //use Zend\ServiceManager\ServiceManager;
 use Zalt\Loader\ProjectOverloader;
+use Gems\Rest\Legacy\ProjectOverloaderSourceContainer;
 
 // Load configuration
 $config = require __DIR__ . '/config.php';
@@ -28,7 +29,7 @@ if (! defined('APPLICATION_ENV')) {
 }
 
 // Build container
-$loader = new ProjectOverloader([
+$loader = new ProjectOverloaderSourceContainer([
 	$config['project']['name'],
     'Gems',
     'MUtil',

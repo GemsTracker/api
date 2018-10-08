@@ -986,6 +986,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $parsedBody = json_decode($request->getBody()->getContents(), true);
         $newRowData = $this->translateRow($parsedBody, true);
 
+        $newRowData = $this->addChangeFields($newRowData);
         $newRowData = $this->setModelDates($newRowData);
 
         $filter = $this->getIdFilter($id, $idField);
@@ -994,7 +995,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $row = $newRowData + $row;
 
-        //$row = $this->addChangeFields($row);
+
 
         return $this->saveRow($request, $row);
     }
@@ -1156,13 +1157,14 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     protected function translatePostRow($row)
     {
         $row = $this->translateRow($row, true);
-        $row = $this->setModelDates($row);
 
         if (!empty($row)) {
             $row = $this->addNewModelRow($row);
-            //$row = $this->addChangeFields($row);
-            //$row = $this->addCreateFields($row);
+            $row = $this->addChangeFields($row);
+            $row = $this->addCreateFields($row);
         }
+
+        $row = $this->setModelDates($row);
 
         return $row;
     }
