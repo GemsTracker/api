@@ -8,6 +8,7 @@ use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\InsertTrackTokenController;
+use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\RespondentRestController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\RespondentTrackRestController;
@@ -77,6 +78,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AppointmentRestController::class => ReflectionFactory::class,
 
                 InsertTrackTokenController::class => ReflectionFactory::class,
+
+                PermissionGeneratorController::class => ReflectionFactory::class,
             ]
         ];
     }
@@ -235,6 +238,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'path' => '/insert-track-token',
                 'middleware' => $this->getCustomActionMiddleware(InsertTrackTokenController::class),
                 'allowed_methods' => ['POST'],
+            ],
+            [
+                'name' => 'permission-generator',
+                'path' => '/permission-generator',
+                'middleware' => $this->getCustomActionMiddleware(PermissionGeneratorController::class),
+                'allowed_methods' => ['GET'],
             ]
         ];
 
