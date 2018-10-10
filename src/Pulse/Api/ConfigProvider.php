@@ -14,6 +14,7 @@ use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\RespondentTrackRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
 use Pulse\Api\Action\TokenAnswersRestController;
+use Pulse\Api\Action\TokenController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
@@ -76,6 +77,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 RespondentTrackRestController::class => ReflectionFactory::class,
                 RespondentRestController::class => ReflectionFactory::class,
                 AppointmentRestController::class => ReflectionFactory::class,
+
+                TokenController::class => ReflectionFactory::class,
 
                 InsertTrackTokenController::class => ReflectionFactory::class,
 
@@ -161,7 +164,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'tokens' => [
                 'model' => 'Tracker_Model_StandardTokenModel',
-                'methods' => ['GET'],
+                'methods' => ['GET', 'PATCH'],
+                'customAction' => TokenController::class,
                 'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
             ],
             'respondent-tracks' => [

@@ -1119,12 +1119,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         foreach($row as $columnName=>$value) {
             $type = $this->model->get($columnName, 'type');
             if ($type === \MUtil_Model::TYPE_DATETIME || $type === \MUtil_Model::TYPE_DATE) {
-                if ($this->model->get($columnName, 'dateFormat') === null) {
-                    $this->model->set($columnName, 'dateFormat', \MUtil_Date::ISO_8601);
-                }
+                //if ($this->model->get($columnName, 'dateFormat') === null) {
+                //    $this->model->set($columnName, 'dateFormat', \MUtil_Date::ISO_8601);
+                //}
 
                 if (strpos($value, '+') === 19 || strpos($value, '.') === 19) {
-                    $row[$columnName] = substr($value, 0, 19);
+                    $value = substr($value, 0, 19);
+                    $row[$columnName] = new \MUtil_Date($value, \MUtil_Date::ISO_8601);
                 }
             }
 
