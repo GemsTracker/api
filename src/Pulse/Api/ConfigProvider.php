@@ -9,6 +9,7 @@ use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\PermissionGeneratorController;
+use Pulse\Api\Action\RespondentBulkRestController;
 use Pulse\Api\Action\RespondentRestController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\RespondentTrackRestController;
@@ -76,6 +77,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 RespondentTrackRestController::class => ReflectionFactory::class,
                 RespondentRestController::class => ReflectionFactory::class,
+                RespondentBulkRestController::class => ReflectionFactory::class,
                 AppointmentRestController::class => ReflectionFactory::class,
 
                 TokenController::class => ReflectionFactory::class,
@@ -101,7 +103,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
                 'applySettings' => 'applyEditSettings',
-                'customAction' => RespondentRestController::class,
+                'customAction' => RespondentBulkRestController::class,
                 'idField' => [
                     'gr2o_patient_nr',
                     'gr2o_id_organization',
