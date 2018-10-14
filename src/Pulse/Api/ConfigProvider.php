@@ -102,7 +102,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'emma/respondents' => [
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
-                'applySettings' => 'applyEditSettings',
                 'customAction' => RespondentBulkRestController::class,
                 'idField' => [
                     'gr2o_patient_nr',
