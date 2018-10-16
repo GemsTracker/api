@@ -119,7 +119,7 @@ class RespondentBulkRestController extends ModelRestController
 
         $appointmentModel = $this->loader->create('Model_AppointmentModel');
 
-        $translator = new AppointmentImportTranslator($this->agenda);
+        $translator = new AppointmentImportTranslator($this->db, $this->agenda);
 
         foreach($appointments as $appointment) {
 
