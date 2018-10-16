@@ -3,11 +3,17 @@
 
 namespace Pulse\Api\Action;
 
-
+use Gems\Model\EpisodeOfCareModel;
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Model\ModelProcessor;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
+use Pulse\Api\Model\Emma\AppointmentImportTranslator;
+use Pulse\Api\Model\Emma\EpisodeOfCareImportTranslator;
+use Pulse\Api\Model\Emma\OrganizationRepository;
+use Pulse\Api\Model\Emma\RespondentImportTranslator;
+use Pulse\Api\Model\Emma\RespondentRepository;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Sql\Sql;
@@ -16,33 +22,40 @@ use Zend\Expressive\Helper\UrlHelper;
 
 class RespondentBulkRestController extends ModelRestController
 {
-    protected $apiNames = [
-        "grs_initials_name" => "initials_name",
-        "grs_last_name" => "last_name",
-        "grs_ssn" => "ssn",
-        "grs_gender" => "gender",
-        "grs_birthday" => "birthday",
-        "grs_address" => "address",
-        "grs_zipcode" => "zipcode",
-        "grs_city" => "city",
-        "grs_phone_1" => "phone_home",
-        "grs_phone_3" => "phone_mobile",
+    /**
+     * @var \Gems_Agenda
+     */
+    protected $agenda;
 
-        //"gr2o_id_organization" => "organization",
-        "gr2o_email" => "email",
-        "gr2o_patient_nr" => "patient_nr",
-    ];
+    protected $agendaDiagnosisRepository;
 
     /**
      * @var Adapter
      */
     protected $db;
 
-    protected $organizations;
+    /**
+     * @var OrganizationRepository
+     */
+    protected $organizationRepository;
 
-    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db, $LegacyDb)
+    /**
+     * @var RespondentRepository
+     */
+    protected $respondentRepository;
+
+    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db,
+                                AgendaDiagnosisRepository $agendaDiagnosisRepository,
+                                OrganizationRepository $organizationRepository,
+                                RespondentRepository $respondentRepository, \Gems_Agenda $agenda, $LegacyDb
+    )
     {
+        $this->agenda = $agenda;
+        $this->agendaDiagnosisRepository = $agendaDiagnosisRepository;
         $this->db = $db;
+        $this->organizationRepository = $organizationRepository;
+        $this->respondentRepository = $respondentRepository;
+
         parent::__construct($loader, $urlHelper, $LegacyDb);
     }
 
@@ -58,139 +71,111 @@ class RespondentBulkRestController extends ModelRestController
             return new EmptyResponse(400);
         }
 
-        // For now unset the submodels
-        unset($respondentRow['episodes']);
-        unset($respondentRow['appointments']);
+        $translator = new RespondentImportTranslator($this->db);
+        $row = $translator->translateRow($respondentRow, true);
 
-        $row = $this->translateRow($respondentRow, true);
+        $organizations = $this->organizationRepository->getOrganizationTranslations($row['organizations']);
 
-        $row['gr2o_reception_code']  = \GemsEscort::RECEPTION_OK;
-        $row['grs_iso_lang'] = 'nl';
-        $row['gr2o_readonly'] = 1;
-
-        if (isset($row['deceased']) && $row['deceased'] === true) {
-            $row['gr2o_reception_code'] = 'deceased';
-        }
-
-        if ($row['grs_ssn']) {
-            $bsnComm = false;
-            $validator = new \MUtil_Validate_Dutch_Burgerservicenummer();
-
-            if ($validator->isValid($row['grs_ssn'])) {
-                $ssnPatNr = $this->getPatientNrBySsn();
-
-                if ($ssnPatNr && ($ssnPatNr != $row['gr2o_patient_nr'])) {
-                    unset($row['grs_ssn']);
-                    $bsnComm = "\nBSN removed, was duplicate of $ssnPatNr BSN.\n";
-                }
-            } else {
-                $bsnComm = "\nBSN removed, " . $row['grs_ssn'] . " is not a valid BSN.\n";
-                unset($row['grs_ssn']);
-            }
-        }
-
-        $organizations = $this->getOrganizations($row['organizations']);
+        $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
 
         foreach($organizations as $organizationId => $organizationName) {
             $row['gr2o_id_organization'] = $organizationId;
-            $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
+            // Add location!
+            // Add Treatment if possible?
+
             $new = true;
-            if ($patientId = $this->getPatientId($row['gr2o_patient_nr'], $organizationId)) {
+            if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'], $organizationId)) {
                 $new = false;
                 $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
             }
             $this->model->applyEditSettings($new);
 
             try {
-                $processor->save($row, $new);
+                $newRow = $processor->save($row, !$new);
             } catch(\Exception $e) {
                 // Row could not be saved.
                 // return JsonResponse
             }
         }
 
+        $this->processEpisodes($newRow);
+        $this->processAppointments($newRow);
+
+
+
         // Return the route as a link in the header, like in ModelRestControllerAbstract->saveRow()
 
         return new EmptyResponse(201);
     }
 
-
-    protected function getPatientId($patientNr, $organizationId)
+    protected function processAppointments($row)
     {
-        $sql = new Sql($this->db);
-        $select = $sql->select();
-        $select->from('gems__respondent2org')
-            ->columns(['gr2o_id_user', 'gr2o_patient_nr', 'gr2o_id_organization'])
-            ->where(['gr2o_patient_nr' => $patientNr, 'gr2o_id_organization' => $organizationId]);
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
+        $appointments = $row['appointments'];
+        $userId = $row['grs_id_user'];
 
-        if ($result->count() > 0) {
-            $user = $result->current();
-            return $user['gr2o_id_user'];
-        }
-        return false;
-    }
+        $appointmentModel = $this->loader->create('Model_AppointmentModel');
 
-    protected function getPatientNrBySsn($ssn)
-    {
-        $sql = new Sql($this->db);
-        $select = $sql->select();
-        $select->from('gems__respondent2org')
-            ->join('gems__respondents', 'grs_id_user = gr2o_id_user')
-            ->columns(['grs_ssn', 'gr2o_patient_nr'])
-            ->where(['grs_ssn' => $ssn]);
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
+        $translator = new AppointmentImportTranslator($this->agenda);
 
-        if ($result->count() > 0) {
-            $user = $result->current();
-            return $user['gr2o_patient_nr'];
-        }
-        return false;
-    }
+        foreach($appointments as $appointment) {
 
-
-
-    protected function getLocalOrganizations()
-    {
-        if (!$this->organizations) {
-            $sql = new Sql($this->db);
-            $select = $sql->select();
-            $select->from('gems__organizations')
-                ->columns(['gor_id_organization', 'gor_name'])
-                ->where(['gor_active' => 1]);
-
-            $statement = $sql->prepareStatementForSqlObject($select);
-            $result = $statement->execute();
-
-            $organizations = iterator_to_array($result);
-            $filteredOrganizations = [];
-            foreach ($organizations as $organization) {
-                $filteredOrganizations[$organization['gor_id_organization']] = $organization['gor_name'];
+            if (!isset($appointment['id'])) {
+                // Skipping appointment because no ID is set!
+                continue;
             }
 
-            $this->organizations = $filteredOrganizations;
-        }
+            if (!array_key_exists('organization', $appointment)) {
+                // Skipping appointment because organization is not set in appointment!
+                continue;
+            }
 
-        return $this->organizations;
-    }
+            $organizationId = $this->organizationRepository->getOrganizationId($appointment['organization']);
 
-    protected function getOrganizations($organizations)
-    {
-        $localOrganizations = $this->getLocalOrganizations();
+            if ($organizationId === null) {
+                // Skipping appointment because organization ID could not be found!
+                continue;
+            }
+            // Creating a clone so original data is kept
+            $appointmentData = $appointment;
 
-        $organizationIds = [];
-        foreach($organizations as $organization) {
-            $organization = strtolower(trim($organization));
-            foreach($localOrganizations as $organizationId => $localOrganization) {
-                $localOrganizationCompare = strtolower(trim($localOrganization));
-                if (strpos($organization, $localOrganizationCompare) !== false) {
-                    $organizationIds[$organizationId] = $localOrganization;
-                }
+            $appointmentData['gap_id_organization'] = $organizationId;
+            $appointmentData['gap_id_user']         = $userId;
+
+            $appointmentData = $translator->translateRow($appointmentData, true);
+
+            $appointmentModel->applyEditSettings($appointmentData['gap_id_organization']);
+
+            $processor = new ModelProcessor($this->loader, $appointmentModel, $this->userId);
+            try {
+                $processor->save($appointmentData, false);
+            } catch(\Exception $e) {
+                // Row could not be saved.
+                // return JsonResponse
             }
         }
+    }
 
-        return $organizationIds;
+    protected function processEpisodes($row)
+    {
+        $userId = $row['grs_id_user'];
+        $rawEpisodes = $row['episodes'];
+
+        $translator = new EpisodeOfCareImportTranslator($this->db, $this->agendaDiagnosisRepository, $this->organizationRepository, $this->agenda);
+        $episodesOfCare = $translator->translateEpisodes($rawEpisodes, $userId);
+
+        $episodeModel = $this->loader->create('Model\\EpisodeOfCareModel');
+
+        foreach($episodesOfCare as $episode) {
+            $processor = new ModelProcessor($this->loader, $episodeModel, $this->userId);
+
+            $update = isset($episode['gec_episode_of_care_id']);
+
+            try {
+                $processor->save($episode, $update);
+            } catch(\Exception $e) {
+                // Row could not be saved.
+                // return JsonResponse
+            }
+        }
     }
 }

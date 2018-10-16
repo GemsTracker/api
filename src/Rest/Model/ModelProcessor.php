@@ -30,6 +30,25 @@ class ModelProcessor
         $this->userId = $userId;
     }
 
+    protected function addDefaults($row)
+    {
+        $defaults = $this->model->loadNew();
+        if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getSaveTables')) {
+            $requiredColumns = [];
+            $saveableTables = $this->model->getSaveTables();
+            foreach($this->model->getCol('table') as $colName=>$table) {
+                if (isset($saveableTables[$table])) {
+                    $requiredColumns[$colName] = true;
+                }
+            }
+
+            $defaults = array_intersect_key($defaults, $requiredColumns);
+        }
+
+        $row += $defaults;
+        return $row;
+    }
+
     /**
      * Get the id field of the model if it is set in the model keys
      *
@@ -147,7 +166,7 @@ class ModelProcessor
             }
 
             $joinFields = [];
-            if ($this->model instanceof \MUtil_Model_JoinModel) {
+            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getJoinTables')) {
                 $joinFields = array_flip($this->model->getJoinTables());
             }
 
@@ -156,13 +175,23 @@ class ModelProcessor
             $this->requiredFields = $requiredFields;
 
             foreach($multiValidators as $columnName=>$validators) {
-                foreach($validators as $key=>$validator) {
-                    $multiValidators[$columnName][$key] = $this->getValidator($validator);
+                if (is_array($validators)) {
+                    foreach($validators as $key=>$validator) {
+                        $multiValidators[$columnName][$key] = $this->getValidator($validator);
+                    }
+                } else {
+                    $multiValidators[$columnName][] = $this->getValidator($validators);
                 }
             }
 
-            foreach($singleValidators as $columnName=>$validator) {
-                $multiValidators[$columnName][] = $this->getValidator($validator);
+            foreach($singleValidators as $columnName=>$validators) {
+                if (is_array($validators)) {
+                    foreach($validators as $key=>$validator) {
+                        $multiValidators[$columnName][$key] = $this->getValidator($validator);
+                    }
+                } else {
+                    $multiValidators[$columnName][] = $this->getValidator($validators);
+                }
             }
 
             foreach($requiredFields as $columnName=>$required) {
@@ -204,9 +233,39 @@ class ModelProcessor
     public function save($row, $update=false)
     {
         $this->update = $update;
+
         $row = $this->validateRow($row);
+        $row = $this->setModelDates($row);
+
+        $row = $this->addDefaults($row);
 
         return $this->model->save($row);
+    }
+
+    /**
+     * Set the dateformat if none is supplied in the current model. Otherwise dates will not be transformed to \MUtil_Date
+     * Also removes the timezone from the date, as \MUtil_Date does not understand it with timezone.
+     *
+     * @param $row
+     * @return mixed
+     */
+    protected function setModelDates($row)
+    {
+        foreach($row as $columnName=>$value) {
+            $type = $this->model->get($columnName, 'type');
+            if ($type === \MUtil_Model::TYPE_DATETIME || $type === \MUtil_Model::TYPE_DATE) {
+                //if ($this->model->get($columnName, 'dateFormat') === null) {
+                //    $this->model->set($columnName, 'dateFormat', \MUtil_Date::ISO_8601);
+                //}
+
+                if (strpos($value, '+') === 19 || strpos($value, '.') === 19) {
+                    $value = substr($value, 0, 19);
+                }
+                $row[$columnName] = new \MUtil_Date($value, \MUtil_Date::ISO_8601);
+            }
+
+        }
+        return $row;
     }
 
     /**
@@ -249,7 +308,7 @@ class ModelProcessor
         }
 
         if ($this->errors) {
-            throw new Exception('Validation Errors');
+            throw new \Exception('Validation Errors');
         }
 
         return $row;
