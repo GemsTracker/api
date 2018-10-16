@@ -34,17 +34,19 @@ class LegacyFactory implements FactoryInterface
     {
         $this->container = $container;
         $this->loader = $this->container->get('loader');
+
         switch ($requestedName) {
             case Loader::class:
             case Util::class:
             case Util_BasePath::class:
             case \Gems_Tracker::class:
             case \Gems_Events::class:
+            case \Gems_Agenda::class:
+                $requestedName = $this->stripOverloader($requestedName);
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
 
             case ProjectSettings::class:
-                $this->config = $container->get('config');
                 $project = $this->getProjectSettings();
                 return $project;
                 break;
@@ -411,5 +413,18 @@ class LegacyFactory implements FactoryInterface
                     break;
             }
         }
+    }
+
+    protected function stripOverloader($requestedName)
+    {
+        $overloaders = $this->loader->getOverloaders();
+        foreach($overloaders as $overloader) {
+            if (strpos($requestedName, $overloader) === 0 || strpos($requestedName, '\\'.$overloader) === 0) {
+                $requestedName = str_replace([$overloader.'_', $overloader], '', $requestedName);
+                return $requestedName;
+            }
+        }
+
+        return $requestedName;
     }
 }
