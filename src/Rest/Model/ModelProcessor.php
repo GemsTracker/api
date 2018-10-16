@@ -166,8 +166,8 @@ class ModelProcessor
             }
 
             $joinFields = [];
-            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getJoinTables')) {
-                $joinFields = array_flip($this->model->getJoinTables());
+            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getJoinFields')) {
+                $joinFields = array_flip($this->model->getJoinFields());
             }
 
             $requiredFields = array_diff_key($allRequiredFields, $defaultFields, $changeFields, $joinFields);
