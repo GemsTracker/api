@@ -29,7 +29,8 @@ class RespondentRepository
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
-        if ($result->count() > 0) {
+        //if ($result->count() > 0) {
+        if ($result->valid()) {
             $user = $result->current();
             return $user['gr2o_id_user'];
         }

@@ -52,7 +52,8 @@ class RespondentImportTranslator extends ApiModelTranslator
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
-        if ($result->count() > 0) {
+        //if ($result->count() > 0) {
+        if ($result->valid()) {
             $user = $result->current();
             return $user['gr2o_patient_nr'];
         }

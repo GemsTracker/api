@@ -124,7 +124,8 @@ class EpisodeOfCareImportTranslator
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
-        if ($result->count() > 0) {
+        //if ($result->count() > 0) {
+        if ($result->valid()) {
             $episode = $result->current();
             return $episode['gec_episode_of_care_id'];
         }
