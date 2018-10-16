@@ -32,7 +32,7 @@ class EpisodeOfCareImportTranslator
         $this->organizationRepository = $organizationRepository;
     }
 
-    public function translateEpisodes($rawEpisodes, $userId)
+    public function translateEpisodes($rawEpisodes, $usersPerOrganization)
     {
         $episodesOfCare = [];
         foreach($rawEpisodes as $episode) {
@@ -51,7 +51,7 @@ class EpisodeOfCareImportTranslator
 
                 $episodesOfCare[$id] = [
                     'gec_id_in_source'      => $id,
-                    'gec_id_user'           => $userId,
+                    'gec_id_user'           => $usersPerOrganization[$organizationId],
                     'gec_id_organization'   => $organizationId,
 
                     'gec_source'            => 'emma',

@@ -78,6 +78,7 @@ class RespondentBulkRestController extends ModelRestController
 
         $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
 
+        $usersPerOrganization = [];
         foreach($organizations as $organizationId => $organizationName) {
             $row['gr2o_id_organization'] = $organizationId;
             // Add location!
@@ -96,10 +97,14 @@ class RespondentBulkRestController extends ModelRestController
                 // Row could not be saved.
                 // return JsonResponse
             }
+
+            if (isset($newRow['grs_id_user'])) {
+                $usersPerOrganization[$organizationId] = $newRow['grs_id_user'];
+            }
         }
 
-        $this->processEpisodes($newRow);
-        $this->processAppointments($newRow);
+        $this->processEpisodes($newRow, $usersPerOrganization);
+        $this->processAppointments($newRow, $usersPerOrganization);
 
 
 
@@ -108,10 +113,9 @@ class RespondentBulkRestController extends ModelRestController
         return new EmptyResponse(201);
     }
 
-    protected function processAppointments($row)
+    protected function processAppointments($row, $usersPerOrganization)
     {
         $appointments = $row['appointments'];
-        $userId = $row['grs_id_user'];
 
         $appointmentModel = $this->loader->create('Model_AppointmentModel');
 
@@ -139,7 +143,7 @@ class RespondentBulkRestController extends ModelRestController
             $appointmentData = $appointment;
 
             $appointmentData['gap_id_organization'] = $organizationId;
-            $appointmentData['gap_id_user']         = $userId;
+            $appointmentData['gap_id_user']         = $usersPerOrganization[$organizationId];
 
             $appointmentData = $translator->translateRow($appointmentData, true);
 
@@ -155,13 +159,12 @@ class RespondentBulkRestController extends ModelRestController
         }
     }
 
-    protected function processEpisodes($row)
+    protected function processEpisodes($row, $usersPerOrganization)
     {
-        $userId = $row['grs_id_user'];
         $rawEpisodes = $row['episodes'];
 
         $translator = new EpisodeOfCareImportTranslator($this->db, $this->agendaDiagnosisRepository, $this->organizationRepository, $this->agenda);
-        $episodesOfCare = $translator->translateEpisodes($rawEpisodes, $userId);
+        $episodesOfCare = $translator->translateEpisodes($rawEpisodes, $usersPerOrganization);
 
         $episodeModel = $this->loader->create('Model\\EpisodeOfCareModel');
 
