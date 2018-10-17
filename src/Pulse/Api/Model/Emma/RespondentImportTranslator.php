@@ -6,6 +6,7 @@ namespace Pulse\Api\Model\Emma;
 
 use Pulse\Api\Model\ApiModelTranslator;
 use Zend\Db\Adapter\Adapter;
+use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Sql;
 
 class RespondentImportTranslator extends ApiModelTranslator
@@ -48,8 +49,13 @@ class RespondentImportTranslator extends ApiModelTranslator
         $select->from('gems__respondent2org')
             ->join('gems__respondents', 'grs_id_user = gr2o_id_user')
             ->columns(['gr2o_patient_nr'])
-            ->where(['grs_ssn' => $ssn,])
-            ->where($select->where->notEqualTo('gr2o_patient_nr', 'gr2o_patient_nr2'));
+            ->where(['grs_ssn' => $ssn,]);
+            /*->where($select->where->notEqualTo(
+                'gr2o_patient_nr',
+                'gr2o_patient_nr2',
+                Predicate::TYPE_IDENTIFIER,
+                Predicate::TYPE_IDENTIFIER
+            ));*/
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
