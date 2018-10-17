@@ -42,6 +42,7 @@ class LegacyFactory implements FactoryInterface
             case \Gems_Tracker::class:
             case \Gems_Events::class:
             case \Gems_Agenda::class:
+            case \Gems_Model::class:
                 $requestedName = $this->stripOverloader($requestedName);
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;

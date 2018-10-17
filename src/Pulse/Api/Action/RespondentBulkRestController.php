@@ -35,6 +35,11 @@ class RespondentBulkRestController extends ModelRestController
     protected $db;
 
     /**
+     * @var \Gems_Model
+     */
+    protected $modelLoader;
+
+    /**
      * @var OrganizationRepository
      */
     protected $organizationRepository;
@@ -47,16 +52,32 @@ class RespondentBulkRestController extends ModelRestController
     public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db,
                                 AgendaDiagnosisRepository $agendaDiagnosisRepository,
                                 OrganizationRepository $organizationRepository,
-                                RespondentRepository $respondentRepository, \Gems_Agenda $agenda, $LegacyDb
+                                RespondentRepository $respondentRepository,
+                                \Gems_Agenda $agenda,
+                                \Gems_Model $modelLoader,
+                                $LegacyDb
     )
     {
         $this->agenda = $agenda;
+        $this->modelLoader = $modelLoader;
         $this->agendaDiagnosisRepository = $agendaDiagnosisRepository;
         $this->db = $db;
         $this->organizationRepository = $organizationRepository;
         $this->respondentRepository = $respondentRepository;
 
         parent::__construct($loader, $urlHelper, $LegacyDb);
+    }
+
+    protected function createModel()
+    {
+        $model =  parent::createModel();
+        $idField = 'grs_id_user';
+        $model->setAutoSave($idField);
+
+        // Make sure the fields get a userid when empty
+        $model->setOnSave($idField, array($this->modelLoader, 'createGemsUserId'));
+
+        return $model;
     }
 
     public function post(ServerRequestInterface $request, DelegateInterface $delegate)
