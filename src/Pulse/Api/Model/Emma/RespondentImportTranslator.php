@@ -48,7 +48,8 @@ class RespondentImportTranslator extends ApiModelTranslator
         $select->from('gems__respondent2org')
             ->join('gems__respondents', 'grs_id_user = gr2o_id_user')
             ->columns(['gr2o_patient_nr'])
-            ->where(['grs_ssn' => $ssn]);
+            ->where(['grs_ssn' => $ssn,])
+            ->where($select->where->notEqualTo('gr2o_patient_nr', 'gr2o_patient_nr2'));
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
