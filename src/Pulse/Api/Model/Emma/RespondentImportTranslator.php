@@ -85,11 +85,12 @@ class RespondentImportTranslator extends ApiModelTranslator
             $row['gr2o_reception_code'] = 'deceased';
         }
 
+        $bsnComm = false;
         if (isset($row['grs_ssn']) && $row['grs_ssn']) {
             if (strlen($row['grs_ssn']) === 8) {
                 $row['grs_ssn'] = '0'.$row['grs_ssn'];
             }
-            $bsnComm = false;
+
             $validator = new \MUtil_Validate_Dutch_Burgerservicenummer();
 
             if ($validator->isValid($row['grs_ssn'])) {
