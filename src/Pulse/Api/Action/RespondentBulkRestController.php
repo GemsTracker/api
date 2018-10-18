@@ -126,6 +126,12 @@ class RespondentBulkRestController extends ModelRestController
 
         $organizations = $this->organizationRepository->getOrganizationTranslations($row['organizations']);
 
+        if (empty($organizations)) {
+            $message = sprintf('Skipping patient import because no organizations have been found in Pulse for %s', $patientNr);
+            $this->logger->notice($message);
+            return new JsonResponse(['message' => $message]);
+        }
+
         $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
 
         $usersPerOrganization = [];
