@@ -45,7 +45,7 @@ class EpisodeOfCareImportTranslator
         foreach($rawEpisodes as $episode) {
 
             if (!isset($episode['episode_id'])) {
-                // Skipping appointment because no ID is set!
+                // Skipping episode because no ID is set!
                 $this->logger->warning(sprintf('Skipping import of episode because no episode id is set in episode.'), $episode);
                 continue;
             }
@@ -53,14 +53,20 @@ class EpisodeOfCareImportTranslator
             $startDate = $this->translateDate($episode['start_date']);
             if (!isset($episodesOfCare[$id])) {
                 if (!array_key_exists('organization', $episode)) {
-                    // Skipping appointment because organization is not set in appointment!
+                    // Skipping episode because organization is not set in episode!
                     $this->logger->warning(sprintf('Skipping import of episode because no organization is set in episode.'), $episode);
                     continue;
                 }
                 $organizationId = $this->organizationRepository->getOrganizationId($episode['organization']);
                 if ($organizationId === null) {
-                    // Skipping appointment because organization ID could not be found!
+                    // Skipping episode because organization ID could not be found!
                     $this->logger->warning(sprintf('Skipping import of episode because episode organization is unknown in pulse.'), $episode);
+                    continue;
+                }
+
+                if (!isset($usersPerOrganization[$organizationId])) {
+                    // Skipping episode because user does not exist in episode organization
+                    $this->logger->warning(sprintf('Skipping import of episode because user does not exist in episode organization in pulse.'), $episode);
                     continue;
                 }
 
