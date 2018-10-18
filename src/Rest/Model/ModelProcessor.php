@@ -308,7 +308,8 @@ class ModelProcessor
         }
 
         if ($this->errors) {
-            throw new \Exception('Validation Errors');
+            $modelName = get_class($this->model);
+            throw new ModelValidationException(sprintf('Errors were found when validating %s', $modelName), $this->errors);
         }
 
         return $row;

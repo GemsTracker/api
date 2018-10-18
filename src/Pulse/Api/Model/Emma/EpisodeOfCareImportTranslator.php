@@ -4,6 +4,7 @@
 namespace Pulse\Api\Model\Emma;
 
 
+use Psr\Log\LoggerInterface;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Sql\Sql;
 
@@ -20,15 +21,21 @@ class EpisodeOfCareImportTranslator
     protected $db;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @var OrganizationRepository
      */
     protected $organizationRepository;
 
-    public function __construct(Adapter $db, AgendaDiagnosisRepository $agendaDiagnosisRepository, OrganizationRepository $organizationRepository, \Gems_Agenda $agenda)
+    public function __construct(Adapter $db, AgendaDiagnosisRepository $agendaDiagnosisRepository, LoggerInterface $logger, OrganizationRepository $organizationRepository, \Gems_Agenda $agenda)
     {
         $this->agenda = $agenda;
         $this->agendaDiagnosisRepository = $agendaDiagnosisRepository;
         $this->db = $db;
+        $this->logger = $logger;
         $this->organizationRepository = $organizationRepository;
     }
 
@@ -36,16 +43,24 @@ class EpisodeOfCareImportTranslator
     {
         $episodesOfCare = [];
         foreach($rawEpisodes as $episode) {
+
+            if (!isset($episode['episode_id'])) {
+                // Skipping appointment because no ID is set!
+                $this->logger->warning(sprintf('Skipping import of episode because no episode id is set in episode.'), $episode);
+                continue;
+            }
             $id = $episode['episode_id'];
             $startDate = $this->translateDate($episode['start_date']);
             if (!isset($episodesOfCare[$id])) {
                 if (!array_key_exists('organization', $episode)) {
                     // Skipping appointment because organization is not set in appointment!
+                    $this->logger->warning(sprintf('Skipping import of episode because no organization is set in episode.'), $episode);
                     continue;
                 }
                 $organizationId = $this->organizationRepository->getOrganizationId($episode['organization']);
                 if ($organizationId === null) {
                     // Skipping appointment because organization ID could not be found!
+                    $this->logger->warning(sprintf('Skipping import of episode because episode organization is unknown in pulse.'), $episode);
                     continue;
                 }
 

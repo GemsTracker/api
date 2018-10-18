@@ -5,9 +5,12 @@ namespace Pulse\Api\Action;
 
 use Gems\Model\EpisodeOfCareModel;
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
+use Gems\Rest\Model\ModelValidationException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentImportTranslator;
 use Pulse\Api\Model\Emma\EpisodeOfCareImportTranslator;
@@ -18,6 +21,7 @@ use Zalt\Loader\ProjectOverloader;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Sql\Sql;
 use Zend\Diactoros\Response\EmptyResponse;
+use Zend\Diactoros\Response\JsonResponse;
 use Zend\Expressive\Helper\UrlHelper;
 
 class RespondentBulkRestController extends ModelRestController
@@ -27,12 +31,20 @@ class RespondentBulkRestController extends ModelRestController
      */
     protected $agenda;
 
+    /**
+     * @var AgendaDiagnosisRepository
+     */
     protected $agendaDiagnosisRepository;
 
     /**
      * @var Adapter
      */
     protected $db;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * @var \Gems_Model
@@ -55,13 +67,16 @@ class RespondentBulkRestController extends ModelRestController
                                 RespondentRepository $respondentRepository,
                                 \Gems_Agenda $agenda,
                                 \Gems_Model $modelLoader,
+                                $EmmaImportLogger,
                                 $LegacyDb
     )
     {
+
         $this->agenda = $agenda;
-        $this->modelLoader = $modelLoader;
         $this->agendaDiagnosisRepository = $agendaDiagnosisRepository;
         $this->db = $db;
+        $this->logger = $EmmaImportLogger;
+        $this->modelLoader = $modelLoader;
         $this->organizationRepository = $organizationRepository;
         $this->respondentRepository = $respondentRepository;
 
@@ -92,7 +107,21 @@ class RespondentBulkRestController extends ModelRestController
             return new EmptyResponse(400);
         }
 
-        $translator = new RespondentImportTranslator($this->db);
+        if (!array_key_exists('patient_nr', $respondentRow) && !array_key_exists('gr2o_patient_nr', $respondentRow)) {
+            return new JsonResponse(['error' => 'missing_data', 'Missing patient nr in patient_nr or gr2o_patient_nr field'], 400);
+        }
+        $patientNr = null;
+        if (isset($respondentRow['patient_nr'])) {
+            $patientNr = $respondentRow['patient_nr'];
+        } elseif (isset($respondentRow['gr2o_patient_nr'])) {
+            $patientNr = $respondentRow['gr2o_patient_nr'];
+        }
+
+
+        //$this->logger->debug('Starting import of bulk respondent', ['PatientNr' => $patientNr]);
+        $this->logger->debug('Starting import of bulk respondent', ['data' => $respondentRow]);
+
+        $translator = new RespondentImportTranslator($this->db, $this->logger);
         $row = $translator->translateRow($respondentRow, true);
 
         $organizations = $this->organizationRepository->getOrganizationTranslations($row['organizations']);
@@ -115,8 +144,22 @@ class RespondentBulkRestController extends ModelRestController
             try {
                 $newRow = $processor->save($row, !$new);
             } catch(\Exception $e) {
+
                 // Row could not be saved.
                 // return JsonResponse
+
+                if ($e instanceof ModelValidationException) {
+                    $this->logger->error($e->getMessage(), $e->getErrors());
+                    return new JsonResponse(['error' => 'validation_error', 'message' => $e->getMessage(), 'errors' => $e->getErrors()], 400);
+                }
+
+                if ($e instanceof ModelException) {
+                    $this->logger->error($e->getMessage());
+                    return new JsonResponse(['error' => 'model_error', 'message' => $e->getMessage()], 400);
+                }
+
+                // Unknown exception!
+                return new EmptyResponse(400);
             }
 
             if (isset($newRow['grs_id_user'])) {
@@ -124,12 +167,14 @@ class RespondentBulkRestController extends ModelRestController
             }
         }
 
+
         $this->processEpisodes($newRow, $usersPerOrganization);
         $this->processAppointments($newRow, $usersPerOrganization);
 
 
 
         // Return the route as a link in the header, like in ModelRestControllerAbstract->saveRow()
+        $this->logger->notice(sprintf('Finished import of bulk respondent %s', $patientNr));
 
         return new EmptyResponse(201);
     }
@@ -144,13 +189,15 @@ class RespondentBulkRestController extends ModelRestController
 
         foreach($appointments as $appointment) {
 
-            if (!isset($appointment['id'])) {
+            if (!isset($appointment['id']) && !isset($appointment['gap_id_in_source'])) {
                 // Skipping appointment because no ID is set!
+                $this->logger->warning(sprintf('Skipping import of appointment because no id is set in appointment'), $appointment);
                 continue;
             }
 
             if (!array_key_exists('organization', $appointment)) {
                 // Skipping appointment because organization is not set in appointment!
+                $this->logger->warning(sprintf('Skipping import of appointment because no organization is set in appointment'), $appointment);
                 continue;
             }
 
@@ -158,6 +205,7 @@ class RespondentBulkRestController extends ModelRestController
 
             if ($organizationId === null) {
                 // Skipping appointment because organization ID could not be found!
+                $this->logger->warning(sprintf('Skipping import of appointment because appointment organization is unknown in pulse'), $appointment);
                 continue;
             }
             // Creating a clone so original data is kept
@@ -175,8 +223,23 @@ class RespondentBulkRestController extends ModelRestController
                 $processor->save($appointmentData, false);
             } catch(\Exception $e) {
                 // Row could not be saved.
-                // return JsonResponse
+
+                if ($e instanceof ModelValidationException) {
+                    $this->logger->error($e->getMessage(), $e->getErrors());
+                    return new JsonResponse(['error' => 'validation_error', 'message' => $e->getMessage(), 'errors' => $e->getErrors()], 400);
+                }
+
+                if ($e instanceof ModelException) {
+                    $this->logger->error($e->getMessage());
+                    return new JsonResponse(['error' => 'model_error', 'message' => $e->getMessage()], 400);
+                }
+
+                // Unknown exception!
+                return new EmptyResponse(400);
             }
+
+            $this->logger->debug(sprintf('Appointment %s has successfully been imported.', $appointment['id']));
+
         }
     }
 
@@ -184,12 +247,13 @@ class RespondentBulkRestController extends ModelRestController
     {
         $rawEpisodes = $row['episodes'];
 
-        $translator = new EpisodeOfCareImportTranslator($this->db, $this->agendaDiagnosisRepository, $this->organizationRepository, $this->agenda);
+        $translator = new EpisodeOfCareImportTranslator($this->db, $this->agendaDiagnosisRepository, $this->logger, $this->organizationRepository, $this->agenda);
         $episodesOfCare = $translator->translateEpisodes($rawEpisodes, $usersPerOrganization);
 
         $episodeModel = $this->loader->create('Model\\EpisodeOfCareModel');
 
         foreach($episodesOfCare as $episode) {
+
             $processor = new ModelProcessor($this->loader, $episodeModel, $this->userId);
 
             $update = isset($episode['gec_episode_of_care_id']);
@@ -199,7 +263,26 @@ class RespondentBulkRestController extends ModelRestController
             } catch(\Exception $e) {
                 // Row could not be saved.
                 // return JsonResponse
+
+                if ($e instanceof ModelValidationException) {
+                    $this->logger->error($e->getMessage(), $e->getErrors());
+                    return new JsonResponse(['error' => 'validation_error', 'message' => $e->getMessage(), 'errors' => $e->getErrors()], 400);
+                }
+
+                if ($e instanceof ModelException) {
+                    $this->logger->error($e->getMessage());
+                    return new JsonResponse(['error' => 'model_error', 'message' => $e->getMessage()], 400);
+                }
+
+                // Unknown exception!
+                return new EmptyResponse(400);
             }
+
+            $action = 'created';
+            if ($update) {
+                $action = 'updated';
+            }
+            $this->logger->debug(sprintf('Episode %s has successfully been %s.', $episode['gec_id_in_source'], $action));
         }
     }
 }

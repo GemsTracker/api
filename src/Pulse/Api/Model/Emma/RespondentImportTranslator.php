@@ -4,6 +4,7 @@
 namespace Pulse\Api\Model\Emma;
 
 
+use Psr\Log\LoggerInterface;
 use Pulse\Api\Model\ApiModelTranslator;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Sql\Predicate\Predicate;
@@ -17,6 +18,11 @@ class RespondentImportTranslator extends ApiModelTranslator
     protected $db;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @var array Api translations for the respondent
      */
     public $translations = [
@@ -25,7 +31,7 @@ class RespondentImportTranslator extends ApiModelTranslator
         "grs_ssn" => "ssn",
         "grs_gender" => "gender",
         "grs_birthday" => "birthday",
-        "grs_address" => "address",
+        "grs_address_1" => "address",
         "grs_zipcode" => "zipcode",
         "grs_city" => "city",
         "grs_phone_1" => "phone_home",
@@ -36,9 +42,10 @@ class RespondentImportTranslator extends ApiModelTranslator
         "gr2o_patient_nr" => "patient_nr",
     ];
 
-    public function __construct(Adapter $db)
+    public function __construct(Adapter $db, LoggerInterface $logger)
     {
         $this->db = $db;
+        $this->logger = $logger;
         parent::__construct(null);
     }
 
@@ -59,7 +66,6 @@ class RespondentImportTranslator extends ApiModelTranslator
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
-        //if ($result->count() > 0) {
         if ($result->valid()) {
             $user = $result->current();
             return $user['gr2o_patient_nr'];
@@ -97,6 +103,10 @@ class RespondentImportTranslator extends ApiModelTranslator
                 $bsnComm = "\nBSN removed, " . $row['grs_ssn'] . " is not a valid BSN.\n";
                 $row['grs_ssn'] = null;
             }
+        }
+
+        if ($bsnComm) {
+            $this->logger->notice($bsnComm, ['patientNr' => $row['gr2o_patient_nr']]);
         }
 
         return $row;
