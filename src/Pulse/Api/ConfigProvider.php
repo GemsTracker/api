@@ -31,6 +31,7 @@ use Pulse\Api\Repository\TokenAnswerRepository;
 use Pulse\Api\Repository\TrackfieldsRepository;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
+use Zend\Log\Logger;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
 {
@@ -45,9 +46,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function __invoke()
     {
         return [
-            'dependencies' => $this->getDependencies(),
-            //'templates'    => $this->getTemplates(),
-            'routes'       => $this->getRoutes(),
+            'dependencies'  => $this->getDependencies(),
+            //'templates'   => $this->getTemplates(),
+            'routes'        => $this->getRoutes(),
+            'log'           => $this->getLoggers(),
         ];
     }
 
@@ -92,6 +94,23 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 InsertTrackTokenController::class => ReflectionFactory::class,
 
                 PermissionGeneratorController::class => ReflectionFactory::class,
+            ]
+        ];
+    }
+
+    public function getLoggers()
+    {
+        return [
+            'EmmaImportLogger' => [
+                'writers' => [
+                    'stream' => [
+                        'name' => 'stream',
+                        'priority' => Logger::DEBUG,
+                        'options' => [
+                            'stream' => GEMS_ROOT_DIR . '/data/logs/emma-import.log',
+                        ]
+                    ]
+                ]
             ]
         ];
     }
