@@ -85,7 +85,7 @@ class RespondentImportTranslator extends ApiModelTranslator
             $row['gr2o_reception_code'] = 'deceased';
         }
 
-        if ($row['grs_ssn']) {
+        if (isset($row['grs_ssn']) && $row['grs_ssn']) {
             if (strlen($row['grs_ssn']) === 8) {
                 $row['grs_ssn'] = '0'.$row['grs_ssn'];
             }
