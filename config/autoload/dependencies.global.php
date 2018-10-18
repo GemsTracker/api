@@ -37,5 +37,8 @@ return [
 
             Blast\BaseUrl\BaseUrlMiddleware::class           => Blast\BaseUrl\BaseUrlMiddlewareFactory::class,
         ],
+        'abstract_factories' => [
+            \Gems\Rest\Log\PsrLoggerAbstractServiceFactory::class,
+        ]
     ],
 ];
