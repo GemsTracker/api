@@ -240,7 +240,7 @@ class ModelProcessor
         $row = $this->validateRow($row);
         $row = $this->setModelDates($row);
 
-        if ($this->addDefaults) {
+        if ($this->addDefaults && ($update == false)) {
             $row = $this->addDefaults($row);
         }
 
