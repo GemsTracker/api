@@ -27,7 +27,17 @@ class EmmaRespondentTokensController extends ModelRestController
     ];
 
     protected $defaultFilter = [
-        'gsu_code' => ['anesthesie']
+        'gsu_code' => [
+            'anesthesie',
+            'intake XHC',
+            'intake PC',
+            'intake D',
+            'intake HV',
+            'intake PC',
+            'intake FL',
+            'intake PR',
+            'ZKN',
+        ]
     ];
 
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
