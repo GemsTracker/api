@@ -18,6 +18,11 @@ class EmmaSurveyQuestionsRestController extends RestControllerAbstract
      */
     protected $surveyQuestionsRepository;
 
+    /**
+     * @var \Gems_Tracker
+     */
+    protected $tracker;
+
     public function __construct(SurveyQuestionsRepository $surveyQuestionsRepository)
     {
         $this->surveyQuestionsRepository = $surveyQuestionsRepository;
@@ -30,14 +35,18 @@ class EmmaSurveyQuestionsRestController extends RestControllerAbstract
             throw new RestException('Survey questions need a survey ID in the id parameter', 1, 'survey_id_missing', 400);
         }
 
+        $survey = $this->surveyQuestionsRepository->getSurvey($id);
 
-        $surveyQuestions = $this->surveyQuestionsRepository->getSurveyQuestions($id);
+        $surveyInformation = [
+            'survey_id' => $id,
+            'survey_name' => $survey->getName(),
+            'active' => $survey->isActive(),
+            'patient_survey' => !$survey->isTakenByStaff(),
+            'result_field' => $survey->getResultField(),
+            'questions' => $this->surveyQuestionsRepository->getSurveyList($id),
+        ];
 
-
-
-
-
-        return new JsonResponse($surveyQuestions);
+        return new JsonResponse($surveyInformation);
     }
 
 }

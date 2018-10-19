@@ -9,6 +9,8 @@ use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\EmmaRespondentTokensController;
 use Pulse\Api\Action\EmmaRespondentTrackRestController;
+use Pulse\Api\Action\EmmaSurveyQuestionsRestController;
+use Pulse\Api\Action\EmmaTokenAnswersRestController;
 use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\RespondentBulkRestController;
@@ -88,6 +90,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AppointmentRestController::class => ReflectionFactory::class,
                 EmmaRespondentTokensController::class => ReflectionFactory::class,
                 EmmaSurveyQuestionsRestController::class => ReflectionFactory::class,
+                EmmaTokenAnswersRestController::class => ReflectionFactory::class,
 
                 OrganizationRepository::class => ReflectionFactory::class,
                 RespondentRepository::class => ReflectionFactory::class,
@@ -162,10 +165,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
                 'customAction' => EmmaRespondentTokensController::class,
             ],
-
-            /*'emma/survey-questions' => [
-
-            ],*/
 
             'respondents' => [
                 'model' => 'Model_RespondentModel',
@@ -309,6 +308,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'name' => 'emma/survey-questions',
                 'path' => '/emma/survey-questions/[{id:\d+}]',
                 'middleware' => $this->getCustomActionMiddleware(EmmaSurveyQuestionsRestController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'emma/token-answers',
+                'path' => '/emma/token-answers/[{id:[a-zA-Z0-9-_]+}]',
+                'middleware' => $this->getCustomActionMiddleware(EmmaTokenAnswersRestController::class),
                 'allowed_methods' => ['GET'],
             ],
         ];
