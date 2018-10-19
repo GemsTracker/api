@@ -7,6 +7,8 @@ use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
+use Pulse\Api\Action\EmmaRespondentTokensController;
+use Pulse\Api\Action\EmmaRespondentTrackRestController;
 use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\RespondentBulkRestController;
@@ -84,6 +86,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 RespondentRestController::class => ReflectionFactory::class,
                 RespondentBulkRestController::class => ReflectionFactory::class,
                 AppointmentRestController::class => ReflectionFactory::class,
+                EmmaRespondentTokensController::class => ReflectionFactory::class,
+                EmmaSurveyQuestionsRestController::class => ReflectionFactory::class,
 
                 OrganizationRepository::class => ReflectionFactory::class,
                 RespondentRepository::class => ReflectionFactory::class,
@@ -138,6 +142,30 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     '\d+',
                 ],
             ],
+            'emma/tokens' => [
+                'model' => 'Tracker_Model_StandardTokenModel',
+                'methods' => ['GET'],
+                'idField' => 'gr2o_patient_nr',
+                'allowed_fields' => [
+                    'patient_nr',
+                    'organization',
+                    'token',
+                    'survey_id',
+                    'survey_name',
+                    'track_name',
+                    'round_description',
+                    'valid_from',
+                    'valid_until',
+                    'completion_time',
+                    'reception_code',
+                ],
+                'customAction' => EmmaRespondentTokensController::class,
+            ],
+
+            /*'emma/survey-questions' => [
+
+            ],*/
+
             'respondents' => [
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
@@ -275,7 +303,13 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'path' => '/permission-generator',
                 'middleware' => $this->getCustomActionMiddleware(PermissionGeneratorController::class),
                 'allowed_methods' => ['GET'],
-            ]
+            ],
+            [
+                'name' => 'emma/survey-questions',
+                'path' => '/emma/survey-questions/[{id:\d+}]',
+                'middleware' => $this->getCustomActionMiddleware(EmmaSurveyQuestionsRestController::class),
+                'allowed_methods' => ['GET'],
+            ],
         ];
 
 

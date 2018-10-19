@@ -377,15 +377,21 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      */
     protected function getIdFilter($id, $idField)
     {
-        if (is_array($id) && is_array($idField)) {
-            $filter = [];
-            foreach($idField as $key=>$singleField) {
-                $filter[$singleField] = $id[$key];
+        if (!is_array($id)) {
+            $id = [$id];
+        }
+        if (!is_array($idField)) {
+            $idField = [$idField];
+        }
+
+        $apiNames = $this->getApiNames(true);
+
+        $filter = [];
+        foreach($idField as $key=>$singleField) {
+            if (isset($apiNames[$singleField])) {
+                $singleField = $apiNames[$singleField];
             }
-        } else {
-            $filter = [
-                $idField => $id,
-            ];
+            $filter[$singleField] = $id[$key];
         }
 
         return $filter;
