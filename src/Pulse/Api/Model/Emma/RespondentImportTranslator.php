@@ -86,7 +86,7 @@ class RespondentImportTranslator extends ApiModelTranslator
             $row['gr2o_reception_code'] = 'deceased';
         }
 
-        if (array_key_exists('gr2o_email', $row) && $row['gr2o_email']) {
+        if (array_key_exists('gr2o_email', $row) && $row['gr2o_email'] !== null) {
             $validator = new SimplePhpEmail();
             if (!$validator->isValid($row['gr2o_email'])) {
                 $this->logger->notice(sprintf('Email removed. Not a valid Email address'), ['patientNr' => $row['gr2o_patient_nr'], 'email' => $row['gr2o_email']]);
@@ -95,8 +95,8 @@ class RespondentImportTranslator extends ApiModelTranslator
         }
 
         $bsnComm = false;
-        if (array_key_exists('grs_ssn', $row) && $row['grs_ssn']) {
-            if (strlen($row['grs_ssn']) === 8) {
+        if (array_key_exists('grs_ssn', $row) && $row['grs_ssn'] !== null) {
+            if (is_string($row['grs_ssn']) && strlen($row['grs_ssn']) === 8) {
                 $row['grs_ssn'] = '0'.$row['grs_ssn'];
             }
 
