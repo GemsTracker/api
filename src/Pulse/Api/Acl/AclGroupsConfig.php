@@ -18,5 +18,10 @@ return [
         'token-answers' => ['GET'],
         'track-fields' => ['GET'],
         'treatment-episodes' => ['GET'],
+    ],
+    'emma-transfer' => [
+        'ping' => ['GET'],
+        'api.emma/respondents' => ['POST', 'OPTIONS'],
+        'api.emma/tokens' => ['GET', 'OPTIONS'],
     ]
 ];
