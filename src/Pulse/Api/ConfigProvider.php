@@ -158,6 +158,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'valid_until',
                     'completion_time',
                     'reception_code',
+                    'status_ok',
                 ],
                 'customAction' => EmmaRespondentTokensController::class,
             ],

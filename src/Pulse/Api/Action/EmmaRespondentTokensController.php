@@ -23,6 +23,7 @@ class EmmaRespondentTokensController extends ModelRestController
         'gto_reception_code' => 'reception_code',
         'gto_valid_from' => 'valid_from',
         'gto_valid_until' => 'valid_until',
+        'grc_success' => 'status_ok',
     ];
 
     protected $defaultFilter = [
