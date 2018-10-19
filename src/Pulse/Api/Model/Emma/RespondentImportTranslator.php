@@ -78,7 +78,7 @@ class RespondentImportTranslator extends ApiModelTranslator
     {
         $row = parent::translateRow($row, $reversed);
 
-        $row['gr2o_reception_code']  = \GemsEscort::RECEPTION_OK;
+        //$row['gr2o_reception_code']  = \GemsEscort::RECEPTION_OK;
         $row['grs_iso_lang'] = 'nl';
         $row['gr2o_readonly'] = 1;
 

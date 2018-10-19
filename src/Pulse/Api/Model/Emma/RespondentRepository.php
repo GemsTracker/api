@@ -19,13 +19,16 @@ class RespondentRepository
         $this->db = $db;
     }
 
-    public function getPatientId($patientNr, $organizationId)
+    public function getPatientId($patientNr, $organizationId=null)
     {
         $sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__respondent2org')
             ->columns(['gr2o_id_user', 'gr2o_patient_nr', 'gr2o_id_organization'])
-            ->where(['gr2o_patient_nr' => $patientNr, 'gr2o_id_organization' => $organizationId]);
+            ->where(['gr2o_patient_nr' => $patientNr]);
+        if ($organizationId !== null) {
+            $select->where(['gr2o_id_organization' => $organizationId]);
+        }
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
