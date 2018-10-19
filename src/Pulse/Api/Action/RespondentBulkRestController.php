@@ -133,19 +133,29 @@ class RespondentBulkRestController extends ModelRestController
         }
 
         $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
+        $processor->setAddDefaults(true);
 
         $usersPerOrganization = [];
         foreach($organizations as $organizationId => $organizationName) {
             $row['gr2o_id_organization'] = $organizationId;
-            // Add location!
-            // Add Treatment if possible?
 
             $new = true;
-            if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'], $organizationId)) {
+            if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'])) {
                 $new = false;
                 $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
             }
             $this->model->applyEditSettings($new);
+
+            if ($new) {
+                $locationName = $this->organizationRepository->getLocationFromOrganizationName($organizationName);
+                $location = null;
+                if ($locationName) {
+                    $location = $this->agenda->matchLocation($locationName, $organizationId, false);
+                }
+                if ($location && isset($location['glo_id_location'])) {
+                    $row['gr2o_id_location'] = (int)$location['glo_id_location'];
+                }
+            }
 
             try {
                 $newRow = $processor->save($row, !$new);
@@ -190,6 +200,7 @@ class RespondentBulkRestController extends ModelRestController
         $appointments = $row['appointments'];
 
         $appointmentModel = $this->loader->create('Model_AppointmentModel');
+        //$appointmentModel->del('gap_id_procedure');
 
         $translator = new AppointmentImportTranslator($this->db, $this->agenda);
 
@@ -225,6 +236,7 @@ class RespondentBulkRestController extends ModelRestController
             $appointmentModel->applyEditSettings($appointmentData['gap_id_organization']);
 
             $processor = new ModelProcessor($this->loader, $appointmentModel, $this->userId);
+            $processor->setAddDefaults(false);
             try {
                 $processor->save($appointmentData, false);
             } catch(\Exception $e) {
@@ -257,10 +269,13 @@ class RespondentBulkRestController extends ModelRestController
         $episodesOfCare = $translator->translateEpisodes($rawEpisodes, $usersPerOrganization);
 
         $episodeModel = $this->loader->create('Model\\EpisodeOfCareModel');
+        $processor = new ModelProcessor($this->loader, $episodeModel, $this->userId);
+        $processor->setAddDefaults(false);
+
 
         foreach($episodesOfCare as $episode) {
 
-            $processor = new ModelProcessor($this->loader, $episodeModel, $this->userId);
+
 
             $update = isset($episode['gec_episode_of_care_id']);
 

@@ -8,6 +8,9 @@ use Zalt\Loader\ProjectOverloader;
 
 class ModelProcessor
 {
+
+    protected $addDefaults;
+
     protected $errors;
 
     protected $idField;
@@ -237,7 +240,9 @@ class ModelProcessor
         $row = $this->validateRow($row);
         $row = $this->setModelDates($row);
 
-        $row = $this->addDefaults($row);
+        if ($this->addDefaults) {
+            $row = $this->addDefaults($row);
+        }
 
         return $this->model->save($row);
     }
@@ -313,5 +318,10 @@ class ModelProcessor
         }
 
         return $row;
+    }
+
+    public function setAddDefaults($value)
+    {
+        $this->addDefaults = (bool) $value;
     }
 }

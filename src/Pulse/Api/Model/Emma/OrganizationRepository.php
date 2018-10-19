@@ -44,6 +44,18 @@ class OrganizationRepository
         return $this->localOrganizations;
     }
 
+    public function getLocationFromOrganizationName($organizationAndLocationString)
+    {
+        $localOrganizations = $this->getLocalOrganizations();
+        $location = trim(str_replace($localOrganizations, '', $organizationAndLocationString));
+
+        if (empty($location)) {
+            return null;
+        }
+
+        return $location;
+    }
+
     public function getOrganizationTranslations($organizations)
     {
         $organizationIds = [];
