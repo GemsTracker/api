@@ -23,5 +23,7 @@ return [
         'ping' => ['GET'],
         'api.emma/respondents' => ['POST', 'OPTIONS'],
         'api.emma/tokens' => ['GET', 'OPTIONS'],
+        'emma/survey-questions' => ['GET', 'OPTIONS'],
+        'emma/token-answers' => ['GET', 'OPTIONS'],
     ]
 ];
