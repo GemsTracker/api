@@ -197,6 +197,11 @@ class RespondentBulkRestController extends ModelRestController
 
     protected function processAppointments($row, $usersPerOrganization)
     {
+        if (!array_key_exists('appointments', $row)) {
+            $this->logger->info('No appointments to import');
+            return;
+        }
+
         $appointments = $row['appointments'];
 
         $appointmentModel = $this->loader->create('Model_AppointmentModel');
@@ -263,6 +268,10 @@ class RespondentBulkRestController extends ModelRestController
 
     protected function processEpisodes($row, $usersPerOrganization)
     {
+        if (!array_key_exists('episodes', $row)) {
+            $this->logger->info('No episodes to import');
+            return;
+        }
         $rawEpisodes = $row['episodes'];
 
         $translator = new EpisodeOfCareImportTranslator($this->db, $this->agendaDiagnosisRepository, $this->logger, $this->organizationRepository, $this->agenda);

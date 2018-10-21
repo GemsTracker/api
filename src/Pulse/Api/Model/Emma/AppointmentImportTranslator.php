@@ -83,19 +83,23 @@ class AppointmentImportTranslator extends ApiModelTranslator
         }
 
         if (array_key_exists('location', $row)) {
-            $location = $this->agenda->matchLocation($row['location'], $row['gap_id_organization']);
+            $locationName = trim($row['location']);
+            $location = $this->agenda->matchLocation($locationName, $row['gap_id_organization']);
             $row['gap_id_location']     = $location['glo_id_location'];
         }
 
         if (array_key_exists('attended_by', $row)) {
-            $row['gap_id_attended_by']  = $this->agenda->matchHealthcareStaff($row['attended_by'], $row['gap_id_organization']);
+            $healthCareStaffName = trim($row['attended_by']);
+            $row['gap_id_attended_by']  = $this->agenda->matchHealthcareStaff($healthCareStaffName, $row['gap_id_organization']);
         }
 
         if (array_key_exists('activity', $row)) {
-            $row['gap_id_activity']     = $this->agenda->matchActivity($row['activity'], $row['gap_id_organization']);
+            $activityName = $row['activity'];
+            $row['gap_id_activity']     = $this->agenda->matchActivity($activityName, $row['gap_id_organization']);
         }
         if (array_key_exists('episode_id', $row)) {
-            $row['gap_id_episode']     = $this->findEpisodeOfCare($row['episode_id'], $source, $row['gap_id_organization']);
+            $episodeId = (int) $row['episode_id'];
+            $row['gap_id_episode']     = $this->findEpisodeOfCare($episodeId, $source, $row['gap_id_organization']);
         }
 
         $row['gap_source']          = $source;

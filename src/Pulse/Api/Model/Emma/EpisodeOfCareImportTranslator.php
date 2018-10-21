@@ -84,7 +84,8 @@ class EpisodeOfCareImportTranslator
                     $episodesOfCare[$id]['gec_extra_data'] = $episode['info'];
                 }
                 if (array_key_exists('main_practitioner', $episode)) {
-                    $episodesOfCare[$id]['gec_id_attended_by'] = $this->agenda->matchHealthcareStaff($episode['main_practitioner'], $organizationId);
+                    $mainPractitionerName = trim($episode['main_practitioner']);
+                    $episodesOfCare[$id]['gec_id_attended_by'] = $this->agenda->matchHealthcareStaff($mainPractitionerName, $organizationId);
                 }
             } elseif ($startDate->isEarlier($episodesOfCare[$id]['gec_startdate'])) {
                 $episodesOfCare[$id]['gec_startdate'] = $startDate;
@@ -107,13 +108,13 @@ class EpisodeOfCareImportTranslator
                 }
             }
 
-            $this->agendaDiagnosisRepository->matchDiagnosis($episode['diagnosis_code'], 'emma', $episode['diagnosis_description']);
+            $this->agendaDiagnosisRepository->matchDiagnosis(trim($episode['diagnosis_code']), 'emma', trim($episode['diagnosis_description']));
 
             $episodesOfCare[$id]['gec_diagnosis_data'][$episode['dbc_id']] = [
                 'start_date' => $episode['start_date'],
                 'end_date' => $episode['end_date'],
-                'diagnosis_code' => $episode['diagnosis_code'],
-                'diagnosis_description' => $episode['diagnosis_description'],
+                'diagnosis_code' => trim($episode['diagnosis_code']),
+                'diagnosis_description' => trim($episode['diagnosis_description']),
             ];
         }
 
