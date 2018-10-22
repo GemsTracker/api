@@ -140,8 +140,10 @@ class RespondentBulkRestController extends ModelRestController
             $row['gr2o_id_organization'] = $organizationId;
 
             $new = true;
-            if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'])) {
+            if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'], $organizationId)) {
                 $new = false;
+                $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
+            } elseif (isset($row['grs_ssn']) && $patientId = $this->respondentRepository->getPatientBySsn($row['grs_ssn'])) {
                 $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
             }
             $this->model->applyEditSettings($new);

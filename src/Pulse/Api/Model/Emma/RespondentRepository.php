@@ -39,4 +39,22 @@ class RespondentRepository
         }
         return false;
     }
+
+    public function getPatientBySsn($ssn)
+    {
+        $sql = new Sql($this->db);
+        $select = $sql->select();
+        $select->from('gems__respondents')
+            ->columns(['grs_id_user'])
+            ->where(['grs_ssn' => $ssn]);
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+
+        if ($result->valid()) {
+            $user = $result->current();
+            return $user['grs_id_user'];
+        }
+        return false;
+
+    }
 }
