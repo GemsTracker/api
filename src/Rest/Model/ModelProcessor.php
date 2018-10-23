@@ -63,6 +63,8 @@ class ModelProcessor
             $keys = $this->model->getKeys();
             if (isset($keys['id'])) {
                 $this->idField = $keys['id'];
+            } elseif (is_array($keys) && count($keys) === 1) {
+                $this->idField = reset($keys);
             }
         }
 
