@@ -5,6 +5,7 @@ namespace Pulse\Api;
 
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
+use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\EmmaRespondentTokensController;
@@ -91,6 +92,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 EmmaRespondentTokensController::class => ReflectionFactory::class,
                 EmmaSurveyQuestionsRestController::class => ReflectionFactory::class,
                 EmmaTokenAnswersRestController::class => ReflectionFactory::class,
+
+                ActivityMatcher::class => ReflectionFactory::class,
 
                 OrganizationRepository::class => ReflectionFactory::class,
                 RespondentRepository::class => ReflectionFactory::class,
@@ -315,6 +318,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'path' => '/emma/token-answers/[{id:[a-zA-Z0-9-_]+}]',
                 'middleware' => $this->getCustomActionMiddleware(EmmaTokenAnswersRestController::class),
                 'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'match-activities',
+                'path' => '/match-activities',
+                'middleware' => $this->getCustomActionMiddleware(ActivityMatcher::class),
+                'allowed_methods' => ['POST'],
             ],
         ];
 
