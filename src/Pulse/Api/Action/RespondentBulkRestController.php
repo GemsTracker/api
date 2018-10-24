@@ -188,7 +188,7 @@ class RespondentBulkRestController extends ModelRestController
 
                 // Unknown exception!
                 $this->logger->error($e->getMessage());
-                return new EmptyResponse(400);
+                return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
             }
 
             if (isset($newRow['grs_id_user'])) {
@@ -197,8 +197,9 @@ class RespondentBulkRestController extends ModelRestController
         }
 
 
-        $this->processEpisodes($newRow, $usersPerOrganization);
-        $this->processAppointments($newRow, $usersPerOrganization);
+
+        $episodeResult = $this->processEpisodes($newRow, $usersPerOrganization);
+        $appointmentResult = $this->processAppointments($newRow, $usersPerOrganization);
 
         $this->processPpAndAnesthesia($newRow, $usersPerOrganization);
 
@@ -258,7 +259,7 @@ class RespondentBulkRestController extends ModelRestController
             $processor = new ModelProcessor($this->loader, $appointmentModel, $this->userId);
             $processor->setAddDefaults($new);
             try {
-                $processor->save($appointmentData, !$new);
+                $newAppointmentData = $processor->save($appointmentData, !$new);
             } catch(\Exception $e) {
                 // Row could not be saved.
 
@@ -276,9 +277,12 @@ class RespondentBulkRestController extends ModelRestController
                 return new EmptyResponse(400);
             }
 
-            $this->logger->debug(sprintf('Appointment %s has successfully been imported.', $appointment['id']));
+            $appointmentObject = $this->agenda->getAppointment($newAppointmentData);
+            $appointmentObject->updateTracks();
 
+            $this->logger->debug(sprintf('Appointment %s has successfully been imported.', $appointment['id']));
         }
+        return true;
     }
 
     protected function processEpisodes($row, $usersPerOrganization)
@@ -330,6 +334,8 @@ class RespondentBulkRestController extends ModelRestController
             }
             $this->logger->debug(sprintf('Episode %s has successfully been %s.', $episode['gec_id_in_source'], $action));
         }
+
+        return true;
     }
 
     protected function processPpAndAnesthesia($newRow)
