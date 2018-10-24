@@ -67,6 +67,7 @@ class RespondentBulkRestController extends ModelRestController
                                 RespondentRepository $respondentRepository,
                                 \Gems_Agenda $agenda,
                                 \Gems_Model $modelLoader,
+                                \Gems_Loader $legacyLoader,
                                 $EmmaImportLogger,
                                 $LegacyDb
     )
@@ -79,6 +80,7 @@ class RespondentBulkRestController extends ModelRestController
         $this->modelLoader = $modelLoader;
         $this->organizationRepository = $organizationRepository;
         $this->respondentRepository = $respondentRepository;
+        $this->legacyLoader = $legacyLoader;
 
         parent::__construct($loader, $urlHelper, $LegacyDb);
     }
@@ -189,7 +191,7 @@ class RespondentBulkRestController extends ModelRestController
         $this->processEpisodes($newRow, $usersPerOrganization);
         $this->processAppointments($newRow, $usersPerOrganization);
 
-
+        $this->processPpAndAnesthesia($newRow, $usersPerOrganization);
 
         // Return the route as a link in the header, like in ModelRestControllerAbstract->saveRow()
         $this->logger->notice(sprintf('Finished import of bulk respondent %s', $patientNr));
@@ -315,6 +317,32 @@ class RespondentBulkRestController extends ModelRestController
                 $action = 'updated';
             }
             $this->logger->debug(sprintf('Episode %s has successfully been %s.', $episode['gec_id_in_source'], $action));
+        }
+    }
+
+    protected function processPpAndAnesthesia($newRow)
+    {
+        $patientNr = $newRow['gr2o_patient_nr'];
+        $sql = new Sql($this->db);
+        $select = $sql->select();
+        $select->from('gems__respondent2org')
+            ->columns(['gr2o_id_organization', 'gr2o_id_user', 'gr2o_patient_nr'])
+            ->join('gems__reception_codes', 'gr2o_reception_code = grc_id_reception_code', [])
+            ->where(['grc_success' => 1, 'gr2o_patient_nr' => $patientNr]);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+
+        $respondents = iterator_to_array($result);
+
+        foreach($respondents as $OkRespondents) {
+            // Check PP
+            $respondent = $this->legacyLoader->getRespondent($OkRespondents['gr2o_patient_nr'], $OkRespondents['gr2o_id_organization']);
+            if ($respondent instanceof \Pulse_Tracker_Respondent) {
+                $respondent->checkPp();
+            }
+            // Check Anesthesia
+            $this->modelLoader->checkAnaesthesiaLink($OkRespondents['gr2o_id_user'], $OkRespondents['gr2o_id_organization']);
         }
     }
 }
