@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentImportTranslator;
+use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\EpisodeOfCareImportTranslator;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentImportTranslator;
@@ -35,6 +36,11 @@ class RespondentBulkRestController extends ModelRestController
      * @var AgendaDiagnosisRepository
      */
     protected $agendaDiagnosisRepository;
+
+    /**
+     * @var AppointmentRepository
+     */
+    protected $appointmentRepository;
 
     /**
      * @var Adapter
@@ -63,6 +69,7 @@ class RespondentBulkRestController extends ModelRestController
 
     public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db,
                                 AgendaDiagnosisRepository $agendaDiagnosisRepository,
+                                AppointmentRepository $appointmentRepository,
                                 OrganizationRepository $organizationRepository,
                                 RespondentRepository $respondentRepository,
                                 \Gems_Agenda $agenda,
@@ -75,6 +82,7 @@ class RespondentBulkRestController extends ModelRestController
 
         $this->agenda = $agenda;
         $this->agendaDiagnosisRepository = $agendaDiagnosisRepository;
+        $this->appointmentRepository = $appointmentRepository;
         $this->db = $db;
         $this->logger = $EmmaImportLogger;
         $this->modelLoader = $modelLoader;
@@ -179,6 +187,7 @@ class RespondentBulkRestController extends ModelRestController
                 }
 
                 // Unknown exception!
+                $this->logger->error($e->getMessage());
                 return new EmptyResponse(400);
             }
 
@@ -244,10 +253,12 @@ class RespondentBulkRestController extends ModelRestController
 
             $appointmentModel->applyEditSettings($appointmentData['gap_id_organization']);
 
+            $new = !$this->appointmentRepository->getAppointmentExistsBySourceId($appointmentData['gap_id_in_source'], $appointmentData['gap_id_in_source']);
+
             $processor = new ModelProcessor($this->loader, $appointmentModel, $this->userId);
-            $processor->setAddDefaults(false);
+            $processor->setAddDefaults($new);
             try {
-                $processor->save($appointmentData, false);
+                $processor->save($appointmentData, !$new);
             } catch(\Exception $e) {
                 // Row could not be saved.
 
@@ -260,8 +271,8 @@ class RespondentBulkRestController extends ModelRestController
                     $this->logger->error($e->getMessage());
                     return new JsonResponse(['error' => 'model_error', 'message' => $e->getMessage()], 400);
                 }
-
                 // Unknown exception!
+                $this->logger->error($e->getMessage());
                 return new EmptyResponse(400);
             }
 
@@ -309,6 +320,7 @@ class RespondentBulkRestController extends ModelRestController
                 }
 
                 // Unknown exception!
+                $this->logger->error($e->getMessage());
                 return new EmptyResponse(400);
             }
 

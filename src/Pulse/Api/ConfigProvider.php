@@ -25,6 +25,7 @@ use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
+use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
 use Pulse\Api\Model\RespondentTrackModel;
@@ -98,6 +99,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 OrganizationRepository::class => ReflectionFactory::class,
                 RespondentRepository::class => ReflectionFactory::class,
                 AgendaDiagnosisRepository::class => ReflectionFactory::class,
+                AppointmentRepository::class => ReflectionFactory::class,
 
                 TokenController::class => ReflectionFactory::class,
 
