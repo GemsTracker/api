@@ -5,6 +5,8 @@ use Zend\Expressive\Container;
 use Zend\Expressive\Delegate;
 use Zend\Expressive\Helper;
 use Zend\Expressive\Middleware;
+use Zend\Stratigility\Middleware\ErrorHandler;
+use Gems\Rest\Error\ErrorLogEventListenerDelegatorFactory;
 
 return [
     // Provides application-wide services.
@@ -39,6 +41,11 @@ return [
         ],
         'abstract_factories' => [
             \Gems\Rest\Log\PsrLoggerAbstractServiceFactory::class,
-        ]
+        ],
+        'delegators' => [
+            ErrorHandler::class => [
+                ErrorLogEventListenerDelegatorFactory::class,
+            ],
+        ],
     ],
 ];

@@ -10,7 +10,7 @@ ini_set('display_errors', 'On');
 
 define('GEMS_WEB_DIR', __DIR__);
 define('GEMS_ROOT_DIR', realpath(GEMS_WEB_DIR . '/../'));
-ini_set('error_log', GEMS_ROOT_DIR . '/var/logs/php_errors.log');
+ini_set('error_log', GEMS_ROOT_DIR . '/data/logs/php_errors.log');
 
 chdir(dirname(__DIR__));
 require 'vendor/autoload.php';

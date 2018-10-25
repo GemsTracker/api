@@ -1,0 +1,32 @@
+<?php
+
+
+namespace Gems\Rest\Error;
+
+
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\DelegatorFactoryInterface;
+use Zend\Stratigility\Middleware\ErrorHandler;
+
+class ErrorLogEventListenerDelegatorFactory implements DelegatorFactoryInterface
+{
+    protected $errorLogger = 'errorLogger';
+
+    /**
+     * @param ContainerInterface $container
+     * @param string $name
+     * @param callable $callback
+     * @param array|null $options
+     * @return ErrorHandler
+     */
+    public function __invoke(ContainerInterface $container, $name, callable $callback, array $options = null)
+    {
+        $listener = new ErrorLogEventListener();
+        if ($container->has($this->errorLogger)) {
+            $listener->setErrorLog($container->get($this->errorLogger));
+        }
+        $errorHandler = $callback();
+        $errorHandler->attachListener($listener);
+        return $errorHandler;
+    }
+}
