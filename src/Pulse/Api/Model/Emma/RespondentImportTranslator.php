@@ -87,7 +87,7 @@ class RespondentImportTranslator extends ApiModelTranslator
         }
 
         if (array_key_exists('gr2o_email', $row) && $row['gr2o_email'] !== null) {
-            $validator = new SimplePhpEmail();
+            $validator = new \Pulse_Validate_SimplePhpEmail();
             if (!$validator->isValid($row['gr2o_email'])) {
                 $this->logger->notice(sprintf('Email removed. Not a valid Email address'), ['patientNr' => $row['gr2o_patient_nr'], 'email' => $row['gr2o_email']]);
                 $row['gr2o_email'] = null;
