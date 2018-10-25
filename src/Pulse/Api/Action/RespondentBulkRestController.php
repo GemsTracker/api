@@ -277,8 +277,8 @@ class RespondentBulkRestController extends ModelRestController
                 return new EmptyResponse(400);
             }
 
-            $appointmentObject = $this->agenda->getAppointment($newAppointmentData);
-            $appointmentObject->updateTracks();
+            //$appointmentObject = $this->agenda->getAppointment($newAppointmentData);
+            //$appointmentObject->updateTracks();
 
             $this->logger->debug(sprintf('Appointment %s has successfully been imported.', $appointment['id']));
         }
