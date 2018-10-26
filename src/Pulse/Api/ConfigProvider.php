@@ -126,6 +126,17 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                         ]
                     ]
                 ]
+            ],
+            'errorLogger' => [
+                'writers' => [
+                    'stream' => [
+                        'name' => 'stream',
+                        'priority' => Logger::DEBUG,
+                        'options' => [
+                            'stream' => GEMS_ROOT_DIR . '/data/logs/api-error.log',
+                        ]
+                    ]
+                ]
             ]
         ];
     }
