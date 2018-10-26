@@ -212,11 +212,15 @@ class LegacyFactory implements FactoryInterface
 
     protected function getEnvironment()
     {
-        if (isset($this->config['project']) && isset($this->config['project']['environment'])) {
-            return $this->config['project']['environment'];
-        } else {
-            return 'development';
+        if (defined('APPLICATION_ENV')) {
+            return APPLICATION_ENV;
+        } elseif ($config = $this->container->get('config') && isset($config['project'], $config['project']['environment'])) {
+            return $config['project']['environment'];
+        } elseif ($env = getenv('APPLICATION_ENV')) {
+            return $env;
         }
+
+        return 'development';
     }
 
     protected function getLogger()
