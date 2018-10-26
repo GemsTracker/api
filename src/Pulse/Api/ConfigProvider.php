@@ -12,6 +12,7 @@ use Pulse\Api\Action\EmmaRespondentTokensController;
 use Pulse\Api\Action\EmmaRespondentTrackRestController;
 use Pulse\Api\Action\EmmaSurveyQuestionsRestController;
 use Pulse\Api\Action\EmmaTokenAnswersRestController;
+use Pulse\Api\Action\EnvTestController;
 use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\RespondentBulkRestController;
@@ -102,6 +103,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AppointmentRepository::class => ReflectionFactory::class,
 
                 TokenController::class => ReflectionFactory::class,
+
+                EnvTestController::class => ReflectionFactory::class,
 
                 InsertTrackTokenController::class => ReflectionFactory::class,
 
@@ -327,6 +330,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'middleware' => $this->getCustomActionMiddleware(ActivityMatcher::class),
                 'allowed_methods' => ['POST'],
             ],
+            [
+                'name' => 'env-test',
+                'path' => '/env-test',
+                'middleware' => EnvTestController::class,
+                'allowed_methods' => ['GET'],
+            ]
         ];
 
 
