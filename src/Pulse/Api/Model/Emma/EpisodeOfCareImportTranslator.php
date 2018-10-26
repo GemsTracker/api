@@ -110,12 +110,21 @@ class EpisodeOfCareImportTranslator
 
             $this->agendaDiagnosisRepository->matchDiagnosis(trim($episode['diagnosis_code']), 'emma', trim($episode['diagnosis_description']));
 
-            $episodesOfCare[$id]['gec_diagnosis_data'][$episode['dbc_id']] = [
-                'start_date' => $episode['start_date'],
-                'end_date' => $episode['end_date'],
-                'diagnosis_code' => trim($episode['diagnosis_code']),
-                'diagnosis_description' => trim($episode['diagnosis_description']),
-            ];
+            $diagnosticData = [];
+            if (array_key_exists('start_date', $episode)) {
+                $diagnosticData['start_date'] = $episode['start_date'];
+            }
+            if (array_key_exists('end_date', $episode)) {
+                $diagnosticData['end_date'] = $episode['end_date'];
+            }
+            if (array_key_exists('diagnosis_code', $episode)) {
+                $diagnosticData['diagnosis_code'] = trim($episode['diagnosis_code']);
+            }
+            if (array_key_exists('diagnosis_description', $episode)) {
+                $diagnosticData['diagnosis_description'] = trim($episode['diagnosis_description']);
+            }
+
+            $episodesOfCare[$id]['gec_diagnosis_data'][$episode['dbc_id']] = $diagnosticData;
         }
 
         foreach($episodesOfCare as $key=>$episode) {
