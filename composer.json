@@ -15,7 +15,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "http-interop/http-middleware": "^0.4.1",
         "league/oauth2-server": "^6.0",
-        "magnafacta/zalt-loader": "dev-feat/legacy-classes",
+        "magnafacta/zalt-loader": "dev-master",
         "mtymek/blast-base-url": "^0.2.0",
         "roave/security-advisories": "dev-master",
         "zendframework/zend-component-installer": "^1.0",
