@@ -19,6 +19,10 @@ class ModelRestController extends ModelRestControllerAbstract
             return $this->model;
         }
 
+        if (!$this->modelName) {
+            return null;
+        }
+
         $model = $this->loader->create($this->modelName);
 
         if ($this->applySettings) {

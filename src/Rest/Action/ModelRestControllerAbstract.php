@@ -3,6 +3,7 @@
 
 namespace Gems\Rest\Action;
 
+use function GuzzleHttp\Promise\queue;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Zalt\Loader\ProjectOverloader;
@@ -45,11 +46,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     protected $itemsPerPage = 25;
 
     /**
-     * @var array list of methods supported by this current controller
+     * @var ProjectOverloader
      */
-    protected $supportedMethods = [
-        'delete', 'get', 'options', 'patch', 'post', 'structure',
-    ];
+    protected $loader;
 
     /**
      * @var \MUtil_Model_ModelAbstract Gemstracker Model
@@ -65,6 +64,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      * @var array list of column structure
      */
     protected $structure;
+
+    /**
+     * @var array list of methods supported by this current controller
+     */
+    protected $supportedMethods = [
+        'delete', 'get', 'options', 'patch', 'post', 'structure',
+    ];
 
     /**
      * @var array validators of the model fields stored per field
@@ -270,6 +276,20 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $row;
     }
 
+    protected function flipMultiArray($array)
+    {
+        $flipped = [];
+        foreach($array as $key=>$value)
+        {
+            if (is_array($value)) {
+                $flipped[$key] = $this->flipMultiArray($value);
+            } else {
+                $flipped[$value] = $key;
+            }
+        }
+        return $flipped;
+    }
+
     /**
      * Get one or multiple rows from the model
      *
@@ -308,17 +328,28 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     protected function getApiNames($reverse=false)
     {
         if (!$this->apiNames) {
-            $this->apiNames = $this->model->getCol('apiName');
+            $this->apiNames = $this->getApiSubModelNames($this->model);
         }
 
         if ($reverse) {
             if (!$this->reverseApiNames) {
-                $this->reverseApiNames = array_flip($this->apiNames);
+                $this->reverseApiNames = $this->flipMultiArray($this->apiNames);
             }
             return $this->reverseApiNames;
         }
 
         return $this->apiNames;
+    }
+
+    protected function getApiSubModelNames($model)
+    {
+        $apiNames = $this->model->getCol('apiName');
+
+        $subModels = $model->getCol('model');
+        foreach($subModels as $subModelName=>$subModel) {
+            $apiNames[$subModelName] = $this->getApiSubModelNames($subModel);
+        }
+        return $apiNames;
     }
 
     /**
@@ -459,7 +490,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 && $key == $this->routeOptions['multiOranizationField']['field']) {
                 $field = $this->routeOptions['multiOranizationField']['field'];
                 $separator = $this->routeOptions['multiOranizationField']['separator'];
-                $filters[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $value . $separator . '%');
+
+                $organizationIds = explode(',', $value);
+
+                foreach($organizationIds as $organizationId) {
+                    $filters[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $organizationId . $separator . '%');
+                }
+
                 continue;
             }
 
@@ -844,6 +881,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 $multiValidators = $this->model->getCol('validators');
                 $singleValidators = $this->model->getCol('validator');
                 $allRequiredFields = $this->model->getCol('required');
+                $defaultFields = $this->model->getCol('default');
                 $types = $this->model->getCol('type');
             }
 
@@ -1131,8 +1169,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
                 if (strpos($value, '+') === 19 || strpos($value, '.') === 19) {
                     $value = substr($value, 0, 19);
-                    $row[$columnName] = new \MUtil_Date($value, \MUtil_Date::ISO_8601);
                 }
+                $row[$columnName] = new \MUtil_Date($value, \MUtil_Date::ISO_8601);
             }
 
         }
@@ -1185,14 +1223,24 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      */
     public function translateRow($row, $reversed=false)
     {
-        $translations = $this->getApiNames();
+        $translations = $this->getApiNames($reversed);
 
-        if ($reversed) {
-            $translations = $this->getApiNames($reversed);
-        }
+        $translatedRow = $this->translateList($row, $translations);
 
+        return $translatedRow;
+    }
+
+    public function translateList($row, $translations)
+    {
         $translatedRow = [];
         foreach($row as $colName=>$value) {
+
+            if (is_array($value) && isset($translations[$colName]) && is_array($translations[$colName])) {
+                foreach($value as $key=>$subrow) {
+                    $translatedRow[$colName][$key] = $this->translateList($subrow, $translations[$colName]);
+                }
+                continue;
+            }
 
             if ($value instanceof \MUtil_Date) {
                 $value = $value->toString(\MUtil_Date::ISO_8601);

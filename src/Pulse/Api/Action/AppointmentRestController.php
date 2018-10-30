@@ -20,6 +20,14 @@ class AppointmentRestController extends ModelRestController
      */
     protected $agenda;
 
+    protected $apiNames = [
+        'gr2o_patient_nr' => 'patient_nr',
+        'gap_id_organization' => 'organization_id',
+        'gap_status' => 'status',
+        'gap_admission_time' => 'admission_time',
+        'gap_discharge_time' => 'discharge_time',
+    ];
+
     /**
      * @var Adapter
      */
@@ -31,14 +39,6 @@ class AppointmentRestController extends ModelRestController
         $this->db = $db;
         parent::__construct($loader, $urlHelper, $LegacyDb);
     }
-
-    protected $apiNames = [
-        'gr2o_patient_nr' => 'patient_nr',
-        'gap_id_organization' => 'organization_id',
-        'gap_status' => 'status',
-        'gap_admission_time' => 'admission_time',
-        'gap_discharge_time' => 'discharge_time',
-    ];
 
     protected function getPatientId($patientNr, $organizationId)
     {

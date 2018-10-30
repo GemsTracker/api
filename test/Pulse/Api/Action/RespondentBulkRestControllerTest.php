@@ -219,6 +219,76 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $this->assertEquals($expectedData, $responseData, 'parsed body not the same as expected data');
     }
 
+    public function testAddingSsnToPatient()
+    {
+        $controller = $this->getController(true);
+
+        $newData = [
+            'gr2o_patient_nr' => '11',
+            'organizations' => [
+                'Test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '666268538', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+        $delegator = $this->getDelegator();
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $request = $this->getRequest('GET', ['gr2o_patient_nr' => 11, 'gr2o_id_organization' => 1], [], [], $this->routeOptions);
+        $response = $controller->process(
+            $request,
+            $delegator
+        );
+
+        $expectedData = $newData;
+        unset($expectedData['organizations']);
+        $expectedData['gr2o_id_organization'] = '1';
+
+        $responseData = array_merge($expectedData, array_intersect_key($response->getPayload(), $expectedData));
+
+        $this->assertEquals($expectedData, $responseData, 'parsed body not the same as expected data');
+    }
+
+    public function testChangingPatientNrOfExistingSsnPatient()
+    {
+        $controller = $this->getController(true);
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '666268538', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+        $delegator = $this->getDelegator();
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $request = $this->getRequest('GET', ['gr2o_patient_nr' => 22, 'gr2o_id_organization' => 1], [], [], $this->routeOptions);
+        $response = $controller->process(
+            $request,
+            $delegator
+        );
+
+        $expectedData = $newData;
+        unset($expectedData['organizations']);
+        $expectedData['gr2o_id_organization'] = '1';
+
+        $responseData = array_merge($expectedData, array_intersect_key($response->getPayload(), $expectedData));
+
+        $this->assertEquals($expectedData, $responseData, 'parsed body not the same as expected data');
+    }
+
 
     private function getController($realLoader=false, $urlHelperRoutes=[])
     {
