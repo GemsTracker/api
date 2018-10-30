@@ -404,6 +404,10 @@ description = 'Gemstracker Test'
                 Argument::cetera()
             )->willReturn($instance);
         }
+        $loader->getOverloaders()->willReturn([
+            'Zalt' => 'Zalt',
+            'Zend' => 'Zend',
+        ]);
 
         $container = $this->prophesize(ContainerInterface::class);
         $container->get('loader')->willReturn($loader->reveal());
