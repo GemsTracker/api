@@ -40,6 +40,28 @@ class RespondentRepository
         return false;
     }
 
+    public function getPatientsBySsn($ssn)
+    {
+        $sql = new Sql($this->db);
+        $select = $sql->select();
+        $select->from('gems__respondent2org')
+            ->join('gems__respondents', 'grs_id_user = gr2o_id_user')
+            ->columns(['gr2o_patient_nr'])
+            ->where(['grs_ssn' => $ssn,]);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+
+        $result = $statement->execute();
+
+        $patients = iterator_to_array($result);
+
+        if (count($patients) === 0) {
+            return null;
+        }
+
+        return $patients;
+    }
+
     public function getPatientBySsn($ssn)
     {
         $sql = new Sql($this->db);

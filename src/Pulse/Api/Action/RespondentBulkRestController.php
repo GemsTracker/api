@@ -96,11 +96,14 @@ class RespondentBulkRestController extends ModelRestController
     protected function createModel()
     {
         $model =  parent::createModel();
-        $idField = 'grs_id_user';
-        $model->setAutoSave($idField);
 
-        // Make sure the fields get a userid when empty
-        $model->setOnSave($idField, array($this->modelLoader, 'createGemsUserId'));
+        if ($model instanceof \MUtil_Model_ModelAbstract) {
+            $idField = 'grs_id_user';
+            $model->setAutoSave($idField);
+
+            // Make sure the fields get a userid when empty
+            $model->setOnSave($idField, array($this->modelLoader, 'createGemsUserId'));
+        }
 
         return $model;
     }
@@ -118,7 +121,11 @@ class RespondentBulkRestController extends ModelRestController
         }
 
         if (!array_key_exists('patient_nr', $respondentRow) && !array_key_exists('gr2o_patient_nr', $respondentRow)) {
-            return new JsonResponse(['error' => 'missing_data', 'Missing patient nr in patient_nr or gr2o_patient_nr field'], 400);
+            return new JsonResponse(['error' => 'missing_data', 'message' => 'Missing patient nr in patient_nr or gr2o_patient_nr field'], 400);
+        }
+
+        if (!array_key_exists('organizations', $respondentRow)) {
+            return new JsonResponse(['error' => 'missing_data', 'message' => 'Missing organizations array'], 400);
         }
         $patientNr = null;
         if (isset($respondentRow['patient_nr'])) {
@@ -131,8 +138,8 @@ class RespondentBulkRestController extends ModelRestController
         //$this->logger->debug('Starting import of bulk respondent', ['PatientNr' => $patientNr]);
         $this->logger->debug('Starting import of bulk respondent', $respondentRow);
 
-        $translator = new RespondentImportTranslator($this->db, $this->logger);
-        $row = $translator->translateRow($respondentRow, true);
+        $translator = new RespondentImportTranslator($this->db, $this->respondentRepository, $this->logger);
+        $row = $translator->translateRowOnce($respondentRow, true);
 
         $organizations = $this->organizationRepository->getOrganizationTranslations($row['organizations']);
 
@@ -142,21 +149,25 @@ class RespondentBulkRestController extends ModelRestController
             return new JsonResponse(['message' => $message]);
         }
 
-        $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
-        $processor->setAddDefaults(true);
+        //$this->model->copyKeys();
+
+        /*$processor = new ModelProcessor($this->loader, $this->model, $this->userId);
+        $processor->setAddDefaults(true);*/
 
         $usersPerOrganization = [];
         foreach($organizations as $organizationId => $organizationName) {
             $row['gr2o_id_organization'] = $organizationId;
 
+            $row = $translator->matchRowToExistingPatient($row);
             $new = true;
-            if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'], $organizationId)) {
-                $new = false;
-                $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
-            } elseif (isset($row['grs_ssn']) && $patientId = $this->respondentRepository->getPatientBySsn($row['grs_ssn'])) {
-                $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
+            if (array_key_exists('new_respondent', $row)) {
+                $new = $row['new_respondent'];
             }
+
             $this->model->applyEditSettings($new);
+
+            $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
+            $processor->setAddDefaults(true);
 
             if ($new) {
                 $locationName = $this->organizationRepository->getLocationFromOrganizationName($organizationName);
@@ -196,12 +207,17 @@ class RespondentBulkRestController extends ModelRestController
             }
         }
 
+        $test = $this->model->load();
+
+
 
 
         $episodeResult = $this->processEpisodes($newRow, $usersPerOrganization);
         $appointmentResult = $this->processAppointments($newRow, $usersPerOrganization);
 
-        $this->processPpAndAnesthesia($newRow, $usersPerOrganization);
+        if ($this->modelLoader instanceof \Pulse_Model) {
+            $this->processPpAndAnesthesia($newRow, $usersPerOrganization);
+        }
 
         // Return the route as a link in the header, like in ModelRestControllerAbstract->saveRow()
         $this->logger->notice(sprintf('Finished import of bulk respondent %s', $patientNr));

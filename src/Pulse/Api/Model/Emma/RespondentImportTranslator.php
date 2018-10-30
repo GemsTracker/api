@@ -24,6 +24,11 @@ class RespondentImportTranslator extends ApiModelTranslator
     protected $logger;
 
     /**
+     * @var RespondentRepository
+     */
+    protected $respondentRepository;
+
+    /**
      * @var array Api translations for the respondent
      */
     public $translations = [
@@ -43,42 +48,69 @@ class RespondentImportTranslator extends ApiModelTranslator
         "gr2o_patient_nr" => "patient_nr",
     ];
 
-    public function __construct(Adapter $db, LoggerInterface $logger)
+    public function __construct(Adapter $db, RespondentRepository $respondentRepository, LoggerInterface $logger)
     {
         $this->db = $db;
         $this->logger = $logger;
+        $this->respondentRepository = $respondentRepository;
         parent::__construct(null);
     }
 
-    protected function getPatientNrBySsn($ssn)
+    public function matchRowToExistingPatient($row)
     {
-        $sql = new Sql($this->db);
-        $select = $sql->select();
-        $select->from('gems__respondent2org')
-            ->join('gems__respondents', 'grs_id_user = gr2o_id_user')
-            ->columns(['gr2o_patient_nr'])
-            ->where(['grs_ssn' => $ssn,]);
-            /*->where($select->where->notEqualTo(
-                'gr2o_patient_nr',
-                'gr2o_patient_nr2',
-                Predicate::TYPE_IDENTIFIER,
-                Predicate::TYPE_IDENTIFIER
-            ));*/
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
+        if (array_key_exists('grs_ssn', $row) && $row['grs_ssn'] !== null) {
+            if (is_string($row['grs_ssn']) && strlen($row['grs_ssn']) === 8) {
+                $row['grs_ssn'] = '0' . $row['grs_ssn'];
+            }
 
-        if ($result->valid()) {
-            $user = $result->current();
-            return $user['gr2o_patient_nr'];
+            $validator = new \MUtil_Validate_Dutch_Burgerservicenummer();
+
+            if ($validator->isValid($row['grs_ssn'])) {
+                $patients = $this->respondentRepository->getPatientsBySsn($row['grs_ssn']);
+
+                foreach($patients as $patient) {
+                    if ($patient['gr2o_id_organization'] == $row['gr2o_id_organization']) {
+                        /*if ($patient['gr2o_patient_nr'] != $row['gr2o_patient_nr']) {
+                            // A patient already exists under a different patient nr. We will overwrite this patient!
+                            $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                            $row['new'] = false;
+                            return;
+                        }*/
+                        // A patient has been found, create a new user with the same respondent ID
+                        $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                        $row['new_respondent'] = false;
+                        return $row;
+                    }
+                }
+
+                $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                $row['new_respondent'] = true;
+                return $row;
+
+
+                /*if ($ssnPatNr && ($ssnPatNr != $row['gr2o_patient_nr'])) {
+                    unset($row['grs_ssn']);
+                    $bsnComm = "\nBSN removed, was duplicate of $ssnPatNr BSN.\n";
+                }*/
+            } else {
+                $bsnComm = "\nBSN removed, " . $row['grs_ssn'] . " is not a valid BSN.\n";
+                $this->logger->notice($bsnComm, ['patientNr' => $row['gr2o_patient_nr']]);
+                $row['grs_ssn'] = null;
+            }
         }
-        return false;
+
+        // No BSN, see if the patient exists as Patient number
+        if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'], $row['gr2o_id_organization'])) {
+            $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
+            $row['new_respondent'] = false;
+        }
+
+        return $row;
     }
 
-    public function translateRow($row, $reversed=false)
+    public function translateRowOnce($row)
     {
-        $row = parent::translateRow($row, $reversed);
-
-        //$row['gr2o_reception_code']  = \GemsEscort::RECEPTION_OK;
+        $row = parent::translateRow($row, true);
         $row['grs_iso_lang'] = 'nl';
         $row['gr2o_readonly'] = 1;
 
@@ -87,12 +119,25 @@ class RespondentImportTranslator extends ApiModelTranslator
         }
 
         if (array_key_exists('gr2o_email', $row) && $row['gr2o_email'] !== null) {
+            if ($row['gr2o_email'] === '') {
+                $row['gr2o_email'] = null;
+            }
             $validator = new \Pulse_Validate_SimplePhpEmail();
             if (!$validator->isValid($row['gr2o_email'])) {
                 $this->logger->notice(sprintf('Email removed. Not a valid Email address'), ['patientNr' => $row['gr2o_patient_nr'], 'email' => $row['gr2o_email']]);
                 $row['gr2o_email'] = null;
             }
         }
+
+        return $row;
+    }
+
+    public function translateRow($row, $reversed=false)
+    {
+        $row = parent::translateRow($row, $reversed);
+
+        //$row['gr2o_reception_code']  = \GemsEscort::RECEPTION_OK;
+
 
         $bsnComm = false;
         if (array_key_exists('grs_ssn', $row) && $row['grs_ssn'] !== null) {
