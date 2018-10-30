@@ -1,0 +1,23 @@
+gems__organizations:
+  -
+    gor_id_organization: 1
+    gor_name: 'Test organization'
+    gor_code: 'test'
+    gor_active: 1,
+    gor_add_respondents: 1
+
+gems__reception_codes:
+  -
+    grc_id_reception_code: 'OK'
+    grc_description: 'OK'
+    grc_success: 1
+    grc_for_surveys: 1
+    grc_redo_survey: 0
+    grc_for_tracks: 1
+    grc_for_respondents: 1
+    grc_overwrite_answers: 0
+    grc_active: 1
+    grc_changed: 2018-01-01 00:00:00
+    grc_changed_by: 1
+    grc_created: 2018-01-01 00:00:00
+    grc_created_by: 1

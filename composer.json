@@ -54,7 +54,7 @@
     "autoload-dev": {
         "psr-4": {
             "GemsTest\\Rest\\": "test/Rest/",
-            "Dev\\": "src/Dev/"
+            "PulseTest\\Rest\\": "test/Pulse/"
         }
     },
     "scripts": {
