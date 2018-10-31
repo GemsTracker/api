@@ -9,9 +9,10 @@ use Gems\Rest\Exception\RestException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
+use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Expressive\Helper\UrlHelper;
 
-class RespondentTrackRestController extends ModelRestController
+class AllRespondentTrackRestController extends ModelRestController
 {
     /**
      * @var \Gems_Tracker
@@ -23,6 +24,19 @@ class RespondentTrackRestController extends ModelRestController
         $this->tracker = $tracker;
         parent::__construct($loader, $urlHelper, $LegacyDb);
 
+    }
+
+    public function getList(ServerRequestInterface $request, DelegateInterface $delegate)
+    {
+        $queryParams = $request->getQueryParams();
+        if (isset($queryParams['gr2o_patient_nr'], $queryParams['gr2o_id_organization'])) {
+            $queryParams['gr2o_id_user'] = $this->getRespondentByPatientNr($queryParams['gr2o_patient_nr'], $queryParams['gr2o_id_organization']);
+            unset($queryParams['gr2o_patient_nr']);
+            unset($queryParams['gr2o_id_organization']);
+            $request = $request->withQueryParams($queryParams);
+            return parent::getList($request, $delegate);
+        }
+        return new EmptyResponse(400);
     }
 
     protected function addNewModelRow($row)
@@ -77,5 +91,17 @@ class RespondentTrackRestController extends ModelRestController
         }
 
         return parent::afterSaveRow($newRow);
+    }
+
+    protected function getRespondentByPatientNr($patientNr, $organizationId)
+    {
+        $select = $this->db1->select();
+        $select->from('gems__respondent2org', ['gr2o_id_user'])
+            ->where('gr2o_patient_nr = ?', $patientNr)
+            ->where('gr2o_id_organization = ?', $organizationId);
+
+        return $this->db1->fetchOne($select);
+
+
     }
 }
