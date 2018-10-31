@@ -46,7 +46,7 @@ class RespondentRepository
         $select = $sql->select();
         $select->from('gems__respondent2org')
             ->join('gems__respondents', 'grs_id_user = gr2o_id_user')
-            ->columns(['gr2o_patient_nr'])
+            ->columns(['gr2o_patient_nr', 'gr2o_id_organization'])
             ->where(['grs_ssn' => $ssn,]);
 
         $statement = $sql->prepareStatementForSqlObject($select);

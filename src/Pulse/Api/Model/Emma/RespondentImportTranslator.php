@@ -66,26 +66,27 @@ class RespondentImportTranslator extends ApiModelTranslator
             $validator = new \MUtil_Validate_Dutch_Burgerservicenummer();
 
             if ($validator->isValid($row['grs_ssn'])) {
-                $patients = $this->respondentRepository->getPatientsBySsn($row['grs_ssn']);
+                if ($patients = $this->respondentRepository->getPatientsBySsn($row['grs_ssn'])) {
 
-                foreach($patients as $patient) {
-                    if ($patient['gr2o_id_organization'] == $row['gr2o_id_organization']) {
-                        /*if ($patient['gr2o_patient_nr'] != $row['gr2o_patient_nr']) {
-                            // A patient already exists under a different patient nr. We will overwrite this patient!
+                    foreach ($patients as $patient) {
+                        if ($patient['gr2o_id_organization'] == $row['gr2o_id_organization']) {
+                            /*if ($patient['gr2o_patient_nr'] != $row['gr2o_patient_nr']) {
+                                // A patient already exists under a different patient nr. We will overwrite this patient!
+                                $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                                $row['new'] = false;
+                                return;
+                            }*/
+                            // A patient has been found, create a new user with the same respondent ID
                             $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
-                            $row['new'] = false;
-                            return;
-                        }*/
-                        // A patient has been found, create a new user with the same respondent ID
-                        $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
-                        $row['new_respondent'] = false;
-                        return $row;
+                            $row['new_respondent'] = false;
+                            return $row;
+                        }
                     }
-                }
 
-                $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
-                $row['new_respondent'] = true;
-                return $row;
+                    $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                    $row['new_respondent'] = true;
+                    return $row;
+                }
 
 
                 /*if ($ssnPatNr && ($ssnPatNr != $row['gr2o_patient_nr'])) {

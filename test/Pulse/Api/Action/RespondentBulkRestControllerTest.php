@@ -289,6 +289,35 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $this->assertEquals($expectedData, $responseData, 'parsed body not the same as expected data');
     }
 
+    public function testPatientWithMultipleOrganizations()
+    {
+        $controller = $this->getController(true);
+        $delegator = $this->getDelegator();
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Test organization',
+                'Another test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '666268538', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $select = $this->db1->select();
+        $select->from('gems__respondent2org');
+        $patients = $this->db1->fetchAll($select);
+
+        $this->assertCount(2, $patients, sprintf('There were %d patients found, while 2 were expected', count($patients)));
+
+        $this->assertEquals($patients[0]['gr2o_id_user'], $patients[1]['gr2o_id_user'], 'The patients are not merged as one respondent');
+    }
 
     private function getController($realLoader=false, $urlHelperRoutes=[])
     {
@@ -299,6 +328,11 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         ]);
         $loader->legacyClasses = true;
         $loader->legacyPrefix = 'Legacy';
+
+        //$model = new \Pulse_Model_RespondentModel();
+        $model = new \Gems_Model_RespondentModel();
+        // Remove ssn hashing in tests
+        $model->del('grs_ssn', \MUtil_Model_ModelAbstract::SAVE_TRANSFORMER, \MUtil_Model_ModelAbstract::LOAD_TRANSFORMER, \MUtil_Model_ModelAbstract::SAVE_WHEN_TEST);
 
         $currentUserProphecy = $this->prophesize(\Gems_User_User::class);
         $currentUserProphecy->getUserId()->willReturn(1);
@@ -326,6 +360,9 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $utilProphecy->getDefaultConsent()->willReturn('Unknown');
 
         $projectProphecy = $this->prophesize(\Gems_Project_ProjectSettings::class);
+        $projectProphecy->getLocaleDefault()->willReturn('en');
+
+        $projectProphecy->getValueHash(Argument::any(), Argument::cetera())->willReturnArgument(1);
 
         $viewProphecy = $this->prophesize(\Zend_View_Abstract::class);
 
@@ -356,6 +393,7 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
 
         $loader->setServiceManager($container);
 
+        $loader->applyToLegacyTarget($model);
 
         $urlHelperProphecy = $this->prophesize(UrlHelper::class);
 
@@ -368,10 +406,22 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $organizationRepositoryProphecy = $this->prophesize(OrganizationRepository::class);
 
         $organizationRepositoryProphecy->getOrganizationTranslations(['Test organization'])->willReturn(['1' => 'Test organization']);
+        $organizationRepositoryProphecy->getOrganizationTranslations(['Another test organization'])->willReturn(['2' => 'Another test organization']);
+        $organizationRepositoryProphecy->getOrganizationTranslations(
+            [
+                'Test organization',
+                'Another test organization'
+            ]
+        )->willReturn(
+            [
+                '1' => 'Test organization',
+                '2' => 'Another test organization'
+            ]);
         $organizationRepositoryProphecy->getOrganizationTranslations(Argument::type('array'))->willReturn([]);
         $organizationRepositoryProphecy->getLocationFromOrganizationName(Argument::type('string'))->willReturn(null);
 
-        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        //$respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $respondentRepository = new RespondentRepository($this->db);
         $gemsAgendaProphecy = $this->prophesize(\Gems_Agenda::class);
         $modelClass = \Gems_Model::class;
         if (class_exists(\Pulse_Model::class, true)) {
@@ -383,18 +433,21 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $legacyLoaderProphecy = $this->prophesize(\Gems_Loader::class);
         $emmaImportLoggerProphecy = $this->prophesize(LoggerInterface::class);
 
-        return new RespondentBulkRestController($loader, $urlHelperProphecy->reveal(), $this->db,
+        $controller =  new RespondentBulkRestController($loader, $urlHelperProphecy->reveal(), $this->db,
             $agendaDiagnosisRepositoryProphecy->reveal(),
             $appointmentRepositoryProphecy->reveal(),
             $organizationRepositoryProphecy->reveal(),
-            $respondentRepositoryProphecy->reveal(),
+            //$respondentRepositoryProphecy->reveal(),
+            $respondentRepository,
             $gemsAgendaProphecy->reveal(),
             $gemsModelProphecy->reveal(),
             $legacyLoaderProphecy->reveal(),
             $emmaImportLoggerProphecy->reveal(),
             $this->db1
         );
+
+        $controller->setModelName($model);
+
+        return $controller;
     }
-
-
 }

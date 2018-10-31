@@ -26,7 +26,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     protected $apiNames;
 
     /**
-     * @var db1 \Zend_Db_Adapter_Abstract
+     * @var \Zend_Db_Adapter_Abstract
      */
     protected $db1;
 
