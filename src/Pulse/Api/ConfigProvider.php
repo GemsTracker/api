@@ -246,7 +246,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'respondent-tracks' => [
                 'model' => RespondentTrackModel::class,
-                'methods' => ['GET', 'PATCH', 'POST'],
+                'methods' => ['GET', 'PATCH', 'POST', 'DELETE'],
                 'idField' => 'gr2t_id_respondent_track',
                 'customAction' => RespondentTrackRestController::class,
                 'organizationId' => 'gr2t_id_organization',
