@@ -10,7 +10,6 @@ use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\CorrectTokenController;
 use Pulse\Api\Action\EmmaRespondentTokensController;
-use Pulse\Api\Action\EmmaRespondentTrackRestController;
 use Pulse\Api\Action\EmmaSurveyQuestionsRestController;
 use Pulse\Api\Action\EmmaTokenAnswersRestController;
 use Pulse\Api\Action\EnvTestController;
@@ -19,7 +18,7 @@ use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\RespondentBulkRestController;
 use Pulse\Api\Action\RespondentRestController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
-use Pulse\Api\Action\AllRespondentTrackRestController;
+use Pulse\Api\Action\RespondentTrackRestController;
 use Pulse\Api\Action\SurveyQuestionsRestController;
 use Pulse\Api\Action\TokenAnswersRestController;
 use Pulse\Api\Action\TokenController;
@@ -88,7 +87,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 RespondentResults::class => ReflectionFactory::class,
 
-                AllRespondentTrackRestController::class => ReflectionFactory::class,
+                RespondentTrackRestController::class => ReflectionFactory::class,
                 RespondentRestController::class => ReflectionFactory::class,
                 RespondentBulkRestController::class => ReflectionFactory::class,
                 AppointmentRestController::class => ReflectionFactory::class,
@@ -245,11 +244,11 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'customAction' => TokenController::class,
                 'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
             ],
-            'all-respondent-tracks' => [
+            'respondent-tracks' => [
                 'model' => RespondentTrackModel::class,
                 'methods' => ['GET', 'PATCH', 'POST'],
                 'idField' => 'gr2t_id_respondent_track',
-                'customAction' => AllRespondentTrackRestController::class,
+                'customAction' => RespondentTrackRestController::class,
                 'organizationId' => 'gr2t_id_organization',
             ],
             'extreme-values' => [

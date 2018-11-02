@@ -61,10 +61,13 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
         if (!isset($filters[$routeOptions['organizationId']])) {
             $filters[$routeOptions['organizationId']] = $allowedOrganizations;//'['.join(',', $allowedOrganizations).']';
         } else {
-            $selectedOrganizationIds = '['.join(',', $filters[$routeOptions['organizationId']]).']';
+            $selectedOrganizationIds = $filters[$routeOptions['organizationId']];
+            if (is_string($selectedOrganizationIds)) {
+                $selectedOrganizationIds = explode(',', str_replace(['[', ']'], '', $selectedOrganizationIds));
+            }
             $filteredOrganizationIds = [];
             foreach($selectedOrganizationIds as $organizationId) {
-                if (in_array($organizationId, $selectedOrganizationIds)) {
+                if (in_array($organizationId, $allowedOrganizations)) {
                     $filteredOrganizationIds[] = $organizationId;
                 }
             }

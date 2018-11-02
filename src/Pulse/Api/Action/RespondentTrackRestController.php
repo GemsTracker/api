@@ -12,7 +12,7 @@ use Zalt\Loader\ProjectOverloader;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Expressive\Helper\UrlHelper;
 
-class AllRespondentTrackRestController extends ModelRestController
+class RespondentTrackRestController extends ModelRestController
 {
     /**
      * @var \Gems_User_User
