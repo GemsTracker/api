@@ -319,6 +319,45 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $this->assertEquals($patients[0]['gr2o_id_user'], $patients[1]['gr2o_id_user'], 'The patients are not merged as one respondent');
     }
 
+    public function testMultiplePatientsWithSameNumberButDifferentSsn()
+    {
+        $controller = $this->getController(true);
+        $delegator = $this->getDelegator();
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '666268538', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '454619224', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, JsonResponse::class, 400);
+
+        $responseData = $response->getPayload();
+        $this->assertEquals('model_translation_error', $responseData['error'], 'Error code is missing or not "model_translation_error"');
+    }
+
     private function getController($realLoader=false, $urlHelperRoutes=[])
     {
         $loader = new ProjectOverloader([

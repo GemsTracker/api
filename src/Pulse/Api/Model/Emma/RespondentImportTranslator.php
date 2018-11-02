@@ -4,6 +4,7 @@
 namespace Pulse\Api\Model\Emma;
 
 
+use Gems\Rest\Model\ModelTranslateException;
 use Psr\Log\LoggerInterface;
 use Pulse\Api\Model\ApiModelTranslator;
 use Pulse\Validate\SimplePhpEmail;
@@ -86,6 +87,17 @@ class RespondentImportTranslator extends ApiModelTranslator
                     $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
                     $row['new_respondent'] = true;
                     return $row;
+                }
+
+                $patient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
+
+                if (is_array($patient) && array_key_exists('grs_ssn', $patient) && $patient['grs_ssn'] !== null) {
+                    // SSN doesn't exist, but the patient number does in this organization! Something weird is going on here!
+                    throw new ModelTranslateException(
+                        sprintf(
+                            "SSN %s doesn't exist, but the patient ID %s does exist in organization %s. Patient has not been saved!",
+                            $row['grs_ssn'], $row['gr2o_patient_nr'], $row['gr2o_id_organization']));
+                    return false;
                 }
 
 

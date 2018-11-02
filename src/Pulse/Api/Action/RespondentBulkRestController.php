@@ -7,6 +7,7 @@ use Gems\Model\EpisodeOfCareModel;
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
+use Gems\Rest\Model\ModelTranslateException;
 use Gems\Rest\Model\ModelValidationException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -158,7 +159,13 @@ class RespondentBulkRestController extends ModelRestController
         foreach($organizations as $organizationId => $organizationName) {
             $row['gr2o_id_organization'] = $organizationId;
 
-            $row = $translator->matchRowToExistingPatient($row);
+            try {
+                $row = $translator->matchRowToExistingPatient($row);
+            } catch(ModelTranslateException $e) {
+                $this->logger->error($e->getMessage());
+                return new JsonResponse(['error' => 'model_translation_error', 'message' => $e->getMessage()], 400);
+            }
+
             $new = true;
             if (array_key_exists('new_respondent', $row)) {
                 $new = $row['new_respondent'];
