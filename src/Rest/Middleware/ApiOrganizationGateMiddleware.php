@@ -14,7 +14,7 @@ use Zend\Permissions\Acl\Acl;
 class ApiOrganizationGateMiddleware implements MiddlewareInterface
 {
     /**
-     * @var Gems_User_User
+     * @var \Gems_User_User
      */
     protected $currentUser;
 

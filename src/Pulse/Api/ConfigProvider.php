@@ -225,6 +225,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'field' => 'gtr_organizations',
                     'separator' => '|',
                 ],
+                'organizationId' => 'gtr_organizations',
             ],
             'rounds' => [
                 'model' => 'Tracker\\Model\\RoundModel',

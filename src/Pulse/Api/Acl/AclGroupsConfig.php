@@ -6,7 +6,7 @@ return [
         'api.organizations' => ['GET'],
         'api.outcome-variables' => ['GET'],
         'api.respondents' => ['GET', 'PATCH'],
-        'api.respondent-tracks' => ['GET', 'PATCH', 'POST'],
+        'api.all-respondent-tracks' => ['GET', 'PATCH', 'POST'],
         'api.surveys' => ['GET'],
         'api.tokens' => ['GET'],
         'api.tracks' => ['GET'],

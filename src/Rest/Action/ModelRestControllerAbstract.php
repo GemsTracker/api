@@ -490,11 +490,17 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 && $key == $this->routeOptions['multiOranizationField']['field']) {
                 $field = $this->routeOptions['multiOranizationField']['field'];
                 $separator = $this->routeOptions['multiOranizationField']['separator'];
+                $organizationIds = $value;
+                if (!is_array($organizationIds)) {
+                    $organizationIds = explode(',', $organizationIds);
+                }
 
-                $organizationIds = explode(',', $value);
-
+                $organizationFilter = [];
                 foreach($organizationIds as $organizationId) {
-                    $filters[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $organizationId . $separator . '%');
+                    $organizationFilter[] = $field . ' LIKE '. $this->db1->quote('%'.$separator . $organizationId . $separator . '%');
+                }
+                if (!empty($organizationFilter)) {
+                    $filters[] = '(' . join(' OR ', $organizationFilter) . ')';
                 }
 
                 continue;
