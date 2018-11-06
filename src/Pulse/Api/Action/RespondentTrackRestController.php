@@ -105,8 +105,9 @@ class RespondentTrackRestController extends ModelRestController
 
     public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $id = $request->getAttribute('id');
         $idField = $this->getIdField();
+        $id = $request->getAttribute($idField);
+
         if ($id === null || !$idField) {
             return new EmptyResponse(404);
         }
@@ -119,11 +120,16 @@ class RespondentTrackRestController extends ModelRestController
 
         $parsedBody = json_decode($request->getBody()->getContents(), true);
         $comment = '';
-        if (array_key_exists('comment', $parsedBody)) {
+        if (is_array($parsedBody) && array_key_exists('comment', $parsedBody)) {
             $comment = $parsedBody['comment'];
         }
 
         $result = $respondentTrack->setReceptionCode($this->stopReceptionCode, $comment, $this->userId);
+
+        if ($result) {
+            $now = new \DateTime;
+            $respondentTrack->setEndDate($now->format('Y-m-d H:i:s'), $this->userId);
+        }
 
         if ($result) {
             return new EmptyResponse(202);
