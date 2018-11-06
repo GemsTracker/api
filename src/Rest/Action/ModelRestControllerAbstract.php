@@ -512,7 +512,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             }
             
             if (isset($itemNames[$colName])) {
-                if (is_string($value)) {
+                if (is_string($value) || is_numeric($value)) {
                     if (strpos($value, '[') === 0 && strpos($value, ']') === strlen($value) - 1) {
                         $values = explode(',', str_replace(['[', ']'], '', $value));
                         $firstValue = reset($values);
