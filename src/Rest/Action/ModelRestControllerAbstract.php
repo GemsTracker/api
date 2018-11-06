@@ -547,6 +547,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                                 $filters[$colName] = $value;
                         }
                     }
+                } elseif (is_array($value)) {
+                    $filters[$colName] = $value;
                 }
             }
         }
