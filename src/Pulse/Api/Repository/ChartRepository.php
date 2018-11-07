@@ -546,24 +546,28 @@ class ChartRepository
 
     protected function addDescriptiveStyle($variableName, $data, $normType, $area=false, $nValue=false, $type='scatter')
     {
-        if ($normType == '') {
+        switch ($normType) {
+            case 'physician':
+            case 'location':
+                $lineColor = 'rgb(84,199,0)';
+                $fillColor = 'rgba(84,199,0,.2)';
+                $barColor = 'rgba(84,199,0,.75)';
+                break;
 
-            $lineColor = 'rgb(31,119,180)';
-            $fillColor = 'rgba(31,119,180,.4)';
-            $barColor = 'rgba(31,119,180,.75)';
+            case 'respondent':
+                $lineColor = 'rgb(215,0,76)';
+                $barColor = 'rgba(215,0,76,.75)';
+                break;
 
-        } elseif ($normType == 'physician' || $normType == 'location') {
+            case 'respondent1':
+                $lineColor = 'rgb(255,217,102)';
+                $barColor = 'rgba(255,217,102,.75)';
+                break;
 
-            $lineColor = 'rgb(84,199,0)';
-            $fillColor = 'rgba(84,199,0,.2)';
-            $barColor = 'rgba(84,199,0,.75)';
-
-        } elseif ($normType == 'respondent') {
-            $lineColor = 'rgb(215,0,76)';
-            $barColor = 'rgba(215,0,76,.75)';
-        } elseif ($normType == 'respondent1') {
-            $lineColor = 'rgb(255,217,102)';
-            $barColor = 'rgba(255,217,102,.75)';
+            default:
+                $lineColor = 'rgb(31,119,180)';
+                $fillColor = 'rgba(31,119,180,.4)';
+                $barColor = 'rgba(31,119,180,.75)';
         }
 
         if (($type == 'bar' || $type == 'errorbar') && isset($barColor)) {
