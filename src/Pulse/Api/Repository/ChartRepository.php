@@ -182,8 +182,10 @@ class ChartRepository
                 'type' => $this->type,
             ];
 
-            if (isset($groups[$descriptive]) && $groups[$descriptive] !== false) {
-                $descriptiveData['legendgroup'] = $groups[$descriptive];
+            //if (isset($groups[$descriptive]) && $groups[$descriptive] !== false) {
+            if (!empty($normType)) {
+                //$descriptiveData['legendgroup'] = $groups[$descriptive];
+                $descriptiveData['legendgroup'] = $normType;
                 if ($this->hideGroups) {
                     $descriptiveData['visible'] = 'legendonly';
                 }
@@ -298,7 +300,7 @@ class ChartRepository
             $this->setInitialValues($firstRow);
         }
 
-        $this->addChartDataFromScores($data);
+        $this->addChartDataFromScores($data, 'base');
 
         if ($respondentTrackId && $respondentData = $this->getRespondentData($respondentTrackId)) {
             $this->addChartDataFromScores($respondentData);
