@@ -35,6 +35,11 @@ class ChartRepository
     );
 
     /**
+     * @var bool should groups be hidden
+     */
+    protected $hideGroups;
+
+    /**
      * @var \Zend_Locale
      */
     protected $locale;
@@ -98,6 +103,7 @@ class ChartRepository
     {
         $area = [];
         $order = [];
+        $groups = [];
 
         $blankDescriptive = true;
         $nValues = [];
@@ -122,6 +128,7 @@ class ChartRepository
 
             if (isset($norm['gno_group']) && $norm['gno_group'] != 0) {
                 $area[$descriptive] = $norm['gno_order'];
+                $groups[$descriptive] = $norm['gno_group'];
             }
 
             if ($range === false && isset($norm['gno_range'])) {
@@ -174,6 +181,14 @@ class ChartRepository
                 'name' => $descriptiveLabel,
                 'type' => $this->type,
             ];
+
+            if (isset($groups[$descriptive]) && $groups[$descriptive] !== false) {
+                $descriptiveData['legendgroup'] = $groups[$descriptive];
+                if ($this->hideGroups) {
+                    $descriptiveData['visible'] = 'legendonly';
+                }
+            }
+
             $descriptiveCount++;
 
             $descriptiveData = $this->addDescriptiveStyle($variableName, $descriptiveData, $normType, $area[$descriptive], false, $this->type);
@@ -271,11 +286,12 @@ class ChartRepository
      * @param $respondentTrackId string optional RespondentTrackId for if you want to add RespondentData
      * @throws \Zend_Date_Exception
      */
-    public function getChart($outcomeVariableId, $respondentTrackId = null)
+    public function getChart($outcomeVariableId, $respondentTrackId = null, $hideGroups = false)
     {
         $showLayout = true;
         $this->chartData = [];
         $data = $this->getBaseNormData($outcomeVariableId);
+        $this->hideGroups = $hideGroups;
 
         if (!empty($data)) {
             $firstRow = reset($data);

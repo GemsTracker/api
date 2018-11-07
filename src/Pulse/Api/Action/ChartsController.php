@@ -31,8 +31,12 @@ class ChartsController extends RestControllerAbstract
         if (isset($params['respondent-track-id'])) {
             $respondentTrackId = $params['respondent-track-id'];
         }
+        $hideGroups = false;
+        if (isset($params['hide-groups'])) {
+            $hideGroups = (bool)$params['hide-groups'];
+        }
 
-        $outcomeVariable = $this->chartRepository->getChart($id, $respondentTrackId);
+        $outcomeVariable = $this->chartRepository->getChart($id, $respondentTrackId, $hideGroups);
 
         return new JsonResponse($outcomeVariable, 200);
     }
