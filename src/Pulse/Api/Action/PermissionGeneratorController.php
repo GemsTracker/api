@@ -86,7 +86,7 @@ class PermissionGeneratorController implements MiddlewareInterface
 
         $groupedPermissions = [];
         foreach($permissions as $permission) {
-            if (array_key_exists($permission['gapr_resource'], $groupedPermissions)) {
+            if (!array_key_exists($permission['gapr_resource'], $groupedPermissions)) {
                 $groupedPermissions[$permission['gapr_resource']] = [];
             }
             $groupedPermissions[$permission['gapr_resource']][] = $permission['gapr_permission'];

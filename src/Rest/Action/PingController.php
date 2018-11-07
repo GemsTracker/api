@@ -13,7 +13,6 @@ class PingController implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $this->moo();
         $now = new \DateTime();
         return new JsonResponse(
             [
