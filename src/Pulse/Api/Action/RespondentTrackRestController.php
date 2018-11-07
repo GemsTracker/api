@@ -26,10 +26,11 @@ class RespondentTrackRestController extends ModelRestController
      */
     protected $tracker;
 
-    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, \Gems_Tracker $tracker, $LegacyCurrentUser)
+    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, \Gems_Tracker $tracker, \Zend_Locale $locale, $LegacyCurrentUser)
     {
         $this->currentUser = $LegacyCurrentUser;
         $this->tracker = $tracker;
+        \Zend_Registry::set('Zend_Locale', $locale);
         parent::__construct($loader, $urlHelper, $LegacyDb);
 
     }
