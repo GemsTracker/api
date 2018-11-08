@@ -57,7 +57,7 @@ class RespondentImportTranslator extends ApiModelTranslator
         parent::__construct(null);
     }
 
-    public function matchRowToExistingPatient($row)
+    public function matchRowToExistingPatient($row, \MUtil_Model_DatabaseModelAbstract $model)
     {
         if (array_key_exists('grs_ssn', $row) && $row['grs_ssn'] !== null) {
             if (is_string($row['grs_ssn']) && strlen($row['grs_ssn']) === 8) {
@@ -71,13 +71,12 @@ class RespondentImportTranslator extends ApiModelTranslator
 
                     foreach ($patients as $patient) {
                         if ($patient['gr2o_id_organization'] == $row['gr2o_id_organization']) {
-                            /*if ($patient['gr2o_patient_nr'] != $row['gr2o_patient_nr']) {
+                            if ($patient['gr2o_patient_nr'] != $row['gr2o_patient_nr']) {
                                 // A patient already exists under a different patient nr. We will overwrite this patient!
-                                $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
-                                $row['new'] = false;
-                                return;
-                            }*/
-                            // A patient has been found, create a new user with the same respondent ID
+                                $copyId = $model->getKeyCopyName('gr2o_patient_nr');
+                                $row[$copyId] = $patient['gr2o_patient_nr'];
+                            }
+
                             $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
                             $row['new_respondent'] = false;
                             return $row;
@@ -85,6 +84,12 @@ class RespondentImportTranslator extends ApiModelTranslator
                     }
 
                     $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                    $altPatient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
+                    if ($altPatient) {
+                        $row['grs_id_user'] = $row['gr2o_id_user'] = $altPatient['gr2o_id_user'];
+                        unset($row['grs_ssn']);
+                    }
+
                     $row['new_respondent'] = true;
                     return $row;
                 }

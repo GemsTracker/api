@@ -21,8 +21,10 @@ class RespondentRepository
 
     public function getPatientId($patientNr, $organizationId=null)
     {
-        if ($patient = $this->getPatient($patientNr, $organizationId) && array_key_exists('')) {
-            return $patient['gr2o_id_user'];
+        if ($patient = $this->getPatient($patientNr, $organizationId)) {
+            if (array_key_exists('gr2o_id_user', $patient)) {
+                return $patient['gr2o_id_user'];
+            }
         }
         return false;
     }

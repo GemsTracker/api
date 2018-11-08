@@ -259,7 +259,7 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $controller = $this->getController(true);
 
         $newData = [
-            'gr2o_patient_nr' => '22',
+            'gr2o_patient_nr' => '11',
             'organizations' => [
                 'Test organization',
             ],
@@ -267,6 +267,14 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
             'grs_ssn' => '666268538', // Random bsn
             'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
         ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+        $delegator = $this->getDelegator();
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $newData['gr2o_patient_nr'] = '22';
 
         $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
         $delegator = $this->getDelegator();
@@ -356,6 +364,91 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
 
         $responseData = $response->getPayload();
         $this->assertEquals('model_translation_error', $responseData['error'], 'Error code is missing or not "model_translation_error"');
+    }
+
+    public function testMultiplePatientsWithSameNumberButOneWithoutSsnButUpdateWithSsn()
+    {
+        $controller = $this->getController(true);
+        $delegator = $this->getDelegator();
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '666268538', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Another test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Another test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '666268538', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+    }
+
+    public function testUpdatingPatientWithoutAlreadySavedSsn()
+    {
+        $controller = $this->getController(true);
+        $delegator = $this->getDelegator();
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'grs_ssn' => '666268538', // Random bsn
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $newData = [
+            'gr2o_patient_nr' => '22',
+            'organizations' => [
+                'Another test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+
+        $response = $controller->process($request, $delegator);
+        $this->checkResponse($response, EmptyResponse::class, 201);
     }
 
     private function getController($realLoader=false, $urlHelperRoutes=[])

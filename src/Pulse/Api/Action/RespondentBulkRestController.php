@@ -160,15 +160,16 @@ class RespondentBulkRestController extends ModelRestController
             $row['gr2o_id_organization'] = $organizationId;
 
             try {
-                $row = $translator->matchRowToExistingPatient($row);
+                $patientRow = $translator->matchRowToExistingPatient($row, $this->model);
+
             } catch(ModelTranslateException $e) {
                 $this->logger->error($e->getMessage());
                 return new JsonResponse(['error' => 'model_translation_error', 'message' => $e->getMessage()], 400);
             }
 
             $new = true;
-            if (array_key_exists('new_respondent', $row)) {
-                $new = $row['new_respondent'];
+            if (array_key_exists('new_respondent', $patientRow)) {
+                $new = $patientRow['new_respondent'];
             }
 
             $this->model->applyEditSettings($new);
@@ -183,12 +184,12 @@ class RespondentBulkRestController extends ModelRestController
                     $location = $this->agenda->matchLocation($locationName, $organizationId, false);
                 }
                 if ($location && isset($location['glo_id_location'])) {
-                    $row['gr2o_id_location'] = (int)$location['glo_id_location'];
+                    $patientRow['gr2o_id_location'] = (int)$location['glo_id_location'];
                 }
             }
 
             try {
-                $newRow = $processor->save($row, !$new);
+                $newRow = $processor->save($patientRow, !$new);
             } catch(\Exception $e) {
 
                 // Row could not be saved.
