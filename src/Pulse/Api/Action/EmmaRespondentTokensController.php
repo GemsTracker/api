@@ -7,6 +7,7 @@ namespace Pulse\Api\Action;
 use Gems\Rest\Action\ModelRestController;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
 class EmmaRespondentTokensController extends ModelRestController

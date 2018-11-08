@@ -32,10 +32,14 @@ class EmmaSurveyQuestionsRestController extends RestControllerAbstract
     {
         $id = $request->getAttribute('id');
         if ($id === null) {
-            throw new RestException('Survey questions need a survey ID in the id parameter', 1, 'survey_id_missing', 400);
+            return new JsonResponse(['error' => 'survey_id_missing', 'message' => 'Survey questions need a survey ID in the id parameter'], 400);
         }
 
         $survey = $this->surveyQuestionsRepository->getSurvey($id);
+
+        if (!$survey->exists) {
+            return new JsonResponse(['error' => 'survey_not_found', 'message' => sprintf('Survey with ID %s could not be found.', $id)], 404);
+        }
 
         $surveyInformation = [
             'survey_id' => $id,

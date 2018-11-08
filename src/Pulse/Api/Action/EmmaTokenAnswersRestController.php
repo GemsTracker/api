@@ -25,10 +25,12 @@ class EmmaTokenAnswersRestController extends RestControllerAbstract
 
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $id = strtolower($request->getAttribute('id'));
+        $id = $request->getAttribute('id');
         if ($id === null) {
-            throw new RestException('Token ID missing', 3, 'token_id_missing', 400);
+            return new JsonResponse(['error' => 'token_id_missing', 'message' => 'Token ID missing'], 400);
         }
+
+        $id = strtolower($id);
 
         $answers = $this->tokenAnswerRepository->getFormattedTokenAnswers($id);
 
