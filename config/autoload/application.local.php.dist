@@ -3,7 +3,7 @@
 return [
     'app_key' => '',
     'certificates' => [
-        'public' => 'file://' . GEMS_ROOT_DIR . '/var/settings/gems.public.key',
-        'private' => 'file://' . GEMS_ROOT_DIR . '/var/settings/gems.private.key',
+        'public' => 'file://' . GEMS_ROOT_DIR . '/data/settings/gems.public.key',
+        'private' => 'file://' . GEMS_ROOT_DIR . '/data/settings/gems.private.key',
     ],
 ];
