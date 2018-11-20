@@ -66,6 +66,9 @@ class PlumberClient
         } catch(RequestException $e) {
             // return an error message as json
             $code = $e->getCode();
+            if ($code == 0) {
+                $code = 500;
+            }
             $error = null;
             $hint = null;
             if ($e instanceof ConnectException) {

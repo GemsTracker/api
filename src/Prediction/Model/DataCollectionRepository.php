@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Gems\Prediction\Model;
+namespace Prediction\Model;
 
 
 use Gems\Tracker\Field\AppointmentField;
@@ -89,7 +89,7 @@ class DataCollectionRepository
         if (isset($predictionTypes['Fixed'])) {
             $fixedData = [];
             foreach ($predictionTypes['Fixed'] as $mapping) {
-                $fixedData[$mapping['gpmm_variable_name']] = $mapping['gpmm_type_id'];
+                $fixedData[$mapping['gpmm_name']] = $mapping['gpmm_type_id'];
             }
         }
 
@@ -115,7 +115,7 @@ class DataCollectionRepository
         $select->from('gems__respondent2track')
             ->join('gems__respondent2org', 'gr2o_id_user = gr2t_id_user AND gr2o_id_organization = gr2t_id_organization', [])
             ->join('gems__tracks', 'gtr_id_track = gr2t_id_track', ['gtr_track_name'])
-            ->join('gems__prediction_models', 'gpm_id_track = gr2t_id_track', ['gpm_id', 'gpm_name'])
+            ->join('gems__prediction_models', 'gpm_id_track = gr2t_id_track', ['gpm_id', 'gpm_name', 'gpm_source_id'])
             ->columns(['gr2t_id_respondent_track'])
             ->where(['gr2o_patient_nr' => $patientNr, 'gr2t_id_organization' => $organizationId]);
 
@@ -129,7 +129,7 @@ class DataCollectionRepository
         foreach($data as $predictionChartData) {
             $renamedData = [
                 'respondentTrack' => $predictionChartData['gr2t_id_respondent_track'],
-                'modelId' => $predictionChartData['gpm_api_id'],
+                'modelId' => $predictionChartData['gpm_source_id'],
                 'title' => $predictionChartData['gpm_name'],
             ];
 
@@ -171,7 +171,7 @@ class DataCollectionRepository
         $predictionTypes = [];
         foreach ($predictionMappings as $predictionMapping)
         {
-            $type = $predictionMapping['gpmm_variable_type'];
+            $type = $predictionMapping['gpmm_type'];
             $predictionTypes[$type][] = $predictionMapping;
         }
 
@@ -184,7 +184,7 @@ class DataCollectionRepository
         $select = $sql->select();
         $select->from('gems__prediction_model_mapping')
             ->join('gems__prediction_models', 'gpm_id = gpmm_prediction_model_id', [])
-            ->where(['gpm_api_id' => $predictionId]);
+            ->where(['gpm_source_id' => $predictionId]);
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         $resultSet = new ResultSet();
@@ -228,7 +228,7 @@ class DataCollectionRepository
                 throw new DataCollectionMissingDataException('Required data not found in respondent');
             }
 
-            $data[$mapping['gpmm_variable_name']] = $itemData;
+            $data[$mapping['gpmm_name']] = $itemData;
         }
 
         //$data = $this->changeToJsonDates($data);
@@ -271,7 +271,7 @@ class DataCollectionRepository
             $answers = $token->getRawAnswers();
             foreach($mappingsPerSurvey[$tokenData['gto_id_survey']] as $mapping) {
                 if ($mapping['gpmm_type_sub_id'] == "{{completion_time}}") {
-                    $data[$tokenData['gto_round_description']][$mapping['gpmm_variable_name']] = $token->getCompletionTime();
+                    $data[$tokenData['gto_round_description']][$mapping['gpmm_name']] = $token->getCompletionTime();
                 }
 
                 // Possibly Temporary calculation of time in days. Might be cut and put into R
@@ -283,7 +283,7 @@ class DataCollectionRepository
                     }
 
                     $end = $token->getCompletionTime();
-                    $data[$tokenData['gto_round_description']][$mapping['gpmm_variable_name']] = $end->diffDays($zero);
+                    $data[$tokenData['gto_round_description']][$mapping['gpmm_name']] = $end->diffDays($zero);
                 }
 
                 // Possibly temporary filter of the SIDE trackfield in a survey variable. For MHQ questionair.
@@ -309,7 +309,7 @@ class DataCollectionRepository
                         $incompleteRounds[$tokenData['gto_round_description']] = true;
                     }
 
-                    $data[$tokenData['gto_round_description']][$mapping['gpmm_variable_name']] = $itemData;
+                    $data[$tokenData['gto_round_description']][$mapping['gpmm_name']] = $itemData;
                 }
             }
             // Add completion time per survey on survey code field. Disabled for now in favor of {{completion_time}} sub ID
@@ -368,7 +368,7 @@ class DataCollectionRepository
                 throw new DataCollectionMissingDataException('Required data not found in track');
             }
 
-            $data[$mapping['gpmm_variable_name']] = $itemData;
+            $data[$mapping['gpmm_name']] = $itemData;
         }
 
         //$data = $this->changeToJsonDates($data);

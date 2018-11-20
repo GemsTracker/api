@@ -4,8 +4,8 @@
 namespace Prediction;
 
 
-use Dev\Action\ChartDataAction;
-use Dev\Action\ChartsDefinitionsAction;
+use Prediction\Action\ChartDataAction;
+use Prediction\Action\ChartsDefinitionsAction;
 use Prediction\Model\PredictionModelsMappingModel;
 use Prediction\Model\PredictionModelsModel;
 use Prediction\Action\InputMapping\RespondentAction;
