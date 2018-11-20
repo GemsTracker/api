@@ -130,8 +130,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
         $routes = [
             [
-                'name' => 'api.charts.definitions',
-                'path' => '/charts/definitions',
+                'name' => 'api.prediction/chart-definitions',
+                'path' => '/prediction/chart-definitions',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     ChartsDefinitionsAction::class,
@@ -139,8 +139,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.charts',
-                'path' => '/charts/[{modelId:[a-zA-Z0-9-_]+}]',
+                'name' => 'api.prediction/charts',
+                'path' => '/prediction/charts/[{modelId:[a-zA-Z0-9-_]+}]',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     ChartDataAction::class,
@@ -148,7 +148,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.input-mapping.respondents',
+                'name' => 'api.prediction/respondents',
                 'path' => '/prediction/respondents',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
@@ -157,7 +157,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.input-mapping.track-fields',
+                'name' => 'api.prediction/track-fields',
                 'path' => '/prediction/track-fields/{trackId:\d+}',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
@@ -166,7 +166,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.input-mapping.survey-questions',
+                'name' => 'api.prediction/survey-questions',
                 'path' => '/prediction/survey-questions/{surveyId:\d+}',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
