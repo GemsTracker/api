@@ -6,6 +6,7 @@ namespace Prediction;
 
 use Dev\Action\ChartDataAction;
 use Dev\Action\ChartsDefinitionsAction;
+use Prediction\Model\PredictionModelsMappingModel;
 use Prediction\Model\PredictionModelsModel;
 use Prediction\Action\InputMapping\RespondentAction;
 use Prediction\Action\InputMapping\SurveyQuestions;
@@ -15,6 +16,7 @@ use Prediction\Model\DataCollectionRepository;
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Gems\Rest\Factory\ReflectionFactory;
+use Prediction\Model\PredictionModelsWithMappingModel;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
 {
@@ -58,18 +60,66 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     protected function getRestModels()
     {
         return [
-            /*'tracks' => [
+            'prediction/tracks' => [
                 'model' => 'Tracker_Model_TrackModel',
                 'methods' => ['GET'],
                 'hasMany' => ['rounds' => 'rounds'],
+                'allowed_fields' => [
+                    'gtr_id_track',
+                    'gtr_track_name',
+                ],
+                'multiOranizationField' => [
+                    'field' => 'gtr_organizations',
+                    'separator' => '|',
+                ],
+                'organizationId' => 'gtr_organizations',
             ],
-            'rounds' => [
+            'prediction/rounds' => [
                 'model' => 'Tracker\\Model\\RoundModel',
                 'methods' => ['GET'],
-            ],*/
-            'prediction-models' => [
+                'allowed_fields' => [
+                    'gro_id_round',
+                    'gro_id_track',
+                    'gro_id_order',
+                    'gro_id_survey',
+                    'gro_survey_name',
+                    'gro_round_description',
+                ],
+            ],
+            'prediction/prediction-models' => [
                 'model' => PredictionModelsModel::class,
                 'methods' => ['GET'],
+                'allowed_fields' => [
+                    'gpm_id',
+                    'gpm_source_id',
+                    'gpm_name',
+                    'gpm_id_track',
+                    'gpm_url',
+                ],
+            ],
+            'prediction/prediction-model-mappings' => [
+                'model' => PredictionModelsMappingModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'gpmm_prediction_model_id',
+                    'gpmm_name',
+                    'gpmm_required',
+                    'gpmm_type',
+                    'gpmm_type_id',
+                    'gpmm_type_sub_id',
+                    'gpmm_custom_mapping',
+                ]
+            ],
+            'prediction/prediction-model-with-mappings' => [
+                'model' => PredictionModelsWithMappingModel::class,
+                'methods' => ['GET', 'PATCH', 'POST'],
+                'allowed_fields' => [
+                    'gpm_id',
+                    'gpm_source_id',
+                    'gpm_name',
+                    'gpm_id_track',
+                    'gpm_url',
+                ],
             ],
         ];
     }
@@ -99,7 +149,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             [
                 'name' => 'api.input-mapping.respondents',
-                'path' => '/input-mapping/respondents',
+                'path' => '/prediction/respondents',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     RespondentAction::class,
@@ -107,8 +157,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.input-mapping.track-field',
-                'path' => '/input-mapping/track-field/{trackId:\d+}',
+                'name' => 'api.input-mapping.track-fields',
+                'path' => '/prediction/track-fields/{trackId:\d+}',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     TrackFieldAction::class,
@@ -117,7 +167,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             [
                 'name' => 'api.input-mapping.survey-questions',
-                'path' => '/input-mapping/survey-questions/{surveyId:\d+}',
+                'path' => '/prediction/survey-questions/{surveyId:\d+}',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     SurveyQuestions::class,

@@ -30,16 +30,29 @@ class SurveyQuestions implements MiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $surveyId = $id = $request->getAttribute('surveyId');
-
         $survey = $this->tracker->getSurvey($surveyId);
 
-
         if ($survey) {
-
             $language = $this->locale->getLanguage();
-            $questionAnswers = $survey->getQuestionInformation($language);
+            $questionInformation = $survey->getQuestionInformation($language);
 
-            return new JsonResponse($questionAnswers, 200);
+            $surveyQuestions = [];
+            foreach($questionInformation as $questionCode=>$questionInformation) {
+                $surveyQuestions[$questionCode] = [
+                    'question'  => $questionInformation['question'],
+                ];
+
+                if (isset($questionInformation['answers']) && is_array($questionInformation['answers'])) {
+                    if (count($questionInformation['answers']) === 1 && isset($questionInformation['answers'][0]) && empty($questionInformation[0])) {
+                        unset($questionInformation['answers'][0]);
+                    }
+                    if (!empty($questionInformation['answers'])) {
+                        $surveyQuestions[$questionCode]['answers'] = $questionInformation['answers'];
+                    }
+                }
+            }
+
+            return new JsonResponse($surveyQuestions, 200);
         }
 
         $error = [
