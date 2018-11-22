@@ -24,7 +24,9 @@ class TreatmentsWithNormsController extends RestControllerAbstract
 
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $treatments = $this->treatmentsWithNormsRepository->getTreatments();
+        $params = $request->getQueryParams();
+
+        $treatments = $this->treatmentsWithNormsRepository->getTreatments($params);
 
         return new JsonResponse($treatments);
     }

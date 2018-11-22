@@ -15,8 +15,9 @@ class TreatmentsWithNormsRepository
         $this->respondentResults = $respondentResults;
     }
 
-    public function getTreatments()
+    public function getTreatments($params)
     {
+
         $treatmentField = $this->respondentResults->getDbField('treatment');
 
         $sql = new Sql($this->db);
@@ -34,6 +35,10 @@ class TreatmentsWithNormsRepository
             ->group('pt2o_id_treatment')
             ->order('ptr_name')
             ->where->isNull('ptr_duplicate_of');
+
+        if (isset($params['ptr_id_organization'])) {
+            $select->where(['ptr_id_organization' => $params['ptr_id_organization']]);
+        }
 
         $test = $select->getSqlString($this->db->getPlatform());
 
