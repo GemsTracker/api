@@ -38,6 +38,12 @@ class NestedTransformerWithFilter extends \MUtil_Model_Transform_NestedTransform
                 return;
             }
         }
+        
+        foreach($data as $key => $subrow) {
+            // Make sure the (possibly changed) parent key
+            // is stored in the sub data.
+            $data[$key] = $keys + $subrow;
+        }
 
 
         // Delete missing rows, presuming all required rows are supplied on save

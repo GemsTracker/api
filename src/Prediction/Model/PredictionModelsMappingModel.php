@@ -14,5 +14,7 @@ class PredictionModelsMappingModel extends \Gems_Model_JoinModel
 
         $jsonType = new JsonData(10);
         $jsonType->apply($this, 'gpmm_custom_mapping', true);
+
+        \Gems_Model::setChangeFieldsByPrefix($this, 'gpmm');
     }
 }

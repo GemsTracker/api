@@ -119,6 +119,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gpm_name',
                     'gpm_id_track',
                     'gpm_url',
+                    'mappings',
                 ],
             ],
         ];

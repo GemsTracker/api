@@ -13,5 +13,7 @@ class PredictionModelsModel extends \Gems_Model_JoinModel
         $this->set('gpm_name', 'label', $this->_('Model name'));
         $this->set('gpm_id_track', 'label', $this->_('Track'));
         $this->set('gpm_url', 'label', $this->_('URL'));
+
+        \Gems_Model::setChangeFieldsByPrefix($this, 'gpm');
     }
 }

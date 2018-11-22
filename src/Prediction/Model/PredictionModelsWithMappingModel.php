@@ -12,6 +12,8 @@ class PredictionModelsWithMappingModel extends \Gems_Model_JoinModel
     public function __construct()
     {
         parent::__construct('prediction-models', 'gems__prediction_models', 'gpm');
+
+        \Gems_Model::setChangeFieldsByPrefix($this, 'gpm');
         //$this->addTable('gems__prediction_model_mapping', ['gpm_id' => 'gpmm_prediction_model_id']);
         $this->set('gpm_source_id', 'label', $this->_('Source ID'));
         $this->set('gpm_name', 'label', $this->_('Model name'));
@@ -19,6 +21,7 @@ class PredictionModelsWithMappingModel extends \Gems_Model_JoinModel
         $this->set('gpm_url', 'label', $this->_('URL'));
 
         $subModel = new \MUtil_Model_TableModel('gems__prediction_model_mapping', 'mappings');
+        \Gems_Model::setChangeFieldsByPrefix($subModel, 'gpmm');
 
         $jsonType = new JsonData(10);
         $jsonType->apply($subModel, 'gpmm_custom_mapping', true);
