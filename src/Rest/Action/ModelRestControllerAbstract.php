@@ -750,14 +750,16 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             foreach ($columns as $columnName) {
 
                 $columnLabel = $columnName;
-                if (isset($translations[$columnName])) {
+                if (isset($translations[$columnName]) && !empty($translations[$columnName])) {
                     $columnLabel = $translations[$columnName];
                 }
 
                 foreach ($structureAttributes as $attributeName) {
                     if ($this->model->has($columnName, $attributeName)) {
 
-                        $structure[$columnLabel][$attributeName] = $this->model->get($columnName, $attributeName);
+                        $propertyValue = $this->model->get($columnName, $attributeName);
+
+                        $structure[$columnLabel][$attributeName] = $propertyValue;
 
                         if ($attributeName === 'type') {
                             switch ($structure[$columnLabel][$attributeName]) {
