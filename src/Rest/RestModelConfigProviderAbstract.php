@@ -118,10 +118,10 @@ abstract class RestModelConfigProviderAbstract
             $fixedRouteMethods = [];
 
             if (isset($methods['PATCH'])) {
-                $fixedRouteMethods = ['PATCH'];
+                $fixedRouteMethods[] = 'PATCH';
             }
             if (isset($methods['DELETE'])) {
-                $fixedRouteMethods = ['DELETE'];
+                $fixedRouteMethods[] = 'DELETE';
             }
 
             if (!empty($fixedRouteMethods)) {
