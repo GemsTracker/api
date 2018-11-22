@@ -358,7 +358,10 @@ class ModelRestControllerTest extends ZendDbTestCase
             $this->prophesize(DelegateInterface::class)->reveal()
         );
 
-        $this->checkResponse($response, EmptyResponse::class, 400);
+        $this->checkResponse($response, JsonResponse::class, 400);
+        $responseData = $response->getPayload();
+        $this->assertEquals(['error' => 'unknown_error', 'message' => $exception->getMessage()], $responseData);
+
 
         // Test incorrect item, missing field
         $newData = [
@@ -620,30 +623,6 @@ class ModelRestControllerTest extends ZendDbTestCase
         $result = $response->getPayload();
 
         $this->assertArrayHasKey('apiSetting', $result, 'message has not been replaced with apiSetting');
-    }
-
-    public function testGetValidator()
-    {
-        $controller = $this->getTestMessageModelRestController();
-        $validator = new \Zend_Validate_NotEmpty();
-        $expectedValidator = $controller->getValidator($validator);
-        $this->assertInstanceOf(\Zend_Validate_Interface::class, $expectedValidator, 'Validator not instance of Zend Validator');
-    }
-
-    public function testGetNotExistingValidator()
-    {
-        $controller = $this->getTestMessageModelRestController();
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Validator testValidatorThatDoesNotExist not found');
-        $controller->getValidator('testValidatorThatDoesNotExist');
-    }
-
-    public function testGetNotValidValidator()
-    {
-        $controller = $this->getTestMessageModelRestController();
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid validator provided to addValidator; must be string or Zend_Validate_Interface. Supplied array');
-        $controller->getValidator(['an_array as validator should fail']);
     }
 
     public function testTranslateRowWithDate()

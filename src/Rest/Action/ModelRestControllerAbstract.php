@@ -3,6 +3,9 @@
 
 namespace Gems\Rest\Action;
 
+use Gems\Rest\Model\ModelException;
+use Gems\Rest\Model\ModelProcessor;
+use Gems\Rest\Model\ModelValidationException;
 use function GuzzleHttp\Promise\queue;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
@@ -34,6 +37,11 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      * @var List of errors from validating a row
      */
     protected $errors;
+
+    /**
+     * @var UrlHelper
+     */
+    protected $helper;
 
     /**
      * @var Fieldname of model that identifies a row with a unique ID
@@ -385,7 +393,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     /**
      * Get the id field of the model if it is set in the model keys
      *
-     * @return Fieldname
+     * @return string Fieldname
      */
     protected function getIdField()
     {
@@ -810,148 +818,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     }
 
     /**
-     * Get a specific validator to be run during validation
-     *
-     * @param $validator
-     * @param null $options
-     * @return object
-     * @throws \Zalt\Loader\Exception\LoadException
-     */
-    public function getValidator($validator, $options=null)
-    {
-        if ($validator instanceof \Zend_Validate_Interface) {
-            return $validator;
-        } elseif (is_string($validator)) {
-            $validatorName = $validator;
-            if ($options !== null) {
-                $validator = $this->loader->create('Validate_' . $validator, $options);
-            } else {
-                $validator = $this->loader->create('Validate_'.$validator);
-            }
-
-            if ($validator) {
-                return $validator;
-            } else {
-                throw new Exception(sprintf('Validator %s not found', $validatorName));
-            }
-        } else {
-            throw new Exception(
-                sprintf(
-                    'Invalid validator provided to addValidator; must be string or Zend_Validate_Interface. Supplied %s',
-                    gettype($validator)
-                )
-            );
-        }
-    }
-
-    /**
-     * Get the validators for each of the columns in the model
-     * This function will also create required validators and type validators for rows that are required.
-     * If a POST method is used, the key values will be excluded
-     *
-     * @return array
-     * @throws \Zalt\Loader\Exception\LoadException
-     */
-    public function getValidators()
-    {
-        if (!$this->validators) {
-
-            if ($this->model instanceof \MUtil_Model_JoinModel && method_exists($this->model, 'getSaveTables')) {
-                $saveableTables = $this->model->getSaveTables();
-
-                $multiValidators = [];
-                $singleValidators = [];
-                $allRequiredFields = [];
-                $types = [];
-
-                foreach($this->model->getCol('table') as $colName=>$table) {
-                    if (isset($saveableTables[$table])) {
-                        $columnValidators = $this->model->get($colName, 'validators');
-                        if ($columnValidators !== null) {
-                            $multiValidators[$colName] = $columnValidators;
-                        }
-                        $columnValidator = $this->model->get($colName, 'validator');
-                        if ($columnValidator) {
-                            $singleValidators[$colName] = $columnValidator;
-                        }
-                        $columnRequired = $this->model->get($colName, 'required');
-                        if ($columnRequired === true) {
-                            if ($this->method != 'post' || $this->model->get($colName, 'key') !== true) {
-                                $allRequiredFields[$colName] = $columnRequired;
-                            }
-                        }
-                        if ($columnType = $this->model->get($colName, 'type')) {
-                            $types[$colName] = $this->model->get($colName, 'type');
-                        }
-                    }
-                }
-            } else {
-                $multiValidators = $this->model->getCol('validators');
-                $singleValidators = $this->model->getCol('validator');
-                $allRequiredFields = $this->model->getCol('required');
-                $defaultFields = $this->model->getCol('default');
-                $types = $this->model->getCol('type');
-            }
-
-
-
-            $requiredFields = $allRequiredFields;
-            /*foreach($labeledFields  as $labeledField) {
-                if (isset($allRequiredFields[$labeledField])) {
-                    $requiredFields[$labeledField] = $allRequiredFields[$labeledField];
-                }
-            }*/
-
-            $this->requiredFields = $requiredFields;
-
-            foreach($multiValidators as $columnName=>$validators) {
-                foreach($validators as $key=>$validator) {
-
-                    $multiValidators[$columnName][$key] = $this->getValidator($validator);
-                }
-            }
-
-            foreach($singleValidators as $columnName=>$validator) {
-                $multiValidators[$columnName][] = $this->getValidator($validator);
-            }
-
-            foreach($requiredFields as $columnName=>$required) {
-
-                if ($required && $this->model->get($columnName, 'autoInsertNotEmptyValidator') !== false) {
-                    $multiValidators[$columnName][] = $this->getValidator('NotEmpty');
-
-                } else {
-                    $this->requiredFields[$columnName] = false;
-                }
-
-                if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1) {
-                    switch ($types[$columnName]) {
-                        case \MUtil_Model::TYPE_STRING:
-                            //$multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
-                            break;
-
-                        case \MUtil_Model::TYPE_NUMERIC:
-                            $multiValidators[$columnName][] = $this->getValidator('Float');
-                            break;
-
-                        case \MUtil_Model::TYPE_DATE:
-                            $multiValidators[$columnName][] = $this->getValidator('Date');
-                            break;
-
-                        case \MUtil_Model::TYPE_DATETIME:
-                            $multiValidators[$columnName][] = $this->getValidator('Date', ['format' => \Zend_Date::ISO_8601]);
-                            break;
-                    }
-                }
-            }
-
-            $this->validators = $multiValidators;
-        }
-
-        return $this->validators;
-    }
-
-    /**
      * Returns an empty response with the allowed methods for this specific endpoint in the header
      *
      * @param ServerRequestInterface $request
@@ -988,7 +854,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      *
      * @param ServerRequestInterface $request
      * @param DelegateInterface $delegate
-     * @return EmptyResponse
+     * @return EmptyResponse|JsonResponse
      */
     public function post(ServerRequestInterface $request, DelegateInterface $delegate)
     {
@@ -1002,9 +868,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             return new EmptyResponse(400);
         }
 
-        $row = $this->translatePostRow($parsedBody);
+        $row = $this->translateRow($parsedBody, true);
 
-        return $this->saveRow($request, $row);
+        return $this->saveRow($request, $row, false);
     }
 
     /**
@@ -1038,18 +904,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $parsedBody = json_decode($request->getBody()->getContents(), true);
         $newRowData = $this->translateRow($parsedBody, true);
 
-        $newRowData = $this->addChangeFields($newRowData);
-        $newRowData = $this->setModelDates($newRowData);
-
         $filter = $this->getIdFilter($id, $idField);
 
         $row = $this->model->loadFirst($filter);
 
         $row = $newRowData + $row;
 
-
-
-        return $this->saveRow($request, $row);
+        return $this->saveRow($request, $row, true);
     }
 
     /**
@@ -1083,28 +944,39 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      *
      * @param ServerRequestInterface $request
      * @param $row
-     * @return EmptyResponse
+     * @return EmptyResponse|JsonResponse
      */
-    public function saveRow(ServerRequestInterface $request, $row)
+    public function saveRow(ServerRequestInterface $request, $row, $update=false)
     {
         if (empty($row)) {
             return new EmptyResponse(400);
         }
 
-        $row = $this->filterColumns($row, true);
+        $row = $this->filterColumns($row, $update);
 
         $row = $this->beforeSaveRow($row);
 
-        try {
-            $this->validateRow($row);
-        } catch (Exception $e) {
-            return new JsonResponse($this->errors, 400);
-        }
+        $modelProcessor = new ModelProcessor($this->loader, $this->model, $this->userId);
 
         try {
-            $newRow = $this->model->save($row);
-        } catch (Exception $e) {
-            return new EmptyResponse(400);
+            $newRow = $modelProcessor->save($row, false);
+        } catch(\Exception $e) {
+            // Row could not be saved.
+            // return JsonResponse
+
+            if ($e instanceof ModelValidationException) {
+                //$this->logger->error($e->getMessage(), $e->getErrors());
+                return new JsonResponse(['error' => 'validation_error', 'message' => $e->getMessage(), 'errors' => $e->getErrors()], 400);
+            }
+
+            if ($e instanceof ModelException) {
+                //$this->logger->error($e->getMessage());
+                return new JsonResponse(['error' => 'model_error', 'message' => $e->getMessage()], 400);
+            }
+
+            // Unknown exception!
+            //$this->logger->error($e->getMessage());
+            return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
         }
 
         $newRow = $this->afterSaveRow($newRow);
@@ -1113,8 +985,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $routeParams = [];
         if (is_array($idField)) {
-
-
             foreach ($idField as $key => $singleField) {
                 if (isset($newRow[$singleField])) {
                     $routeParams[$key] = $newRow[$singleField];
@@ -1199,30 +1069,6 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     }
 
     /**
-     * Translate a row for a POST request.
-     * 1. Translate
-     * 2. Add default values
-     * 3. Add changed and created Field values
-     *
-     * @param $row
-     * @return array|mixed
-     */
-    protected function translatePostRow($row)
-    {
-        $row = $this->translateRow($row, true);
-
-        if (!empty($row)) {
-            $row = $this->addNewModelRow($row);
-            $row = $this->addChangeFields($row);
-            $row = $this->addCreateFields($row);
-        }
-
-        $row = $this->setModelDates($row);
-
-        return $row;
-    }
-
-    /**
      * Translate a row with the api names and a date transformation to ISO 8601
      *
      * @param $row
@@ -1262,54 +1108,5 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         }
 
         return $translatedRow;
-    }
-
-    /**
-     * Validate a row before saving it to the model and store the errors in $this->errors
-     *
-     * @param $row
-     * @throws \Zalt\Loader\Exception\LoadException
-     */
-    public function validateRow($row)
-    {
-        $rowValidators = $this->getValidators();
-        $translations = $this->getApiNames();
-        $idField = $this->getIdField();
-
-        // No ID field is needed when it's a POST and a single array
-        if ($this->method == 'post' && !is_array($idField) && isset($rowValidators[$idField])) {
-            unset($rowValidators[$idField]);
-        }
-
-        foreach ($rowValidators as $colName=>$validators) {
-            $value = null;
-            if (isset($row[$colName])) {
-                $value = $row[$colName];
-            }
-
-            if (
-                (null === $value || '' === $value) &&
-                (!$this->requiredFields || !isset($this->requiredFields[$colName]) || !$this->requiredFields[$colName])
-            ) {
-                continue;
-            }
-
-            $translatedColName = $colName;
-            if (isset($translations[$colName])) {
-                $translatedColName = $translations[$colName];
-            }
-            foreach($validators as $validator) {
-                if (!$validator->isValid($value, $row)) {
-                    if (!isset($this->errors[$translatedColName])) {
-                        $this->errors[$translatedColName] = [];
-                    }
-                    $this->errors[$translatedColName] += $validator->getMessages();//array_merge($this->errors[$colName], $validator->getMessages());
-                }
-            }
-        }
-
-        if ($this->errors) {
-            throw new Exception('Validation Errors');
-        }
     }
 }
