@@ -74,21 +74,21 @@ class DataCollectionRepository
                     break;
             }
         }*/
-        if (isset($predictionTypes['Respondent'])) {
-            $respondentData = $this->getRespondentData($predictionTypes['Respondent']);
+        if (isset($predictionTypes['respondent'])) {
+            $respondentData = $this->getRespondentData($predictionTypes['respondent']);
         }
 
-        if (isset($predictionTypes['Trackfield'])) {
-            $trackfieldData = $this->getRespondentTrackfieldData($predictionTypes['Trackfield']);
+        if (isset($predictionTypes['trackfield'])) {
+            $trackfieldData = $this->getRespondentTrackfieldData($predictionTypes['trackfield']);
         }
 
-        if (isset($predictionTypes['Survey'])) {
-            $surveyData = $this->getRespondentSurveyData($predictionTypes['Survey'], $trackfieldData);
+        if (isset($predictionTypes['survey'])) {
+            $surveyData = $this->getRespondentSurveyData($predictionTypes['survey'], $trackfieldData);
         }
 
-        if (isset($predictionTypes['Fixed'])) {
+        if (isset($predictionTypes['static'])) {
             $fixedData = [];
-            foreach ($predictionTypes['Fixed'] as $mapping) {
+            foreach ($predictionTypes['static'] as $mapping) {
                 $fixedData[$mapping['gpmm_name']] = $mapping['gpmm_type_id'];
             }
         }

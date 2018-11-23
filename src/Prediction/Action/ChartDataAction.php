@@ -33,7 +33,7 @@ class ChartDataAction implements MiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $params = $request->getQueryParams();
-        $modelId = (int)$params['modelId'];
+        $modelId = $params['modelId'];
 
         try {
             $data = $this->dataCollectionRepository->getPredicationDataInputModel(
