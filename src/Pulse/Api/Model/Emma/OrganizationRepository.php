@@ -4,6 +4,7 @@
 namespace Pulse\Api\Model\Emma;
 
 use Zend\Db\Adapter\Adapter;
+use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 
 class OrganizationRepository
@@ -27,7 +28,8 @@ class OrganizationRepository
             $select = $sql->select();
             $select->from('gems__organizations')
                 ->columns(['gor_id_organization', 'gor_name'])
-                ->where(['gor_active' => 1, 'gor_add_respondents' => 1]);
+                ->where(['gor_active' => 1, 'gor_add_respondents' => 1])
+                ->order(new Expression('CHAR_LENGTH(gor_name) DESC'));
 
             $statement = $sql->prepareStatementForSqlObject($select);
             $result = $statement->execute();
