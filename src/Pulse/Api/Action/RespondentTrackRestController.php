@@ -6,6 +6,7 @@ namespace Pulse\Api\Action;
 
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Exception\RestException;
+use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
@@ -26,12 +27,12 @@ class RespondentTrackRestController extends ModelRestController
      */
     protected $tracker;
 
-    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, \Gems_Tracker $tracker, \Zend_Locale $locale, $LegacyCurrentUser)
+    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, \Gems_Tracker $tracker, \Zend_Locale $locale, $LegacyCurrentUser)
     {
         $this->currentUser = $LegacyCurrentUser;
         $this->tracker = $tracker;
         \Zend_Registry::set('Zend_Locale', $locale);
-        parent::__construct($loader, $urlHelper, $LegacyDb);
+        parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
 
     }
 

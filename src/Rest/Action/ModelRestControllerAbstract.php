@@ -6,7 +6,7 @@ namespace Gems\Rest\Action;
 use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
 use Gems\Rest\Model\ModelValidationException;
-use function GuzzleHttp\Promise\queue;
+use Gems\Rest\Repository\AccesslogRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Zalt\Loader\ProjectOverloader;
@@ -18,6 +18,12 @@ use Zend\Expressive\Router\RouteResult;
 
 abstract class ModelRestControllerAbstract extends RestControllerAbstract
 {
+
+    /**
+     * @var AccesslogRepository
+     */
+    protected $accesslogRepository;
+
     /**
      * @var array List of allowed content types as input for write methods
      */
@@ -92,8 +98,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      * @param UrlHelper $urlHelper
      * @param $LegacyDb Init Zend DB so it's loaded at least once, needed to set default Zend_Db_Adapter for Zend_Db_Table
      */
-    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
+    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
     {
+        $this->accesslogRepository = $accesslogRepository;
         $this->loader = $loader;
         //$this->loader->verbose = true;
         //$this->loader->legacyClasses = true;
@@ -226,6 +233,15 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $idField => $id,
         ];
 
+        if (isset($this->routeOptions['respondent_id_field'])) {
+            try {
+                $row = $this->model->loadFirst($filter);
+                $this->logRequest($request, $row);
+            } catch(\Exception $e) {
+                return new EmptyResponse(404);
+            }
+        }
+
         try {
             $changedRows = $this->model->delete($filter);
 
@@ -315,6 +331,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 $filter = $this->getIdFilter($id, $idField);
 
                 $row = $this->model->loadFirst($filter);
+                $this->logRequest($request, $row);
                 if (is_array($row)) {
                     $row = $this->translateRow($row);
                     $row = $this->filterColumns($row);
@@ -844,6 +861,20 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         return $response;
     }
 
+    protected function logRequest(ServerRequestInterface $request, $data = null, $changed = false)
+    {
+        $respondentId = null;
+        if ($data && isset($this->routeOptions['respondentIdField']) && isset($data[$this->routeOptions['respondentIdField']])) {
+            $respondentId = $data[$this->routeOptions['respondentIdField']];
+        }
+
+        if ($changed) {
+            return $this->accesslogRepository->logChange($request, $respondentId);
+        }
+
+        return $this->accesslogRepository->logAction($request, $respondentId);
+    }
+
     /**
      * Save a new row to the model
      *
@@ -956,6 +987,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $row = $this->filterColumns($row, $update);
 
+        $this->logRequest($request, $row, false);
         $row = $this->beforeSaveRow($row);
 
         $modelProcessor = new ModelProcessor($this->loader, $this->model, $this->userId);

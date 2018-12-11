@@ -71,6 +71,7 @@ class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
                 $request = $request->withAttribute('user_id', $currentUser->getUserId());
                 $request = $request->withAttribute('user_name', $currentUser->getLoginName());
                 $request = $request->withAttribute('user_organization', $currentUser->getBaseOrganizationId());
+                //$request = $request->withAttribute('user_role', $currentUser->getRole());
 
                 $gemsAuth = true;
             }

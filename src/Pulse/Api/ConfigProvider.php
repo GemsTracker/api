@@ -250,6 +250,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'idField' => 'gr2t_id_respondent_track',
                 'customAction' => RespondentTrackRestController::class,
                 'organizationId' => 'gr2t_id_organization',
+                'respondentIdField' => 'gr2t_id_user',
             ],
             'extreme-values' => [
                 'model' => 'Model\\EvdModel',

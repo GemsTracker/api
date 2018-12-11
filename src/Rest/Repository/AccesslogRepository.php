@@ -1,19 +1,24 @@
 <?php
 
 
-namespace Rest\Repository;
+namespace Gems\Rest\Repository;
 
 
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Literal;
+use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 
 class AccesslogRepository
 {
+
+    protected $actions = [];
     /**
      * @var Adapter
      */
     protected $db;
+
+    public $requestAttributeName = 'access_log_entry';
 
     public function __construct(Adapter $db)
     {
@@ -28,16 +33,25 @@ class AccesslogRepository
      * @param $method string
      * @return bool
      */
-    protected function checkAction($action, $method)
+    protected function checkAction($action, $method, $changed=false)
     {
         $check = 'gls_on_action';
         switch($method) {
-            case 'POST':
-            case 'PATCH':
+            case 'GET':
                 $check = 'gls_on_action';
                 break;
+
+            case 'POST':
+            case 'PATCH':
             case 'DELETE':
+
                 $check = 'gls_on_post';
+                if ($changed) {
+                    $check = 'gls_on_change';
+                }
+                break;
+            case 'OPTIONS':
+                return false;
                 break;
         }
 
@@ -65,9 +79,9 @@ class AccesslogRepository
             'gls_on_action' => 0,
             'gls_on_post' => 0,
             'gls_on_change' => 0,
-            'gls_changed' => new Literal('NOW'),
+            'gls_changed' => new Expression('NOW()'),
             'gls_changed_by' => 0,
-            'gls_created' => new Literal('NOW'),
+            'gls_created' => new Expression('NOW()'),
             'gls_created_by' => 0,
         ];
 
@@ -105,12 +119,31 @@ class AccesslogRepository
 
             if (!$actions) {
                 $actions = $this->getDbActions();
+                $this->setCacheActions($actions);
             }
 
             $this->actions = $actions;
         }
 
         return $this->actions;
+    }
+
+    /**
+     * Get the current Action from the route
+     *
+     * @param ServerRequestInterface $request
+     * @return mixed|string
+     */
+    public function getApiAction(ServerRequestInterface $request)
+    {
+        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $route = $routeResult->getMatchedRoute();
+        $action = str_replace(['.get', '.fixed'], '', $route->getName());
+        if (strpos($action, 'api.') !== 0) {
+            $action = 'api.'.$action;
+        }
+
+        return $action;
     }
 
     /**
@@ -121,6 +154,30 @@ class AccesslogRepository
     protected function getCacheActions()
     {
         return null;
+    }
+
+    /**
+     * Get the data of the request
+     *
+     * @param $method string request method
+     * @param ServerRequestInterface $request
+     * @return array
+     */
+    public function getData(ServerRequestInterface $request)
+    {
+        $method = $request->getMethod();
+        switch($method) {
+            case 'GET':
+            case 'DELETE':
+                $data = $request->getQueryParams();
+                break;
+            case 'PATCH':
+            case 'POST':
+                $data = $request->getBody()->getContents();
+                break;
+        }
+
+        return $data;
     }
 
     /**
@@ -149,49 +206,132 @@ class AccesslogRepository
     }
 
     /**
+     * Get the user IP address
+     *
+     * @param ServerRequestInterface $request
+     * @return string|null
+     */
+    public function getIp(ServerRequestInterface $request)
+    {
+        $params = $request->getServerParams();
+        if (isset($params['REMOTE_ADDR'])) {
+            return $params['REMOTE_ADDR'];
+        }
+        return null;
+    }
+
+    /**
+     * Get the message from a request
+     *
+     * @param ServerRequestInterface $request
+     * @return null
+     */
+    public function getMessage(ServerRequestInterface $request)
+    {
+        return null;
+    }
+
+    /**
      * Log the action
      *
-     * @param $action string action
-     * @param $method string method
-     * @param $changeAction bool action changes something
-     * @param $message array|string message
-     * @param $data array|string request data
-     * @param $ip string Remote IP
-     * @param null $by User ID
-     * @param null $respondentId Respondent ID
-     * @return bool
+     * @param ServerRequestInterface $request
+     * @param null $respondentId
+     * @return bool|null
      */
-    public function logAction($action, $method, $changeAction, $message, $data, $ip, $by=null, $respondentId=null)
+    public function logAction(ServerRequestInterface $request, $respondentId=null)
     {
-        $dbAction = $this->getAction($action);
+        return $this->logRequest($request, $respondentId);
+    }
 
-        if ($this->checkAction($dbAction, $method) === false) {
+    /**
+     * Log when a request has changed something in the resource
+     *
+     * @param ServerRequestInterface $request
+     * @param null $respondentId
+     * @return bool|null
+     */
+    public function logChange(ServerRequestInterface $request, $respondentId=null)
+    {
+        return $this->logRequest($request, $respondentId, true);
+    }
+
+    /**
+     * Log a request
+     *
+     * @param ServerRequestInterface $request
+     * @param bool $respondentId Respondent ID belonging to the request
+     * @param bool $changed have there been changes to the resource
+     * @return bool|null
+     */
+    protected function logRequest(ServerRequestInterface $request, $respondentId=null, $changed=false)
+    {
+        $action = $this->getApiAction($request);
+        $dbAction = $this->getAction($action);
+        $method = $request->getMethod();
+        if ($this->checkAction($dbAction, $method, $changed) === false) {
             return null;
         }
 
-        $log = [
-            'gla_action' => $action,
-            'gla_method' => $method,
-            'gla_by' => $by,
-            'gla_changed' => (int)$changeAction,
-            'gla_message' => json_encode($message),
-            'gla_data' => json_encode($data),
-            'gla_remote_ip' => $ip,
-            'gla_respondent_id' => $respondentId,
-        ];
+        $update = true;
+
+        $log = $request->getAttribute($this->requestAttributeName);
+        if ($log === null || (int)$changed != $log['gla_changed']) {
+            $update = false;
+            $by = $request->getAttribute('user_id');
+            $message = $this->getMessage($request);
+            $data = $this->getData($request);
+            $ip = $this->getIp($request);
+
+            $log = [
+                'gla_action' => $dbAction['gls_id_action'],
+                'gla_method' => $method,
+                'gla_by' => $by,
+                'gla_changed' => (int)$changed,
+                'gla_message' => json_encode($message),
+                'gla_data' => json_encode($data),
+                'gla_remote_ip' => $ip,
+                'gla_respondent_id' => $respondentId,
+            ];
+        } elseif ($respondentId && $log['gla_respondent_id'] === null) {
+            $log['gla_respondent_id'] = $respondentId;
+        } else {
+            return null;
+        }
 
         $sql = new Sql($this->db);
-        $insert = $sql->insert();
-        $insert->into('gems__log_activity')
-            ->columns(array_keys($log))
-            ->values($log);
+        if ($update) {
+            $update = $sql->update();
+            $update->table('gems__log_activity')
+                ->set($log)
+                ->where(['gla_id' => $log['gla_id']]);
+            try {
+                $statement = $sql->prepareStatementForSqlObject($update);
+                $statement->execute();
+                return $log;
+            } catch (\Exception $e) {
+                return false;
+            }
+        } else {
+            $insert = $sql->insert();
+            $insert->into('gems__log_activity')
+                ->columns(array_keys($log))
+                ->values($log);
 
-        try {
-            $statement = $sql->prepareStatementForSqlObject($insert);
-            $statement->execute();
-            return true;
-        } catch(\Exception $e) {
-            return false;
+            try {
+                $statement = $sql->prepareStatementForSqlObject($insert);
+                $result = $statement->execute();
+                if ($id = $result->getGeneratedValue()) {
+                    $log['gla_id'] = $id;
+                }
+                return $log;
+            } catch (\Exception $e) {
+                return false;
+            }
         }
+    }
+
+    protected function setCacheActions($actions)
+    {
+        return null;
     }
 }

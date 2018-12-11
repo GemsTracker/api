@@ -5,6 +5,7 @@ namespace Pulse\Api\Action;
 
 
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Repository\AccesslogRepository;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Expressive\Helper\UrlHelper;
 
@@ -15,10 +16,10 @@ class TokenController extends ModelRestController
      */
     protected $tracker;
 
-    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, \Gems_Tracker $tracker)
+    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, \Gems_Tracker $tracker)
     {
         $this->tracker = $tracker;
-        parent::__construct($loader, $urlHelper, $LegacyDb);
+        parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
     protected function afterSaveRow($newRow)

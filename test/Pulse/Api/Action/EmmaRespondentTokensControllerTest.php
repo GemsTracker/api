@@ -4,6 +4,7 @@
 namespace Pulse\Api\Action;
 
 
+use Gems\Rest\Repository\AccesslogRepository;
 use GemsTest\Rest\Test\RequestTestUtils;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -58,11 +59,13 @@ class EmmaRespondentTokensControllerTest extends TestCase
 
     protected function getControlller($loadKeys=true, $loadData=null)
     {
+        $accesslogRepository = $this->prophesize(AccesslogRepository::class);
         $projectOverloaderProphecy = $this->prophesize(ProjectOverloader::class);
         $urlHelperProphecy = $this->prophesize(UrlHelper::class);
         $legacyDbProphecy = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
 
         $controller = new EmmaRespondentTokensController(
+            $accesslogRepository->reveal(),
             $projectOverloaderProphecy->reveal(),
             $urlHelperProphecy->reveal(),
             $legacyDbProphecy->reveal()

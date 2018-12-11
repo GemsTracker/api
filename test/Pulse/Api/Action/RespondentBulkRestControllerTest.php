@@ -2,6 +2,7 @@
 
 namespace PulseTest\Api\Action;
 
+use Gems\Rest\Repository\AccesslogRepository;
 use GemsTest\Rest\Test\RequestTestUtils;
 use GemsTest\Rest\Test\ZendDbTestCase;
 use PHPUnit\DbUnit\DataSet\DefaultDataSet;
@@ -565,7 +566,9 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $legacyLoaderProphecy = $this->prophesize(\Gems_Loader::class);
         $emmaImportLoggerProphecy = $this->prophesize(LoggerInterface::class);
 
-        $controller =  new RespondentBulkRestController($loader, $urlHelperProphecy->reveal(), $this->db,
+        $accesslogRepository = $this->prophesize(AccesslogRepository::class);
+
+        $controller =  new RespondentBulkRestController($accesslogRepository->reveal(), $loader, $urlHelperProphecy->reveal(), $this->db,
             $agendaDiagnosisRepositoryProphecy->reveal(),
             $appointmentRepositoryProphecy->reveal(),
             $organizationRepositoryProphecy->reveal(),

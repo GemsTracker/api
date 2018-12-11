@@ -6,6 +6,7 @@ namespace Gems\Rest;
 
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
+use Gems\Rest\Middleware\AccessLogMiddleware;
 use Gems\Rest\Middleware\ApiGateMiddleware;
 use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
@@ -24,6 +25,7 @@ abstract class RestModelConfigProviderAbstract
         array_pop($customActionMiddleware);
         array_push($customActionMiddleware, $customAction);
 
+
         return $customActionMiddleware;
     }
 
@@ -38,6 +40,7 @@ abstract class RestModelConfigProviderAbstract
             AuthorizeGemsAndOauthMiddleware::class,
             ApiGateMiddleware::class,
             ApiOrganizationGateMiddleware::class,
+            //AccessLogMiddleware::class,
             SecurityHeadersMiddleware::class,
             ModelRestController::class,
         ];
@@ -153,6 +156,8 @@ abstract class RestModelConfigProviderAbstract
      *      if multiple id values exist, and one has another regex, supply both regexes in the same order as the idFields
      *  multiOranizationField: (array) If the current model uses one column to store multiple organizations, it can be added here.
      *      supply the field key with the columnname, and the separator key with which separator char has been sewed together
+     * organizationIdField: (string) Field name where the organization name is stored, so checks can be done if this organization is allowed
+     * respondentIdField: (string) Field name where the respondent id is stored so it can be saved in the access log
      *
      *  Field filters: Keep in mind validation on save will occur after the filter.
      *  allow_fields: (array) List of fields that are allowed to be requested and saved

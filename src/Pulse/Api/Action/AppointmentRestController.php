@@ -5,6 +5,7 @@ namespace Pulse\Api\Action;
 
 
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Repository\AccesslogRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Db\Adapter\Adapter;
@@ -33,11 +34,11 @@ class AppointmentRestController extends ModelRestController
      */
     protected $db;
 
-    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db, $LegacyDb, $LegacyLoader)
+    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db, $LegacyDb, $LegacyLoader)
     {
         $this->agenda = $LegacyLoader->getAgenda();
         $this->db = $db;
-        parent::__construct($loader, $urlHelper, $LegacyDb);
+        parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
     protected function getPatientId($patientNr, $organizationId)

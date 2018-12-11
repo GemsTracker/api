@@ -9,6 +9,7 @@ use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
 use Gems\Rest\Model\ModelTranslateException;
 use Gems\Rest\Model\ModelValidationException;
+use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -68,7 +69,7 @@ class RespondentBulkRestController extends ModelRestController
      */
     protected $respondentRepository;
 
-    public function __construct(ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db,
+    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, Adapter $db,
                                 AgendaDiagnosisRepository $agendaDiagnosisRepository,
                                 AppointmentRepository $appointmentRepository,
                                 OrganizationRepository $organizationRepository,
@@ -91,7 +92,7 @@ class RespondentBulkRestController extends ModelRestController
         $this->respondentRepository = $respondentRepository;
         $this->legacyLoader = $legacyLoader;
 
-        parent::__construct($loader, $urlHelper, $LegacyDb);
+        parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
     protected function createModel()

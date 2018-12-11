@@ -6,6 +6,7 @@ namespace GemsTest\Rest\Action;
 
 use Gems\Rest\Action\RestControllerAbstract;
 use Gems\Rest\Action\RestControllerFactory;
+use Gems\Rest\Repository\AccesslogRepository;
 use GemsTest\Rest\Action\ArrayModelRestController;
 use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
@@ -22,10 +23,12 @@ class RestControllerFactoryTest extends TestCase
         $urlHelper          = $this->prophesize(UrlHelper::class)->reveal();
         $loader             = $this->prophesize(ProjectOverloader::class)->reveal();
         $db                 = $this->prophesize(\Zend_Db_Adapter_Abstract::class)->reveal();
+        $accesslogRepository = $this->prophesize(AccesslogRepository::class) ->reveal();
 
         $containerProphesy->get(UrlHelper::class)->willReturn($urlHelper);
         $containerProphesy->get('loader')->willReturn($loader);
         $containerProphesy->get('LegacyDb')->willReturn($db);
+        $containerProphesy->get(AccesslogRepository::class)->willReturn($accesslogRepository);
 
         $container = $containerProphesy->reveal();
 

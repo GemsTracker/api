@@ -5,7 +5,6 @@ namespace Gems\Rest;
 use Gems\Rest\Acl\AclFactory;
 use Gems\Rest\Acl\AclRepository;
 use Gems\Rest\Action\DevAction;
-use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Action\PingController;
 use Gems\Rest\Auth\AccessTokenAction;
 use Gems\Rest\Auth\AccessTokenRepository;
@@ -15,7 +14,6 @@ use Gems\Rest\Auth\AuthorizeAction;
 use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 
 use Gems\Rest\Auth\ClientRepository;
-use Gems\Rest\Auth\CorsMiddleware;
 use Gems\Rest\Auth\ImplicitGrantFactory;
 use Gems\Rest\Auth\MergeUsernameOrganizationMiddleware;
 use Gems\Rest\Auth\RefreshTokenRepository;
@@ -26,9 +24,11 @@ use Gems\Rest\Factory\ReflectionFactory;
 
 use Gems\Rest\Auth\AuthorizationServerFactory;
 use Gems\Rest\Auth\ResourceServerFactory;
+use Gems\Rest\Middleware\AccessLogMiddleware;
 use Gems\Rest\Middleware\ApiGateMiddleware;
 use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
+use Gems\Rest\Repository\AccesslogRepository;
 use Gems\Rest\Repository\LoginAttemptsRepository;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
@@ -106,6 +106,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 // Middleware
                 AuthorizeGemsAndOauthMiddleware::class => ReflectionFactory::class,
                 ApiGateMiddleware::class => ReflectionFactory::class,
+                AccessLogMiddleware::class => ReflectionFactory::class,
                 ApiOrganizationGateMiddleware::class => ReflectionFactory::class,
 
                 // Actions
@@ -125,6 +126,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 // Main repositories
                 AclRepository::class => ReflectionFactory::class,
+                AccesslogRepository::class => ReflectionFactory::class,
 
                 Acl::class => AclFactory::class,
                 LoginAttemptsRepository::class => ReflectionFactory::class,

@@ -32,7 +32,7 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
         $test = $route->getPath();
 
         $routeOptions = $route->getOptions();
-        if (!isset($routeOptions['organizationId']) || empty($routeOptions['organizationId'])) {
+        if (!isset($routeOptions['organizationIdField']) || empty($routeOptions['organizationIdField'])) {
             $response = $delegate->process($request);
             return $response;
         }
@@ -58,10 +58,10 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
 
     protected function getRouteFilters($filters, $routeOptions, $allowedOrganizations)
     {
-        if (!isset($filters[$routeOptions['organizationId']])) {
-            $filters[$routeOptions['organizationId']] = $allowedOrganizations;//'['.join(',', $allowedOrganizations).']';
+        if (!isset($filters[$routeOptions['organizationIdField']])) {
+            $filters[$routeOptions['organizationIdField']] = $allowedOrganizations;//'['.join(',', $allowedOrganizations).']';
         } else {
-            $selectedOrganizationIds = $filters[$routeOptions['organizationId']];
+            $selectedOrganizationIds = $filters[$routeOptions['organizationIdField']];
             if (is_string($selectedOrganizationIds)) {
                 $selectedOrganizationIds = explode(',', str_replace(['[', ']'], '', $selectedOrganizationIds));
             }
@@ -71,7 +71,7 @@ class ApiOrganizationGateMiddleware implements MiddlewareInterface
                     $filteredOrganizationIds[] = $organizationId;
                 }
             }
-            $filters[$routeOptions['organizationId']] = $filteredOrganizationIds;
+            $filters[$routeOptions['organizationIdField']] = $filteredOrganizationIds;
         }
         return $filters;
     }

@@ -4,6 +4,7 @@
 namespace GemsTest\Rest\Action;
 
 
+use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Container\ContainerInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
@@ -741,10 +742,11 @@ class ModelRestControllerTest extends ZendDbTestCase
 
     private function getArrayModelRestController()
     {
+        $accesslogRepository = $this->prophesize(AccesslogRepository::class)->reveal();
         $loader    = $this->prophesize(ProjectOverloader::class)->reveal();
         $urlHelper = $this->prophesize(UrlHelper::class)->reveal();
 
-        return new ArrayModelRestController($loader, $urlHelper, $this->db1);
+        return new ArrayModelRestController($accesslogRepository, $loader, $urlHelper, $this->db1);
     }
 
     private function getTestMessageModelRestController($realLoader=false, $urlHelperRoutes=[])
@@ -759,6 +761,8 @@ class ModelRestControllerTest extends ZendDbTestCase
             $loader    = $this->prophesize(ProjectOverloader::class)->reveal();
         }
 
+        $accessTokenRepository = $this->prophesize(AccesslogRepository::class)->reveal();
+
         $urlHelperProphecy = $this->prophesize(UrlHelper::class);
 
         foreach ($urlHelperRoutes as $route=>$url) {
@@ -767,7 +771,7 @@ class ModelRestControllerTest extends ZendDbTestCase
 
         $urlHelper = $urlHelperProphecy->reveal();
 
-        return new TestMessageModelRestController($loader, $urlHelper, $this->db1);
+        return new TestMessageModelRestController($accessTokenRepository, $loader, $urlHelper, $this->db1);
     }
 
     private function getRequest($method='GET',$attributes=[], $queryParams=[],$postData=[], $uri='')
