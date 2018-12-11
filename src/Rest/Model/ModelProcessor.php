@@ -185,7 +185,7 @@ class ModelProcessor
                         $multiValidators[$columnName][$key] = $this->getValidator($validator);
                     }
                 } else {
-                    $multiValidators[$columnName][] = $this->getValidator($validators);
+                    $multiValidators[$columnName] = [$this->getValidator($validators)];
                 }
             }
 
@@ -206,9 +206,10 @@ class ModelProcessor
 
                 } else {
                     $this->requiredFields[$columnName] = false;
+                    continue;
                 }
 
-                if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1) {
+                if (!isset($multiValidators[$columnName]) || count($multiValidators[$columnName]) === 1 && array_key_exists($columnName, $types)) {
                     switch ($types[$columnName]) {
                         case \MUtil_Model::TYPE_STRING:
                             //$multiValidators[$columnName][] = $this->getValidator('Alnum', ['allowWhiteSpace' => true]);
