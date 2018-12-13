@@ -153,3 +153,66 @@ CREATE TABLE gems__reception_codes (
 
   PRIMARY KEY (grc_id_reception_code)
 );
+
+
+CREATE TABLE gems__agenda_diagnoses (
+    gad_diagnosis_code  varchar(50) not null,
+    gad_description     varchar(250) null default null,
+    gad_coding_method   varchar(10) not null default 'DBC',
+    gad_code            varchar(40) null default null,
+    gad_source          varchar(20) not null default 'manual',
+    gad_id_in_source    varchar(40) null default null,
+    gad_active          TINYINT(1) not null default 1,
+    gad_filter          TINYINT(1) not null default 0,
+    gad_changed         TEXT not null default current_timestamp,
+    gad_changed_by      INTEGER not null,
+    gad_created         TEXT not null,
+    gad_created_by      INTEGER not null,
+
+    PRIMARY KEY (gad_diagnosis_code)
+);
+
+CREATE TABLE gems__appointments (
+        gap_id_appointment      INTEGER not null ,
+        gap_id_user             INTEGER not null,
+        gap_id_organization     INTEGER not null,
+
+        gap_id_episode          INTEGER,
+
+        gap_source              varchar(20) not null default 'manual',
+        gap_id_in_source        varchar(40),
+        gap_manual_edit         TINYINT(1) not null default 0,
+
+        gap_code                varchar(1) not null default 'A',
+        -- one off A => Ambulatory, E => Emergency, F => Field, H => Home, I => Inpatient, S => Short stay, V => Virtual
+        -- see http://wiki.hl7.org/index.php?title=PA_Patient_Encounter
+
+        -- Not implemented
+        -- moodCode http://wiki.ihe.net/index.php?title=1.3.6.1.4.1.19376.1.5.3.1.4.14
+        -- one of  PRMS Scheduled, ARQ requested but no TEXT, EVN has occurred
+
+        gap_status              varchar(2) not null default 'AC',
+        -- one off AB => Aborted, AC => active, CA => Cancelled, CO => completed
+        -- see http://wiki.hl7.org/index.php?title=PA_Patient_Encounter
+
+        gap_admission_time      TEXT not null,
+        gap_discharge_time      TEXT,
+
+        gap_id_attended_by      INTEGER,
+        gap_id_referred_by      INTEGER,
+        gap_id_activity         INTEGER,
+        gap_id_procedure        INTEGER,
+        gap_id_location         INTEGER,
+        gap_diagnosis_code      varchar(50),
+
+        gap_subject             varchar(250),
+        gap_comment             TEXT,
+
+        gap_changed             TEXT not null default current_timestamp,
+        gap_changed_by          INTEGER not null,
+        gap_created             TEXT not null,
+        gap_created_by          INTEGER not null,
+
+        PRIMARY KEY (gap_id_appointment),
+        UNIQUE (gap_id_in_source, gap_id_organization, gap_source)
+);

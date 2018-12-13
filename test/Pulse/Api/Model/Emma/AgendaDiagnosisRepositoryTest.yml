@@ -1,0 +1,9 @@
+gems__agenda_diagnoses:
+  -
+    gad_diagnosis_code: 1
+    gad_source: test
+    gad_active: 1
+    gad_created: 2018-01-01 00:00:00
+    gad_created_by: 1
+    gad_changed: 2018-01-01 00:00:00
+    gad_changed_by: 1

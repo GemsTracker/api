@@ -29,7 +29,7 @@ class OrganizationRepository
             $select->from('gems__organizations')
                 ->columns(['gor_id_organization', 'gor_name'])
                 ->where(['gor_active' => 1, 'gor_add_respondents' => 1])
-                ->order(new Expression('CHAR_LENGTH(gor_name) DESC'));
+                ->order(new Expression('LENGTH(gor_name) DESC'));
 
             $statement = $sql->prepareStatementForSqlObject($select);
             $result = $statement->execute();

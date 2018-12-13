@@ -31,7 +31,7 @@ class AppointmentRepository
 
         $result = $statement->execute();
 
-        if ($result->valid()) {
+        if ($result->valid() && $result->count() > 0) {
             return true;
         }
 

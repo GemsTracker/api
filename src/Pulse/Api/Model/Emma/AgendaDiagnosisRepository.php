@@ -39,10 +39,8 @@ class AgendaDiagnosisRepository
 
         $model = $this->getModel();
         $newValues = $model->save($newValues);
-        if (isset($newValues['gad_diagnosis_code'])) {
-            return $newValues['gad_diagnosis_code'];
-        }
-        return false;
+
+        return $newValues['gad_diagnosis_code'];
     }
 
     protected function createModel()
@@ -90,26 +88,6 @@ class AgendaDiagnosisRepository
             $this->matchedDiagnoses[$source][$code] = $result;
             return $result;
         }
-
-        /*$sql = new Sql($this->db);
-        $select = $sql->select();
-        $select->from('gems__agenda_diagnoses')
-            ->columns(['gad_diagnosis_code'])
-            ->where(
-                [
-                    'gad_id_in_source' => $sourceId,
-                    'gad_source' => $source,
-                    'gad_active' => 1,
-                ]
-            );
-
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        if ($result->count() > 0) {
-            $diagnosis = $result->current();
-            $this->matchedDiagnoses[$source][$sourceId] = $diagnosis;
-            return $diagnosis;
-        }*/
 
         return false;
     }

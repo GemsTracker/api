@@ -15,11 +15,6 @@ use Zend\Db\Sql\Sql;
 class RespondentImportTranslator extends ApiModelTranslator
 {
     /**
-     * @var Adapter
-     */
-    protected $db;
-
-    /**
      * @var LoggerInterface
      */
     protected $logger;
@@ -49,9 +44,8 @@ class RespondentImportTranslator extends ApiModelTranslator
         "gr2o_patient_nr" => "patient_nr",
     ];
 
-    public function __construct(Adapter $db, RespondentRepository $respondentRepository, LoggerInterface $logger)
+    public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger)
     {
-        $this->db = $db;
         $this->logger = $logger;
         $this->respondentRepository = $respondentRepository;
         parent::__construct(null);

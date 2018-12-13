@@ -140,7 +140,7 @@ class RespondentBulkRestController extends ModelRestController
         //$this->logger->debug('Starting import of bulk respondent', ['PatientNr' => $patientNr]);
         $this->logger->debug('Starting import of bulk respondent', $respondentRow);
 
-        $translator = new RespondentImportTranslator($this->db, $this->respondentRepository, $this->logger);
+        $translator = new RespondentImportTranslator($this->respondentRepository, $this->logger);
         $row = $translator->translateRowOnce($respondentRow, true);
 
         $organizations = $this->organizationRepository->getOrganizationTranslations($row['organizations']);
