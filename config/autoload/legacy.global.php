@@ -45,7 +45,7 @@ return [
             'LegacyBasepath' => Gems_Util_BasePath::class,
             'LegacyLocale' => Zend_Locale::class,
             'LegacyLogger' => Gems_Log::class,
-            'LegacyModel' => Gems_Model::class,
+            //'LegacyModel' => Gems_Model::class,
             'LegacySession' => Zend_Session_Namespace::class,
             'LegacyTracker' => Gems_Tracker::class,
             'LegacyEvents' => Gems_Events::class,
