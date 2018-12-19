@@ -11,6 +11,17 @@ use Zend\Db\Sql\Sql;
 
 class TrackfieldsRepository
 {
+    protected $allowedFields = [
+        'gtf_id_field',
+        'gtf_field_type',
+        'gtf_field_name',
+        'gtf_field_code',
+        'gtf_id_order',
+        'gtf_field_values',
+        'gtf_required',
+        'gtf_readonly'
+    ];
+
     /**
      * @var \Gems_Tracker
      */
@@ -28,10 +39,12 @@ class TrackfieldsRepository
         $fieldMaintenanceModel = $trackEngine->getFieldsMaintenanceModel();
         $trackFields = $fieldMaintenanceModel->load(['gtf_id_track' => $trackId]);
 
+        $allowedFields = array_flip($this->allowedFields);
+
         $codeTrackFields = [];
         foreach($trackFields as $trackfield) {
             if (isset($trackfield['gtf_field_code']) && $trackfield['gtf_field_code'] !== null) {
-                $codeTrackFields[] = $trackfield;
+                $codeTrackFields[] = array_intersect_key($trackfield, $allowedFields);
             }
         }
 
