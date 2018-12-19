@@ -190,6 +190,24 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
                 'applySettings' => 'applyEditSettings',
+                'allow_fields' => [
+                    'gr2o_patient_nr',
+                    'grs_first_name',
+                    'grs_initials_name',
+                    'grs_surname_prefix',
+                    'grs_last_name',
+                    'grs_gender',
+                    'grs_birthday',
+                    'gr2o_location',
+                    'gr2o_consent',
+                    'gr2o_mailable',
+                    'gr2o_opened',
+                    'gr2o_opened_by',
+                    'gr2o_changed',
+                    'gr2o_changed_by',
+                    'gr2o_created',
+                    'gr2o_created_by',
+                ],
                 'idField' => [
                     'gr2o_patient_nr',
                     'gr2o_id_organization',
@@ -225,6 +243,11 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'separator' => '|',
                 ],
                 'organizationId' => 'gtr_organizations',
+                'allowed_fields' => [
+                    'gtr_id_track',
+                    'gtr_track_name',
+                    'gtr_organizations',
+                ],
             ],
             'rounds' => [
                 'model' => 'Tracker\\Model\\RoundModel',
@@ -243,22 +266,52 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'methods' => ['GET', 'PATCH'],
                 'customAction' => TokenController::class,
                 'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
+                'allowed_fields' => [
+                    'gto_id_token',
+                    'gto_id_survey',
+                    'gto_round_description',
+                    'gto_completion_time',
+                    'gto_valid_from',
+                    'gto_valid_until',
+
+                    'gsu_survey_name',
+                    'gsu_code',
+                    'gsu_result_field',
+
+                    'ggp_staff_members',
+                ],
             ],
             'respondent-tracks' => [
                 'model' => RespondentTrackModel::class,
                 'methods' => ['GET', 'PATCH', 'POST', 'DELETE'],
                 'idField' => 'gr2t_id_respondent_track',
                 'customAction' => RespondentTrackRestController::class,
+
                 'organizationId' => 'gr2t_id_organization',
                 'respondentIdField' => 'gr2t_id_user',
+                'allowed_fields' => [
+                    'gr2t_id_respondent_track',
+                    'gtr_track_name',
+                    'gr2t_id_organization',
+                    'gr2t_start_date',
+                    'gr2t_start_date',
+                ],
             ],
             'extreme-values' => [
                 'model' => 'Model\\EvdModel',
                 'methods' => ['GET'],
+                'allowed_fields' => [
+                    'pev_id_token',
+                    'gto_round_description',
+                ],
             ],
             'outcome-variables' => [
                 'model' => 'Model\\OutcomeVariableModel',
                 'methods' => ['GET'],
+                'allowed_fields' => [
+                    'pt2o_id',
+                    'pt2o_name',
+                ]
             ],
             /*'treatments-with-norms' => [
                 'model' => TreatmentWithNormsModel::class,
@@ -300,7 +353,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'name' => 'respondent-track-fields',
                 'path' => '/respondent-track-fields/[{id:\d+}]',
                 'middleware' => $this->getCustomActionMiddleware(RespondentTrackfieldsRestController::class),
-                'allowed_methods' => ['GET', 'PATCH'],
+                'allowed_methods' => ['PATCH'],
             ],
             [
                 'name' => 'chartdata',

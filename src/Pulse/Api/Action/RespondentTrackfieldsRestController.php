@@ -21,21 +21,6 @@ class RespondentTrackfieldsRestController extends RestControllerAbstract
         $this->respondentTrackfieldsRepository = $respondentTrackfieldsRepository;
     }
 
-    public function get(ServerRequestInterface $request, DelegateInterface $delegate)
-    {
-        $id = $request->getAttribute('id');
-
-        $trackfields = $this->respondentTrackfieldsRepository->getTrackfields($id);
-
-        $data = [
-            'side' => "Rechts",
-        ];
-
-        $trackfields = $this->respondentTrackfieldsRepository->setTrackfields($id, $data);
-
-        return new JsonResponse($trackfields);
-    }
-
     public function patch(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $id = $request->getAttribute('id');
