@@ -26,13 +26,12 @@
  * );
  */
 
+/* @var $app \Zend\Expressive\Application */
+
 //$app->get('/', Gems\Rest\Action\HomePageAction::class, 'home');
 //$app->get('/api/ping', Gems\Rest\Action\PingAction::class, 'api.ping');
 //$app->get('/test', Gems\Rest\Action\TestModelAction::class, 'test');
 //$app->get('/dev', [\Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware::class, \Dev\Action\DevAction::class], 'dev');
-
-
-
 
 /*$app->get('/organizations/structure', Gems\Rest\Action\OrganizationController::class, 'api.organizations.structure');
 // Show one/all
