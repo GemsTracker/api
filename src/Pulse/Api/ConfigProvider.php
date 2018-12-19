@@ -294,7 +294,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gtr_track_name',
                     'gr2t_id_organization',
                     'gr2t_start_date',
-                    'gr2t_start_date',
+                    'gr2t_end_date',
                 ],
             ],
             'extreme-values' => [
