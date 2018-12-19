@@ -35,7 +35,7 @@ $ composer development-enable
 ### Public/private SSH keys
 
 OAuth2 needs to have a public and private ssh key generated. 
-The default location is set in the src/Rest/ConfigProvider.php in the getCertificates() function.
+The default location is set in config/autoload/application.global.php and can be changed by renaming config/autoload/application.local.php.dist to application.local.php and changing the 'certificates' element.
 If you want to automatically generate these files run 
 
 ```bash
