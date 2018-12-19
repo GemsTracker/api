@@ -311,6 +311,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_fields' => [
                     'pt2o_id',
                     'pt2o_name',
+                    'pt2o_id_treatment',
                 ]
             ],
             /*'treatments-with-norms' => [
