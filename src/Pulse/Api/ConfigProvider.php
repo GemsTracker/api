@@ -296,6 +296,17 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gr2t_start_date',
                     'gr2t_end_date',
                 ],
+                'allowed_save_fields' => [
+                    'gr2t_id_respondent_track',
+                    'gtr_track_name',
+                    'gr2t_id_organization',
+                    'gr2t_start_date',
+                    'gr2t_end_date',
+                    'gr2t_id_track',
+                    'gr2t_mailable',
+                    'gr2o_id_organization',
+                    'gr2o_patient_nr',
+                ],
             ],
             'extreme-values' => [
                 'model' => 'Model\\EvdModel',

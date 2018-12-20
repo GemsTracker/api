@@ -105,6 +105,17 @@ class RespondentTrackRestController extends ModelRestController
         return parent::afterSaveRow($newRow);
     }
 
+    /**
+     * Do actions or translate the row before a save and before validators
+     *
+     * @param array $row
+     * @return array
+     */
+    protected function beforeSaveRow($row)
+    {
+        return $row;
+    }
+
     public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $idField = $this->getIdField();
