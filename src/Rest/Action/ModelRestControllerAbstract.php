@@ -271,7 +271,13 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             $flag = ARRAY_FILTER_USE_BOTH;
         }
 
-        if (isset($this->routeOptions['allowed_fields'])) {
+        if ($save && $this->routeOptions['allowed_save_fields']) {
+            $allowedSaveFields = $this->routeOptions['allowed_save_fields'];
+
+            $row = array_filter($row, function ($key) use ($allowedSaveFields) {
+                return in_array($key, $allowedSaveFields);
+            }, $flag);
+        } elseif (isset($this->routeOptions['allowed_fields'])) {
             $allowedFields = $this->routeOptions['allowed_fields'];
 
             $row = array_filter($row, function ($key) use ($allowedFields) {
@@ -985,7 +991,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             return new EmptyResponse(400);
         }
 
-        $row = $this->filterColumns($row, $update);
+        $row = $this->filterColumns($row, true);
 
         $this->logRequest($request, $row, false);
         $row = $this->beforeSaveRow($row);
