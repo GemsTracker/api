@@ -19,7 +19,8 @@ class TrackfieldsRepository
         'gtf_id_order',
         'gtf_field_values',
         'gtf_required',
-        'gtf_readonly'
+        'gtf_readonly',
+        'gtf_id_track',
     ];
 
     /**
