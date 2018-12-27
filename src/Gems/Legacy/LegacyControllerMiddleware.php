@@ -100,7 +100,15 @@ class LegacyControllerMiddleware implements MiddlewareInterface
                         Front::setRequest($requestWrapper);
                         Front::setRouter($routeWrapper);
 
-                        $controllerObject = $this->loader->create(new $controllerName($requestWrapper, $this->urlHelper));
+                        $req = new \Zend_Controller_Request_Http();
+                        $req->setControllerName($requestWrapper->getControllerName());
+                        $req->setActionName($requestWrapper->getActionName());
+                        $req->setParams($requestWrapper->getParams());
+                        $resp = new \Zend_Controller_Response_Http();
+                        
+                        \Zend_Controller_Front::getInstance()->setControllerDirectory(APPLICATION_PATH . '/controllers');
+                        
+                        $controllerObject = $this->loader->create($controllerName,$req, $resp, [], false);
 
                         $this->loadControllerDependencies($controllerObject);
                         $controllerObject->html = new \MUtil_Html_Sequence();

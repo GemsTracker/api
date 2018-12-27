@@ -248,7 +248,7 @@ class LegacyFactory implements FactoryInterface
 
     protected function getProjectSettings()
     {
-        $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/config/project');
+        $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/application/configs/project');
 
         $project = $this->loader->create('Project_ProjectSettings', $projectArray);
 
@@ -333,7 +333,37 @@ class LegacyFactory implements FactoryInterface
             'disableNotices'  => true,
             'scan'            => \Zend_Translate::LOCALE_FILENAME);
 
-        $translate = \MUtil_Translate_Adapter_Potemkin::create();
+        $translate = new \Zend_Translate($options);
+        
+        // If we don't find the needed language, use a fake translator to disable notices
+        if (! $translate->isAvailable($language)) {
+            $translate = \MUtil_Translate_Adapter_Potemkin::create();
+        }
+
+        return $translate;
+        
+
+        //Now if we have a project specific language file, add it
+        $projectLanguageDir = APPLICATION_PATH . '/languages/';
+        if (file_exists($projectLanguageDir)) {
+            $options['content']        = $projectLanguageDir;
+            $options['disableNotices'] = true;
+            $projectTranslations       = new \Zend_Translate($options);
+            //But only when it has the requested language
+            if ($projectTranslations->isAvailable($language)) {
+                $translate->addTranslation(array('content' => $projectTranslations));
+            }
+            unset($projectTranslations);  //Save some memory
+        }
+
+        $translate->setLocale($language);
+        \Zend_Registry::set('Zend_Translate', $translate);
+
+        // Fix for _init resource being case insensitive
+        $container = $this->getContainer();
+        $adapter   = $translate->getAdapter();
+        $container->translateAdapter = $adapter;
+        $this->translateAdapter      = $adapter;
 
         return $translate;
     }
