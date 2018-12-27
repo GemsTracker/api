@@ -108,10 +108,12 @@ class LegacyControllerMiddleware implements MiddlewareInterface
                         
                         \Zend_Controller_Front::getInstance()->setControllerDirectory(APPLICATION_PATH . '/controllers');
                         
+                        // Defer init, we first need to inject all our dependencies
                         $controllerObject = $this->loader->create($controllerName,$req, $resp, [], false);
 
                         $this->loadControllerDependencies($controllerObject);
-                        $controllerObject->html = new \MUtil_Html_Sequence();
+                        $controllerObject->init();
+                        //$controllerObject->html = new \MUtil_Html_Sequence();
 
                         //$controllerObject->initHtml();
                         break;
