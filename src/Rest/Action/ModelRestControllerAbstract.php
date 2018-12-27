@@ -6,6 +6,7 @@ namespace Gems\Rest\Action;
 use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
 use Gems\Rest\Model\ModelValidationException;
+use Gems\Rest\Model\RouteOptionsModelFilter;
 use Gems\Rest\Repository\AccesslogRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
@@ -266,42 +267,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      */
     protected function filterColumns($row, $save=false, $useKeys=true)
     {
-        $flag = ARRAY_FILTER_USE_KEY;
-        if ($useKeys === false) {
-            $flag = ARRAY_FILTER_USE_BOTH;
-        }
-
-        if ($save && $this->routeOptions['allowed_save_fields']) {
-            $allowedSaveFields = $this->routeOptions['allowed_save_fields'];
-
-            $row = array_filter($row, function ($key) use ($allowedSaveFields) {
-                return in_array($key, $allowedSaveFields);
-            }, $flag);
-        } elseif (isset($this->routeOptions['allowed_fields'])) {
-            $allowedFields = $this->routeOptions['allowed_fields'];
-
-            $row = array_filter($row, function ($key) use ($allowedFields) {
-                return in_array($key, $allowedFields);
-            }, $flag);
-        }
-
-        if (isset($this->routeOptions['disallowed_fields'])) {
-            $disallowedFields = $this->routeOptions['disallowed_fields'];
-
-            $row = array_filter($row, function ($key) use ($disallowedFields) {
-                return !in_array($key, $disallowedFields);
-            }, $flag);
-
-        }
-
-        if ($save && isset($this->routeOptions['readonly_fields'])) {
-            $readonlyFields = $this->routeOptions['readonly_fields'];
-
-            $row = array_filter($row, function ($key) use ($readonlyFields) {
-                return !in_array($key, $readonlyFields);
-            }, $flag);
-
-        }
+        $row = RouteOptionsModelFilter::filterColumns($row, $this->routeOptions, $save, $useKeys);
 
         return $row;
     }
@@ -997,6 +963,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $row = $this->beforeSaveRow($row);
 
         $modelProcessor = new ModelProcessor($this->loader, $this->model, $this->userId);
+        if ($update === false) {
+            $modelProcessor->setAddDefaults(true);
+        }
 
         try {
             $newRow = $modelProcessor->save($row, false);

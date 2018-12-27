@@ -30,6 +30,7 @@ use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use Gems\Rest\Repository\AccesslogRepository;
 use Gems\Rest\Repository\LoginAttemptsRepository;
+use Gems\Rest\Repository\RespondentRepository;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -127,6 +128,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 // Main repositories
                 AclRepository::class => ReflectionFactory::class,
                 AccesslogRepository::class => ReflectionFactory::class,
+                RespondentRepository::class => ReflectionFactory::class,
 
                 Acl::class => AclFactory::class,
                 LoginAttemptsRepository::class => ReflectionFactory::class,

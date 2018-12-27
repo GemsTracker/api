@@ -7,6 +7,7 @@ namespace Pulse\Api\Action;
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Exception\RestException;
 use Gems\Rest\Repository\AccesslogRepository;
+use Gems\Rest\Repository\RespondentRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
@@ -26,13 +27,22 @@ class RespondentTrackRestController extends ModelRestController
      * @var \Gems_Tracker
      */
     protected $tracker;
+    /**
+     * @var RespondentRepository
+     */
+    private $respondentRepository;
 
-    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, \Gems_Tracker $tracker, \Zend_Locale $locale, $LegacyCurrentUser)
+    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader,
+                                UrlHelper $urlHelper, $LegacyDb, RespondentRepository $respondentRepository,
+                                \Gems_Tracker $tracker, \Zend_Locale $locale, $LegacyCurrentUser
+    )
     {
+        $this->respondentRepository = $respondentRepository;
         $this->currentUser = $LegacyCurrentUser;
         $this->tracker = $tracker;
         \Zend_Registry::set('Zend_Locale', $locale);
         parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
+
 
     }
 
@@ -113,6 +123,12 @@ class RespondentTrackRestController extends ModelRestController
      */
     protected function beforeSaveRow($row)
     {
+        $respondentId = $this->respondentRepository->getRespondentId($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
+        $row['gr2t_id_user'] = $respondentId;
+        $row['gr2t_id_organization'] = $row['gr2o_id_organization'];
+        $row['gr2t_track_info'] = null;
+        $row['gtr_id_track'] = $row['gr2t_id_track'];
+
         return $row;
     }
 
