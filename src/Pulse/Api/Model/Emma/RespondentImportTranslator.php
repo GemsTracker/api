@@ -143,39 +143,4 @@ class RespondentImportTranslator extends ApiModelTranslator
 
         return $row;
     }
-
-    public function translateRow($row, $reversed=false)
-    {
-        $row = parent::translateRow($row, $reversed);
-
-        //$row['gr2o_reception_code']  = \GemsEscort::RECEPTION_OK;
-
-
-        $bsnComm = false;
-        if (array_key_exists('grs_ssn', $row) && $row['grs_ssn'] !== null) {
-            if (is_string($row['grs_ssn']) && strlen($row['grs_ssn']) === 8) {
-                $row['grs_ssn'] = '0'.$row['grs_ssn'];
-            }
-
-            $validator = new \MUtil_Validate_Dutch_Burgerservicenummer();
-
-            if ($validator->isValid($row['grs_ssn'])) {
-                $ssnPatNr = $this->getPatientNrBySsn($row['grs_ssn']);
-
-                if ($ssnPatNr && ($ssnPatNr != $row['gr2o_patient_nr'])) {
-                    unset($row['grs_ssn']);
-                    $bsnComm = "\nBSN removed, was duplicate of $ssnPatNr BSN.\n";
-                }
-            } else {
-                $bsnComm = "\nBSN removed, " . $row['grs_ssn'] . " is not a valid BSN.\n";
-                $row['grs_ssn'] = null;
-            }
-        }
-
-        if ($bsnComm) {
-            $this->logger->notice($bsnComm, ['patientNr' => $row['gr2o_patient_nr']]);
-        }
-
-        return $row;
-    }
 }
