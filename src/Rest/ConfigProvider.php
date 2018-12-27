@@ -260,10 +260,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     {
         return [
             'paths' => [
-                'app'    => ['templates/app'],
-                'error'  => ['templates/error'],
-                'layout' => ['templates/layout'],
-                'oauth'  => ['templates/oauth'],
             ],
         ];
     }
