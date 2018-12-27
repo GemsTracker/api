@@ -35,11 +35,19 @@ class KeyGenerator
         $config = [
             'private_key_bits' => $this->bits,
         ];
-        // For windows (xampp) uncomment following line:
+        
+        $opts = getopt("l:");
+        if (array_key_exists('l', $opts)) {
+            if (file_exists($opts['l'])) {
+                $config['config'] = $opts['l'];
+            } else {
+                die(sprintf("File '%s' not found.", $opts['l']));
+            }
+        }
         //$config['config'] = 'E:\xampp71\php\extras\openssl\openssl.cnf';
         $resource = openssl_pkey_new($config);
         if ($resource === false) {
-            die('If you are on windows, provide a valid location for the openssl.cnf. See ' . __FILE__);
+            die("If you are on windows, provide a valid location for the openssl.cnf like this:\r\n generate-keys.bat -l \"C:\\xampp\\php\\extras\\openssl\\openssl.cnf\"");
         }
 
         openssl_pkey_export($resource, $privKey, null, $config);
@@ -62,6 +70,8 @@ class KeyGenerator
         file_put_contents($this->publicKeyLocation, $this->publicKey);
         chmod($this->publicKeyLocation, $this->fileMode);
 
+        echo "Private key generated in " . realpath($this->privateKeyLocation) . "\r\n";
+        echo "Public key generated in " . realpath($this->publicKeyLocation);
         return true;
     }
     

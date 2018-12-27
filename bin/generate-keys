@@ -1,19 +1,26 @@
 #!/usr/bin/env php
 <?php
 
-chdir(__DIR__ . '/../');
+// Setup/verify autoloading
+if (file_exists($a = __DIR__ . '/../../../autoload.php')) {
+    require $a;
+} elseif (file_exists($a = __DIR__ . '/../vendor/autoload.php')) {
+    require $a;
+} else {
+    fwrite(STDERR, 'Cannot locate autoloader; please run "composer install"' . PHP_EOL);
+    exit(1);
+}
 
 define('GEMS_ROOT_DIR', dirname(__DIR__));
-defined('VENDOR_DIR') || define('VENDOR_DIR', GEMS_ROOT_DIR . '/vendor/');
+defined('VENDOR_DIR') || define('VENDOR_DIR', realpath(dirname($a)));
 defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
 
-
-require(VENDOR_DIR . 'autoload.php');
+chdir (VENDOR_DIR . '/..');
 
 $config = include 'config/config.php';
 
 $keyGenerator = new Gems\Rest\Auth\KeyGenerator($config);
+echo "Generating keys\r\n\r\n";
 $keyGenerator->generateKeys();
-
 
 exit(0);
