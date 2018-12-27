@@ -69,13 +69,17 @@
             "@cs-check",
             "@test"
         ],
-        "clear-config-cache": "php bin/clear-config-cache.php",
+        "clear-config-cache": "clear-config-cache",
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
         "serve": "php -S 0.0.0.0:8080 -t public public/index.php",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     },
+    "bin": [
+        "bin/clear-config-cache",
+        "bin/generate-keys"
+    ],
     "repositories": [
         {
             "type": "git",
