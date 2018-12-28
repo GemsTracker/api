@@ -60,7 +60,7 @@ class AppointmentImportTranslator extends ApiModelTranslator
         $result = $statement->execute();
 
         //if ($result->count() > 0) {
-        if ($result->valid() && $result->count() > 0) {
+        if ($result->valid() && $result->current()) {
             $episode = $result->current();
             return $episode['gec_episode_of_care_id'];
         }

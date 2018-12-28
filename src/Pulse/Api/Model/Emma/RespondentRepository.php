@@ -44,7 +44,7 @@ class RespondentRepository
         $result = $statement->execute();
 
         //if ($result->count() > 0) {
-        if ($result->valid() && $result->count() > 0) {
+        if ($result->valid() && $result->current()) {
             return $result->current();
         }
         return false;
@@ -82,7 +82,7 @@ class RespondentRepository
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
-        if ($result->valid() && $result->count() > 0) {
+        if ($result->valid() && $result->current()) {
             $user = $result->current();
             return $user['grs_id_user'];
         }
