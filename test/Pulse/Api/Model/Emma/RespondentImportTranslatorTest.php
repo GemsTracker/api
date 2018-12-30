@@ -97,6 +97,9 @@ class RespondentImportTranslatorTest extends TestCase
             'gr2o_patient_nr' => 1,
             'gr2o_id_organization' => 1,
             'grs_ssn' => '011222633',
+            'grs_id_user' => 1,
+            'gr2o_id_user' => 1,
+            'new_respondent' => false,
         ];
 
         $result = $translator->matchRowToExistingPatient($testRow, $model);
@@ -115,6 +118,28 @@ class RespondentImportTranslatorTest extends TestCase
 
         $expectedResult = [
             'gr2o_patient_nr' => 1,
+            'gr2o_id_organization' => 1,
+            'grs_id_user' => 1,
+            'gr2o_id_user' => 1,
+            'new_respondent' => false,
+        ];
+
+        $result = $translator->matchRowToExistingPatient($testRow, $model);
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testMatchRowToNewPatientWrongSsn()
+    {
+        $translator = $this->getTranslator();
+        $model = $this->getModel();
+        $testRow = [
+            'gr2o_patient_nr' => 2,
+            'gr2o_id_organization' => 1,
+            'grs_ssn' => '1111',
+        ];
+
+        $expectedResult = [
+            'gr2o_patient_nr' => 2,
             'gr2o_id_organization' => 1,
             'grs_ssn' => null,
         ];
@@ -137,6 +162,9 @@ class RespondentImportTranslatorTest extends TestCase
             'gr2o_patient_nr' => 1,
             'gr2o_id_organization' => 1,
             'grs_ssn' => '111222333',
+            'gr2o_id_user' => 1,
+            'grs_id_user' => 1,
+            'new_respondent' => false,
         ];
 
         $result = $translator->matchRowToExistingPatient($testRow, $model);
@@ -153,7 +181,11 @@ class RespondentImportTranslatorTest extends TestCase
     {
 
         $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
-        $respondentRepositoryProphecy->getPatientsBySsn('111222333')->willReturn();
+        $respondentRepositoryProphecy->getPatientsBySsn('111222333')->willReturn([['gr2o_patient_nr' => 1, 'gr2o_id_user' => 1, 'grs_id_user' => 1, 'gr2o_id_organization' => 1, 'grs_ssn' => '111222333']]);
+        $respondentRepositoryProphecy->getPatientsBySsn('011222633')->willReturn([['gr2o_patient_nr' => 1, 'gr2o_id_user' => 1, 'grs_id_user' => 1, 'gr2o_id_organization' => 1, 'grs_ssn' => '011222633']]);
+        $respondentRepositoryProphecy->getPatientId(1,1)->willReturn(1);
+        $respondentRepositoryProphecy->getPatient(1,1)->willReturn(['gr2o_id_user' => 1, 'grs_ssn' => '111222333']);
+        $respondentRepositoryProphecy->getPatient(2,1)->willReturn(false);
 
         $loggerProphecy = $this->prophesize(LoggerInterface::class);
 

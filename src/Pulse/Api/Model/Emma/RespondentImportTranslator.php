@@ -112,8 +112,11 @@ class RespondentImportTranslator extends ApiModelTranslator
         }
 
         // No BSN, see if the patient exists as Patient number
-        if ($patientId = $this->respondentRepository->getPatientId($row['gr2o_patient_nr'], $row['gr2o_id_organization'])) {
-            $row['gr2o_id_user'] = $row['grs_id_user'] = $patientId;
+        if ($patient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization'])) {
+            $row['gr2o_id_user'] = $row['grs_id_user'] = $patient['gr2o_id_user'];
+            if (array_key_exists('grs_ssn', $row)) {
+                unset($row['grs_ssn']);
+            }
             $row['new_respondent'] = false;
         }
 
