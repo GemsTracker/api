@@ -26,9 +26,9 @@ class LegacyFactoryTest extends TestCase
             @session_start();
         }
         $this->fileSystem = vfsStream::setup('testDirectory');
-
+        
         defined('GEMS_ROOT_DIR') || define('GEMS_ROOT_DIR', vfsStream::url('testDirectory'));
-        defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', vfsStream::url('localeDirectory'));
+        defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
         defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR);
         defined('GEMS_PROJECT_NAME') || define('GEMS_PROJECT_NAME', 'TEST');
 

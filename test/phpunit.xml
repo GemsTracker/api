@@ -9,7 +9,8 @@
          stopOnFailure="false"
          syntaxCheck="false"
          verbose="true"
-         strict="true">
+         strict="true"
+         bootstrap="bootstrap.php">
     <testsuite>
         <directory>Gemstest</directory>
         <directory>Rest</directory>
