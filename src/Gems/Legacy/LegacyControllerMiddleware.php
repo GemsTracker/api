@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Gems\Legacy;
-
 
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
@@ -18,6 +16,7 @@ use Zend\Expressive\Template\TemplateRendererInterface;
 
 class LegacyControllerMiddleware implements MiddlewareInterface
 {
+
     /**
      * @var array
      */
@@ -43,20 +42,19 @@ class LegacyControllerMiddleware implements MiddlewareInterface
      */
     protected $view;
 
-
     public function __construct(ProjectOverloader $loader, \Zend_View $view, UrlHelper $urlHelper)
     {
-        $this->loader = $loader;
+        $this->loader         = $loader;
         $this->serviceManager = $this->loader->getServiceManager();
-        $this->config = $this->serviceManager->get('config');
-        $this->urlHelper = $urlHelper;
-        $this->view = $view;
+        $this->config         = $this->serviceManager->get('config');
+        $this->urlHelper      = $urlHelper;
+        $this->view           = $view;
     }
 
     protected function loadControllerDependencies($object)
     {
         $objectProperties = get_object_vars($object);
-        foreach($objectProperties as $name=>$value) {
+        foreach ($objectProperties as $name => $value) {
             if ($value === null) {
                 $legacyName = 'Legacy' . ucFirst($name);
                 if ($this->serviceManager->has($legacyName)) {
@@ -70,97 +68,92 @@ class LegacyControllerMiddleware implements MiddlewareInterface
     {
         $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
 
-        $route = $routeResult->getMatchedRoute();
+        $route  = $routeResult->getMatchedRoute();
         $config = $this->loader->getServiceManager()->get('config');
         if ($route) {
-            $options = $route->getOptions();
-            $action = $request->getAttribute('action', 'index') . 'Action';
-            if (isset($options['controller'])) {
-
-                $controllerName = ucfirst($options['controller']) . 'Controller';
-
-                $controllerClass = null;
-                if (!isset($config['controllerDirs'])) {
-                    throw new \Exception("No controller dirs set in config");
-                }
-
-                foreach($config['controllerDirs'] as $controllerDir) {
-                    $controllerClassLocation = $controllerDir.DIRECTORY_SEPARATOR.$controllerName.'.php';
-                    if (file_exists($controllerClassLocation)) {
-                        include $controllerClassLocation;
-
-                        //$legacyRequest = new \Zend_Controller_Request_Http;
-                        //$legacyResponse = new \Zend_Controller_Response_Http;
-                        $requestWrapper = new ExpressiveRequestWrapper($request);
-                        $this->loader->getServiceManager()->setService('LegacyRequest', $requestWrapper);
+            $options    = $route->getOptions();
+            $controller = $request->getAttribute('controller', 'index');
+            $action     = $request->getAttribute('action', 'index') . 'Action';
 
 
-                        $routeWrapper = new ExpressiveRouteWrapper($request, $this->urlHelper);
+            $controllerName = ucfirst($controller) . 'Controller';
 
-                        Front::setRequest($requestWrapper);
-                        Front::setRouter($routeWrapper);
-
-                        $req = new \Zend_Controller_Request_Http();
-                        $req->setControllerName($requestWrapper->getControllerName());
-                        $req->setActionName($requestWrapper->getActionName());
-                        $req->setParams($requestWrapper->getParams());
-                        $resp = new \Zend_Controller_Response_Http();
-                        
-                        \Zend_Controller_Front::getInstance()->setControllerDirectory(APPLICATION_PATH . '/controllers');
-                        
-                        // Defer init, we first need to inject all our dependencies
-                        $controllerObject = $this->loader->create($controllerName,$req, $resp, [], false);
-
-                        $this->loadControllerDependencies($controllerObject);
-                        $controllerObject->init();
-                        //$controllerObject->html = new \MUtil_Html_Sequence();
-
-                        //$controllerObject->initHtml();
-                        break;
-                    }
-                }
-
-                if (!$controllerObject) {
-                    throw new \Exception(sprintf(
-                        "Controller %s could not be found in paths %s",
-                        $controllerName,
-                        join('; ', $config['controllerDirs'])
-                    ));
-                }
-
-                if (method_exists($controllerObject, $action) && is_callable([$controllerObject, $action])) {
-                    $response = call_user_func_array([$controllerObject, $action], []);
-                    if ($response instanceof ResponseInterface) {
-                        return $response;
-                    }
-                } else {
-                    throw new \Exception(sprintf(
-                        "Controller action %s could not be found in paths %s",
-                        $action
-                    ));
-                }
-
-                $content = $controllerObject->html->render($this->view);
-
-                $data = [
-                    'content' => $content
-                ];
-
-                $template = $this->serviceManager->has(TemplateRendererInterface::class)
-                    ? $this->serviceManager->get(TemplateRendererInterface::class)
-                    : null;
-
-                if ($template) {
-                    return new HtmlResponse($template->render('app::gemstracker-responsive', $data));
-                }        
-                
-                return new HtmlResponse($content);
-
+            $controllerClass = null;
+            if (!isset($config['controllerDirs'])) {
+                throw new \Exception("No controller dirs set in config");
             }
 
+            foreach ($config['controllerDirs'] as $controllerDir) {
+                $controllerClassLocation = $controllerDir . DIRECTORY_SEPARATOR . $controllerName . '.php';
+                if (file_exists($controllerClassLocation)) {
+                    include $controllerClassLocation;
 
+                    //$legacyRequest = new \Zend_Controller_Request_Http;
+                    //$legacyResponse = new \Zend_Controller_Response_Http;
+                    $requestWrapper = new ExpressiveRequestWrapper($request);
+                    $this->loader->getServiceManager()->setService('LegacyRequest', $requestWrapper);
+
+
+                    $routeWrapper = new ExpressiveRouteWrapper($request, $this->urlHelper);
+
+                    Front::setRequest($requestWrapper);
+                    Front::setRouter($routeWrapper);
+
+                    $resp = new \Zend_Controller_Response_Http();
+                    $req  = new \Zend_Controller_Request_Http();
+                    $req->setControllerName($requestWrapper->getControllerName());
+                    $req->setActionName($requestWrapper->getActionName());
+                    $req->setParams($requestWrapper->getParams());                    
+
+                    \Zend_Controller_Front::getInstance()->setControllerDirectory(APPLICATION_PATH . '/controllers');
+
+                    // Defer init, we first need to inject all our dependencies
+                    $controllerObject = $this->loader->create($controllerName, $req, $resp, [], false);
+
+                    $this->loadControllerDependencies($controllerObject);
+                    $controllerObject->init();
+                    //$controllerObject->html = new \MUtil_Html_Sequence();
+                    //$controllerObject->initHtml();
+                    break;
+                }
+            }
+
+            if (!$controllerObject) {
+                throw new \Exception(sprintf(
+                                "Controller %s could not be found in paths %s",
+                                $controllerName,
+                                join('; ', $config['controllerDirs'])
+                ));
+            }
+
+            if (method_exists($controllerObject, $action) && is_callable([$controllerObject, $action])) {
+                $response = call_user_func_array([$controllerObject, $action], []);
+                if ($response instanceof ResponseInterface) {
+                    return $response;
+                }
+            } else {
+                throw new \Exception(sprintf(
+                                "Controller action %s could not be found in paths %s",
+                                $action
+                ));
+            }
+
+            $content = $controllerObject->html->render($this->view);
+
+            $data = [
+                'content' => $content
+            ];
+
+            $template = $this->serviceManager->has(TemplateRendererInterface::class) ? $this->serviceManager->get(TemplateRendererInterface::class) : null;
+
+            if ($template) {
+                return new HtmlResponse($template->render('app::gemstracker-responsive', $data));
+            }
+
+            return new HtmlResponse($content);
         }
 
         throw new \Exception('No Controller in route');
     }
+
 }

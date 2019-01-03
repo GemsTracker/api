@@ -50,28 +50,13 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
         $routes = [
             [
-                'name' => 'organization-controller',
-                'path' => '/legacy/organization[/{action}[/{id}]]',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    LegacyControllerMiddleware::class
-                ],
-                'allowed_methods' => ['GET'],
-                'options' => [
-                    'controller' => 'Organization',
-                ]
-            ],
-            [
-                'name' => 'ask-controller',
-                'path' => '/legacy/ask[/{action}]',
+                'name' => 'controller-action',
+                'path' => '/legacy/[{controller}[/{action}[/{params}]]]',
                 'middleware' => [
                     AuthorizeGemsAndOauthMiddleware::class,
                     LegacyControllerMiddleware::class
                 ],
                 'allowed_methods' => ['GET', 'POST'],
-                'options' => [
-                    'controller' => 'Ask',
-                ]
             ],
         ];
 
