@@ -4,6 +4,7 @@ namespace Gems\Rest;
 
 use Gems\Rest\Acl\AclFactory;
 use Gems\Rest\Acl\AclRepository;
+use Gems\Rest\Action\ApiDefinitionAction;
 use Gems\Rest\Action\DevAction;
 use Gems\Rest\Action\PingController;
 use Gems\Rest\Auth\AccessTokenAction;
@@ -29,6 +30,7 @@ use Gems\Rest\Middleware\ApiGateMiddleware;
 use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use Gems\Rest\Repository\AccesslogRepository;
+use Gems\Rest\Repository\ApiDefinitionRepository;
 use Gems\Rest\Repository\LoginAttemptsRepository;
 use Gems\Rest\Repository\RespondentRepository;
 use League\OAuth2\Server\AuthorizationServer;
@@ -115,6 +117,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AccessTokenAction::class => ReflectionFactory::class,
 
                 PingController::class => ReflectionFactory::class,
+                ApiDefinitionAction::class => ReflectionFactory::class,
+
                 DevAction::class => ReflectionFactory::class,
 
                 // Entity repositories
@@ -128,6 +132,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 // Main repositories
                 AclRepository::class => ReflectionFactory::class,
                 AccesslogRepository::class => ReflectionFactory::class,
+                ApiDefinitionRepository::class => ReflectionFactory::class,
+
                 RespondentRepository::class => ReflectionFactory::class,
 
                 Acl::class => AclFactory::class,
@@ -211,9 +217,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
      * Returns the Routes configuration
      * @return array
      */
-    public function getRoutes()
+    public function getRoutes($includeModelRoutes=true)
     {
-        $modelRoutes = parent::getRoutes();
+        $modelRoutes = parent::getRoutes($includeModelRoutes);
 
         $routes = [
             [
@@ -246,6 +252,15 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'name' => 'ping',
                 'path' => '/ping',
                 'middleware' => $this->getCustomActionMiddleware(PingController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'definition',
+                'path' => '/definition',
+                'middleware' => [
+                    AuthorizeGemsAndOauthMiddleware::class,
+                    ApiDefinitionAction::class,
+                ],
                 'allowed_methods' => ['GET'],
             ],
         ];

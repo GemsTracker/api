@@ -12,6 +12,24 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class TrackfieldsRestController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'Track fields',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'int',
+                        'required' => true,
+                    ]
+                ],
+                'responses' => [
+                    200 => 'track fields object',
+                    400 => 'treatment episode id missing',
+                ],
+            ],
+        ],
+    ];
+
     /**
      * @var TrackfieldsRepository
      */

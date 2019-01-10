@@ -166,15 +166,18 @@ abstract class RestModelConfigProviderAbstract
      *
      * @return array
      */
-    abstract protected function getRestModels();
+    abstract public function getRestModels();
 
     /**
      * Get all Routed including model routes. Add your projects routes in this function of the configProvider of your project.
      *
      * @return array
      */
-    protected function getRoutes()
+    public function getRoutes($includeModelRoutes=true)
     {
-        return $this->getModelRoutes();
+        if ($includeModelRoutes) {
+            return $this->getModelRoutes();
+        }
+        return [];
     }
 }

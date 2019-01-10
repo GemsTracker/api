@@ -11,6 +11,25 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class RespondentTrackfieldsRestController extends RestControllerAbstract
 {
+
+    public static $definition = [
+        'topic' => 'Respondent track fields',
+        'methods' => [
+            'patch' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'int',
+                        'required' => true,
+                    ]
+                ],
+                'responses' => [
+                    200 => 'track fields object',
+                ],
+                'body' => 'object with trackfield name as key and value as value',
+            ],
+        ],
+    ];
+
     /**
      * @var RespondentTrackfieldsRepository
      */

@@ -13,6 +13,27 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class TokenAnswersRestController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'Token answers',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'string',
+                        'required' => true,
+                    ]
+                ],
+                'responses' => [
+                    200 => [
+                        'gto_id_token' => 'string',
+                        'answers' => 'array',
+                    ],
+                    400 => 'token id missing',
+                ],
+            ],
+        ],
+    ];
+
     protected $removeAnswerFields = [
         'id',
         'submitdate',

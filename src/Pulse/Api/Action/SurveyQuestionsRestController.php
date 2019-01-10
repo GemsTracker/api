@@ -13,6 +13,27 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class SurveyQuestionsRestController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'survey question information',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'int',
+                        'required' => true,
+                    ]
+                ],
+                'responses' => [
+                    200 => [
+                        'gsu_id_survey' => 'int',
+                        'questions' => 'array',
+                    ],
+                    400 => 'survey id missing',
+                ],
+            ],
+        ],
+    ];
+
     /**
      * @var SurveyQuestionsRepository
      */

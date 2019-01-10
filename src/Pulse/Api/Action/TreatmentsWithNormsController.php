@@ -12,6 +12,22 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class TreatmentsWithNormsController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'Treatment with norms',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'gto_id_respondent_track' => [
+                        'type' => 'int',
+                    ],
+                ],
+                'responses' => [
+                    200 => 'Treatments with norms list',
+                ],
+            ],
+        ],
+    ];
+
     /**
      * @var TreatmentsWithNormsRepository
      */

@@ -12,6 +12,30 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class TreatmentEpisodesRestController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'Treatment episodes',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'int',
+                        'required' => true,
+                    ]
+                ],
+                'responses' => [
+                    200 => [
+                        'gte_id_episode' => 'int',
+                        'tracks' => 'array',
+                        '~treatment' => 'object',
+                        '~treatmentAppointment' => 'datetime',
+                        '~side' => 'string',
+                    ],
+                    400 => 'treatment episode id missing',
+                ],
+            ],
+        ],
+    ];
+
     /**
      * @var TreatmentEpisodesRepository
      */

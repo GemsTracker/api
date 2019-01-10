@@ -11,6 +11,20 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class PingController implements MiddlewareInterface
 {
+    public static $definition = [
+        'topic' => 'Ping',
+        'methods' => [
+            'get' => [
+                'responses' => [
+                    200 => [
+                        'message' => 'string',
+                        'current-time' => 'date',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $now = new \DateTime();

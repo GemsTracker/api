@@ -15,6 +15,28 @@ class CorrectTokenController extends RestControllerAbstract
 {
     use CheckContentTypeTrait;
 
+    public static $definition = [
+        'topic' => 'Correct token',
+        'methods' => [
+            'patch' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'string',
+                        'required' => true,
+                    ],
+                ],
+                'responses' => [
+                    201 => [
+                        'replacement_token' => 'string',
+                    ]
+                ],
+                'body' => [
+                    'comment' => 'string',
+                ],
+            ],
+        ],
+    ];
+
     protected $correctReceptionCode = 'correct';
 
     /**

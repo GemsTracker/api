@@ -13,6 +13,32 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class EmmaSurveyQuestionsRestController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'Emma Survey questions',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'int',
+                        'required' => true,
+                    ]
+                ],
+                'responses' => [
+                    200 => [
+                        'survey_id' => 'int',
+                        'survey_name' => 'string',
+                        'active' => 'boolean',
+                        'patient_survey' => 'boolean',
+                        'result_field' => 'string',
+                        'questions' => 'array',
+                    ],
+                    400 => 'survey id missing',
+                    404 => 'survey not found',
+                ],
+            ],
+        ],
+    ];
+
     /**
      * @var SurveyQuestionsRepository
      */

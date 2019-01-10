@@ -57,7 +57,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         return [];
     }
 
-    protected function getRestModels()
+    public function getRestModels()
     {
         return [
             'prediction/tracks' => [
@@ -125,9 +125,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         ];
     }
 
-    public function getRoutes()
+    public function getRoutes($includeModelRoutes=true)
     {
-        $modelRoutes = parent::getRoutes();
+        $modelRoutes = parent::getRoutes($includeModelRoutes);
 
         $routes = [
             [

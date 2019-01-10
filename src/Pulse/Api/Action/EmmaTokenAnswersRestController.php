@@ -13,6 +13,24 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class EmmaTokenAnswersRestController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'Emma Token answers',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'string',
+                        'required' => true,
+                    ]
+                ],
+                'responses' => [
+                    200 => 'Formatted token Answers',
+                    400 => 'Token id missing',
+                ],
+            ],
+        ],
+    ];
+
     /**
      * @var TokenAnswerRepository
      */

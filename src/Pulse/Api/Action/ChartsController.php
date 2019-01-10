@@ -13,6 +13,31 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class ChartsController extends RestControllerAbstract
 {
+    public static $definition = [
+        'topic' => 'charts',
+        'methods' => [
+            'get' => [
+                'params' => [
+                    'id' => [
+                        'type' => 'int',
+                        'required' => true,
+                    ],
+                    'respondent-track-id' => [
+                        'type' => 'int',
+                        'in' => 'query',
+                    ],
+                    'hide-groups' => [
+                        'type' => 'boolean',
+                        'in' => 'query',
+                    ]
+                ],
+                'responses' => [
+                    200 => 'Plotly.js chart object',
+                ],
+            ],
+        ],
+    ];
+
     /**
      * @var ChartRepository
      */

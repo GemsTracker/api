@@ -16,6 +16,22 @@ class InsertTrackTokenController extends RestControllerAbstract
 {
     use CheckContentTypeTrait;
 
+    public static $definition = [
+        'topic' => 'Insert track token',
+        'methods' => [
+            'post' => [
+                'responses' => [
+                    201 => 'Token added to track',
+                ],
+                'body' => [
+                    'gto_id_respondent_track' => 'int',
+                    'gto_id_respondent_track' => 'int',
+                    'gto_id_survey' => 'int',
+                ]
+            ],
+        ],
+    ];
+
     /**
      * @var UrlHelper
      */

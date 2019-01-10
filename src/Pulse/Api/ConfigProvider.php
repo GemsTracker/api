@@ -164,6 +164,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     '[0-9]{6}-A[0-9]{3}',
                     '\d+',
                 ],
+                'applySettings' => [
+                    'applyEditSettings',
+                ],
             ],
             'emma/tokens' => [
                 'model' => 'Tracker_Model_StandardTokenModel',
@@ -184,6 +187,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'status_ok',
                 ],
                 'customAction' => EmmaRespondentTokensController::class,
+                'applySettings' => [
+                    'applyFormatting',
+                ],
             ],
 
             'respondents' => [
@@ -248,17 +254,25 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gtr_track_name',
                     'gtr_organizations',
                 ],
+                'applySettings' => [
+                    'applyFormatting',
+                ],
             ],
-            'rounds' => [
+            /*'rounds' => [
                 'model' => 'Tracker\\Model\\RoundModel',
                 'methods' => ['GET'],
-            ],
+            ],*/
             'surveys' => [
                 'model' => 'Model\\SimpleSurveyModel',
                 'methods' => ['GET'],
                 'multiOranizationField' => [
                     'field' => 'gsu_insert_organizations',
                     'separator' => '|',
+                ],
+                'allowed_fields' => [
+                    'gsu_id_survey',
+                    'gsu_survey_name',
+                    'ggp_staff_members',
                 ],
             ],
             'tokens' => [
@@ -332,9 +346,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         ];
     }
 
-    protected function getRoutes()
+    public function getRoutes($includeModelRoutes=true)
     {
-        $routes = parent::getRoutes();
+        $modelRoutes = parent::getRoutes($includeModelRoutes);
 
         $newRoutes = [
             [
@@ -425,6 +439,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         ];
 
 
-        return array_merge($routes, $newRoutes);
+        return array_merge($modelRoutes, $newRoutes);
     }
 }
