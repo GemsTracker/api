@@ -24,7 +24,14 @@ class ApiDefinitionAction implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $definition = $this->apiDefinitionRepository->getDefinition($request, 'super');
+        $queryParams = $request->getQueryParams();
+
+        $currentRole = 'super';
+        if (isset($queryParams['role'])) {
+            $currentRole = $queryParams['role'];
+        }
+
+        $definition = $this->apiDefinitionRepository->getDefinition($request, $currentRole);
         return new JsonResponse($definition, 200);
     }
 }
