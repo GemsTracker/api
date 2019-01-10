@@ -18,6 +18,24 @@ class ApiModelTranslator
         }
     }
 
+    /**
+     * Flip multidimensional translation array
+     * @param $array
+     * @return array
+     */
+    protected function flipArray($array)
+    {
+        $flippedArray = [];
+        foreach($array as $key=>$value) {
+            if (is_array($value)) {
+                $flippedArray[$key] = $this->flipArray($value);
+                continue;
+            }
+            $flippedArray[$value] = $key;
+        }
+        return $flippedArray;
+    }
+
     protected function translateList($row, $translations)
     {
         $translatedRow = [];
@@ -25,7 +43,7 @@ class ApiModelTranslator
 
             if (is_array($value) && isset($translations[$colName]) && is_array($translations[$colName])) {
                 foreach($value as $key=>$subrow) {
-                    $translatedRow[$colName][$key] = $this->translateList($subrow, $translations[$colName]);
+                    $translatedRow[$colName] = $this->translateList($value, $translations[$colName]);
                 }
                 continue;
             }
@@ -51,7 +69,7 @@ class ApiModelTranslator
     {
         $translations = $this->translations;
         if ($reversed) {
-            $translations = array_flip($translations);
+            $translations = $this->flipArray($translations);
         }
         $row = $this->translateList($row, $translations);
 

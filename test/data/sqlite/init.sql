@@ -216,3 +216,36 @@ CREATE TABLE gems__appointments (
         PRIMARY KEY (gap_id_appointment),
         UNIQUE (gap_id_in_source, gap_id_organization, gap_source)
 );
+
+CREATE TABLE gems__episodes_of_care (
+        gec_episode_of_care_id      INTEGER not null ,
+        gec_id_user                 INTEGER not null,
+        gec_id_organization         INTEGER not null,
+
+        gec_source                  varchar(20) not null default 'manual',
+        gec_id_in_source            varchar(40),
+        gec_manual_edit             TINYINT(1) not null default 0,
+
+        gec_status                  varchar(1) not null default 'A',
+        -- one off A => active, C => Cancelled, E => Error, F => Finished, O => Onhold, P => Planned, W => Waitlist
+        -- see https://www.hl7.org/fhir/episodeofcare.html
+
+        gec_startdate               TEXT not null,
+        gec_enddate                 TEXT,
+
+        gec_id_attended_by          INTEGER,
+
+        gec_subject                 varchar(250),
+        gec_comment                 text,
+
+        gec_diagnosis               varchar(250),
+        gec_diagnosis_data          text,
+        gec_extra_data              text,
+
+        gec_changed                 TEXT not null default current_timestamp,
+        gec_changed_by              INTEGER not null,
+        gec_created                 TEXT not null,
+        gec_created_by              INTEGER not null,
+
+        PRIMARY KEY (gec_episode_of_care_id)
+);

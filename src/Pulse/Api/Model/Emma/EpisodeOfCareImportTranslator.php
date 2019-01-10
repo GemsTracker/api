@@ -49,6 +49,12 @@ class EpisodeOfCareImportTranslator
                 $this->logger->warning(sprintf('Skipping import of episode because no episode id is set in episode.'), $episode);
                 continue;
             }
+            if (!isset($episode['start_date'])) {
+                // Skipping episode because no start date is set!
+                $this->logger->warning(sprintf('Skipping import of episode because no start date is set in episode.'), $episode);
+                continue;
+            }
+
             $id = $episode['episode_id'];
             $startDate = $this->translateDate($episode['start_date']);
             if (!isset($episodesOfCare[$id])) {
@@ -98,9 +104,11 @@ class EpisodeOfCareImportTranslator
                     foreach($episodesOfCare[$id]['gec_extra_data'] as $formName=>$formDataCollection) {
                         if (isset($episode['info'][$formName])) {
                             $existingCodes = array_flip(array_column($formDataCollection, 'code'));
-                            foreach($episode['info'][$formName] as $newFormdata) {
-                                if (!isset($existingCodes[$newFormdata['code']])) {
-                                    $episodesOfCare[$id]['gec_extra_data'][$formName][] = $newFormdata;
+                            if (!empty($existingCodes)) {
+                                foreach ($episode['info'][$formName] as $newFormdata) {
+                                    if (!isset($existingCodes[$newFormdata['code']])) {
+                                        $episodesOfCare[$id]['gec_extra_data'][$formName][] = $newFormdata;
+                                    }
                                 }
                             }
                         }
@@ -108,29 +116,38 @@ class EpisodeOfCareImportTranslator
                 }
             }
 
-            $this->agendaDiagnosisRepository->matchDiagnosis(trim($episode['diagnosis_code']), 'emma', trim($episode['diagnosis_description']));
-
-            $diagnosticData = [];
-            if (array_key_exists('start_date', $episode)) {
-                $diagnosticData['start_date'] = $episode['start_date'];
-            }
-            if (array_key_exists('end_date', $episode)) {
-                $diagnosticData['end_date'] = $episode['end_date'];
-            }
-            if (array_key_exists('diagnosis_code', $episode)) {
-                $diagnosticData['diagnosis_code'] = trim($episode['diagnosis_code']);
-            }
-            if (array_key_exists('diagnosis_description', $episode)) {
-                $diagnosticData['diagnosis_description'] = trim($episode['diagnosis_description']);
+            if (array_key_exists('diagnosis_code', $episode) && array_key_exists('diagnosis_description', $episode)) {
+                $this->agendaDiagnosisRepository->matchDiagnosis(trim($episode['diagnosis_code']), 'emma', trim($episode['diagnosis_description']));
             }
 
-            $episodesOfCare[$id]['gec_diagnosis_data'][$episode['dbc_id']] = $diagnosticData;
+            if (array_key_exists('dbc_id', $episode)) {
+                $diagnosticData = [];
+                if (array_key_exists('start_date', $episode)) {
+                    $diagnosticData['start_date'] = $episode['start_date'];
+                }
+                if (array_key_exists('end_date', $episode)) {
+                    $diagnosticData['end_date'] = $episode['end_date'];
+                }
+                if (array_key_exists('diagnosis_code', $episode)) {
+                    $diagnosticData['diagnosis_code'] = trim($episode['diagnosis_code']);
+                }
+                if (array_key_exists('diagnosis_description', $episode)) {
+                    $diagnosticData['diagnosis_description'] = trim($episode['diagnosis_description']);
+                }
+
+                $episodesOfCare[$id]['gec_diagnosis_data'][$episode['dbc_id']] = $diagnosticData;
+            }
         }
 
         foreach($episodesOfCare as $key=>$episode) {
-            $episodesOfCare[$key]['gec_extra_data'] = json_encode($episode['gec_extra_data']);
-            $episodesOfCare[$key]['gec_diagnosis'] = $this->getDiagnosisFromDiagnosisData($episode['gec_diagnosis_data']);
-            $episodesOfCare[$key]['gec_diagnosis_data'] = json_encode($episode['gec_diagnosis_data']);
+            if (array_key_exists('gec_extra_data', $episode)) {
+                $episodesOfCare[$key]['gec_extra_data'] = json_encode($episode['gec_extra_data']);
+            }
+            if (array_key_exists('gec_diagnosis_data', $episode)) {
+                $episodesOfCare[$key]['gec_diagnosis'] = $this->getDiagnosisFromDiagnosisData($episode['gec_diagnosis_data']);
+                $episodesOfCare[$key]['gec_diagnosis_data'] = json_encode($episode['gec_diagnosis_data']);
+            }
+
 
             if ($episodeId = $this->getEpisodeId($episode['gec_id_in_source'], $episode['gec_id_organization'], $episode['gec_source'])) {
                 $episodesOfCare[$key]['gec_episode_of_care_id'] = $episodeId;

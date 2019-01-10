@@ -1,0 +1,37 @@
+gems__episodes_of_care:
+  -
+    gec_episode_of_care_id: 11
+    gec_id_user: 1
+    gec_id_organization: 1
+    gec_source: 'emma'
+    gec_id_in_source: 1
+    gec_manual_edit: 1
+    gec_status: 'A'
+    gec_startdate: '2019-01-01'
+    gec_enddate:
+    gec_id_attended_by: 1
+    gec_subject: 'Test app 2 & 3'
+    gec_comment:
+    gec_diagnosis:
+    gec_changed: '2019-01-01'
+    gec_changed_by: 1
+    gec_created: '2019-01-01'
+    gec_created_by: 1
+  -
+    gec_episode_of_care_id: 12
+    gec_id_user: 1
+    gec_id_organization: 1
+    gec_source: 'emma'
+    gec_id_in_source: 2
+    gec_manual_edit: 1
+    gec_status: 'A'
+    gec_startdate: '2019-01-01'
+    gec_enddate:
+    gec_id_attended_by: 1
+    gec_subject: 'Test app 4'
+    gec_comment:
+    gec_diagnosis:
+    gec_changed: '2019-01-01'
+    gec_changed_by: 1
+    gec_created: '2019-01-01'
+    gec_created_by: 1
