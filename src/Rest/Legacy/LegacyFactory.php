@@ -43,6 +43,7 @@ class LegacyFactory implements FactoryInterface
             case \Gems_Events::class:
             case \Gems_Agenda::class:
             case \Gems_Model::class:
+            case \Gems_Menu::class:
                 $requestedName = $this->stripOverloader($requestedName);
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
@@ -123,7 +124,8 @@ class LegacyFactory implements FactoryInterface
     protected function getAcl()
     {
         $cache = $this->container->get('LegacyCache');
-        return $this->loader->create('Roles', $cache);
+        $roles = $this->loader->create('Roles', $cache);
+        return $roles->getAcl();
     }
 
     protected function getCache()
