@@ -73,7 +73,8 @@ class LegacyControllerMiddleware implements MiddlewareInterface
         if ($route) {
             $options    = $route->getOptions();
             $controller = $request->getAttribute('controller', 'index');
-            $action     = $request->getAttribute('action', 'index') . 'Action';
+            $action     = $request->getAttribute('action', 'index');
+            $actionName = $action . 'Action';
 
 
             $controllerName = ucfirst($controller) . 'Controller';
@@ -101,9 +102,11 @@ class LegacyControllerMiddleware implements MiddlewareInterface
 
                     $resp = new \Zend_Controller_Response_Http();
                     $req  = new \Zend_Controller_Request_Http();
-                    $req->setControllerName($requestWrapper->getControllerName());
-                    $req->setActionName($requestWrapper->getActionName());
-                    $req->setParams($requestWrapper->getParams());                    
+                    $req->setControllerName($controller);
+                    $req->setActionName($action);
+                    $req->setParams($requestWrapper->getParams()); 
+                    
+                    Front::setLegacyRequest($req);
 
                     \Zend_Controller_Front::getInstance()->setControllerDirectory(APPLICATION_PATH . '/controllers');
 
@@ -126,23 +129,33 @@ class LegacyControllerMiddleware implements MiddlewareInterface
                 ));
             }
 
-            if (method_exists($controllerObject, $action) && is_callable([$controllerObject, $action])) {
-                $response = call_user_func_array([$controllerObject, $action], []);
+            if (method_exists($controllerObject, $actionName) && is_callable([$controllerObject, $actionName])) {
+                $response = call_user_func_array([$controllerObject, $actionName], []);
                 if ($response instanceof ResponseInterface) {
                     return $response;
                 }
             } else {
                 throw new \Exception(sprintf(
                                 "Controller action %s could not be found in paths %s",
-                                $action
+                                $actionName
                 ));
             }
 
             $content = $controllerObject->html->render($this->view);
-
+            
             $data = [
-                'content' => $content
+                'content' => $content,
             ];
+            
+            // TODO naar layout rendering middleware zetten zodat deze niet te groot wordt
+            /** @var \Gems_Menu $menu */
+            $menu = $this->serviceManager->get('LegacyMenu');
+            if ($menu->isVisible()) {
+
+                // Make sure the actual $request and $controller in use at the end
+                // of the dispatchloop is used and make \Zend_Navigation object
+                $data['menuHtml'] = $menu->render($this->view);
+            }
 
             $template = $this->serviceManager->has(TemplateRendererInterface::class) ? $this->serviceManager->get(TemplateRendererInterface::class) : null;
 
