@@ -243,7 +243,7 @@ class ModelProcessor
         $row = $this->validateRow($row);
         $row = $this->setModelDates($row);
 
-        if ($this->addDefaults && ($update == false)) {
+        if ($this->addDefaults && ($update == true)) {
             $row = $this->addDefaults($row);
         }
 
@@ -260,6 +260,9 @@ class ModelProcessor
     protected function setModelDates($row)
     {
         foreach($row as $columnName=>$value) {
+            if ($value === null) {
+                continue;
+            }
             $type = $this->model->get($columnName, 'type');
             if ($type === \MUtil_Model::TYPE_DATETIME || $type === \MUtil_Model::TYPE_DATE) {
                 //if ($this->model->get($columnName, 'dateFormat') === null) {
