@@ -294,6 +294,27 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                     'ggp_staff_members',
                 ],
+                'allowed_save_fields' => [
+                    'gto_id_token',
+                    'gto_id_survey',
+                    'gto_round_description',
+                    'gto_completion_time',
+                    'gto_valid_from',
+                    'gto_valid_from_manual',
+                    'gto_valid_until',
+                    'gto_valid_until_manual',
+                    'gto_id_respondent_track',
+                    'gto_id_round',
+                    'gto_id_respondent',
+                    'gto_id_organization',
+                    'gto_id_track',
+
+                    'gsu_survey_name',
+                    'gsu_code',
+                    'gsu_result_field',
+
+                    'ggp_staff_members',
+                ],
             ],
             'respondent-tracks' => [
                 'model' => RespondentTrackModel::class,

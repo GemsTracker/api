@@ -968,7 +968,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         }
 
         try {
-            $newRow = $modelProcessor->save($row, false);
+            $newRow = $modelProcessor->save($row, $update);
         } catch(\Exception $e) {
             // Row could not be saved.
             // return JsonResponse
@@ -1009,8 +1009,9 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
             $result = $request->getAttribute(RouteResult::class);
             $routeName = $result->getMatchedRouteName();
+            $baseRoute = str_replace(['.structure', '.get', '.fixed'], '', $routeName);
 
-            $routeParts = explode('.', $routeName);
+            $routeParts = explode('.', $baseRoute);
             //array_pop($routeParts);
             $getRouteName = join('.', $routeParts) . '.get';
 
