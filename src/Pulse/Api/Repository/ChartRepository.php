@@ -232,6 +232,7 @@ class ChartRepository
             'textposition' => 'bottom',
             'showlegend' => false,
             'hoverinfo' => 'none',
+            'legendgroup' => 'n-data',
         ];
 
         $nData = $this->addDescriptiveStyle($nName, $nData, $normType, false, true);
@@ -451,6 +452,7 @@ class ChartRepository
                     'y' => array_values($questionScores),
                     'type' => $this->type,
                     'name' => $legendName,
+                    'legendgroup' => 'respondent',
                 );
 
                 $respondentData = $this->addDescriptiveStyle(

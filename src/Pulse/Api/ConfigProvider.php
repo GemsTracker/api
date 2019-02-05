@@ -11,6 +11,7 @@ use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\CorrectTokenController;
 use Pulse\Api\Action\EmmaRespondentTokensController;
 use Pulse\Api\Action\EmmaSurveyQuestionsRestController;
+use Pulse\Api\Action\EmmaSurveysRestController;
 use Pulse\Api\Action\EmmaTokenAnswersRestController;
 use Pulse\Api\Action\EnvTestController;
 use Pulse\Api\Action\InsertTrackTokenController;
@@ -94,6 +95,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 EmmaRespondentTokensController::class => ReflectionFactory::class,
                 EmmaSurveyQuestionsRestController::class => ReflectionFactory::class,
                 EmmaTokenAnswersRestController::class => ReflectionFactory::class,
+                EmmaSurveysRestController::class => ReflectionFactory::class,
 
                 ActivityMatcher::class => ReflectionFactory::class,
 
@@ -191,7 +193,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'applyFormatting',
                 ],
             ],
-
             'respondents' => [
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
@@ -238,7 +239,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'readonly_fields' => [
                     'gor_name',
                 ],*/
-                'organizationId' => 'gor_id_organization',
+                'organizationIdField' => 'gor_id_organization',
             ],
             'tracks' => [
                 'model' => 'Tracker_Model_TrackModel',
@@ -248,7 +249,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'field' => 'gtr_organizations',
                     'separator' => '|',
                 ],
-                'organizationId' => 'gtr_organizations',
+                'organizationIdField' => 'gtr_organizations',
                 'allowed_fields' => [
                     'gtr_id_track',
                     'gtr_track_name',
@@ -322,7 +323,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'idField' => 'gr2t_id_respondent_track',
                 'customAction' => RespondentTrackRestController::class,
 
-                'organizationId' => 'gr2t_id_organization',
+                'organizationIdField' => 'gr2t_id_organization',
                 'respondentIdField' => 'gr2t_id_user',
                 'allowed_fields' => [
                     'gr2t_id_respondent_track',
@@ -358,6 +359,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'pt2o_id',
                     'pt2o_name',
                     'pt2o_id_treatment',
+                    'pt2o_id_survey'
                 ]
             ],
             /*'treatments-with-norms' => [
@@ -431,6 +433,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'name' => 'permission-generator',
                 'path' => '/permission-generator',
                 'middleware' => $this->getCustomActionMiddleware(PermissionGeneratorController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'emma/surveys',
+                'path' => '/emma/surveys',
+                'middleware' => $this->getCustomActionMiddleware(EmmaSurveysRestController::class),
                 'allowed_methods' => ['GET'],
             ],
             [
