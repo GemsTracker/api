@@ -78,6 +78,8 @@ class EmmaSurveyQuestionsRestControllerTest extends TestCase
         $surveyQuestionRepositoryProphecy = $this->prophesize(SurveyQuestionsRepository::class);
         $surveyQuestionRepositoryProphecy->getSurvey(Argument::type('int'))->willReturn($survey->reveal());
         $surveyQuestionRepositoryProphecy->getSurveyList(Argument::type('int'))->willReturn([]);
+        $surveyQuestionRepositoryProphecy->getSurveyList(Argument::type('int'))->willReturn([]);
+        $surveyQuestionRepositoryProphecy->getSurveyQuestions(Argument::type('int'))->willReturn([]);
 
         $controller = new EmmaSurveyQuestionsRestController($surveyQuestionRepositoryProphecy->reveal());
         return $controller;
