@@ -38,6 +38,10 @@ class TokenAnswerRepository
 
         foreach($surveyQuestionInformation as $questionCode=>$questionInformation) {
             if (array_key_exists('answers', $questionInformation) && is_array($questionInformation['answers']) && !empty($questionInformation['answers'])) {
+                $firstAnswer = reset($questionInformation['answers']);
+                if (empty($firstAnswer)) {
+                    continue;
+                }
                 $answerOptions = $questionInformation['answers'];
                 if (array_key_exists($questionCode, $answers) && array_key_exists($answers[$questionCode], $answerOptions)) {
                     $answers[$questionCode] = $answerOptions[$answers[$questionCode]];

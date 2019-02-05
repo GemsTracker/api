@@ -25,11 +25,24 @@ class SurveyQuestionsRepository
         $this->tracker = $tracker;
     }
 
+    /**
+     * Get a Survey
+     *
+     * @param $surveyId
+     * @return \Gems_Tracker_Survey
+     */
     public function getSurvey($surveyId)
     {
         return $this->tracker->getSurvey($surveyId);
     }
 
+    /**
+     * Get Survey Question information
+     *
+     * @param $surveyId
+     * @return array
+     * @throws RestException
+     */
     public function getSurveyQuestions($surveyId)
     {
         $survey = $this->getSurvey($surveyId);
@@ -42,6 +55,13 @@ class SurveyQuestionsRepository
         return $questionInformation;
     }
 
+    /**
+     * Get Survey Question List
+     *
+     * @param $surveyId
+     * @return array
+     * @throws RestException
+     */
     public function getSurveyList($surveyId)
     {
         $survey = $this->getSurvey($surveyId);
@@ -54,8 +74,11 @@ class SurveyQuestionsRepository
         return $questionInformation;
     }
 
-
-
+    /**
+     * @param $surveyId
+     * @return array
+     * @throws RestException
+     */
     public function getSurveyListAndAnswers($surveyId)
     {
         $survey = $this->getSurvey($surveyId);

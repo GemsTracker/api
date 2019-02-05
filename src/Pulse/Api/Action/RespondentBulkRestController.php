@@ -40,6 +40,11 @@ class RespondentBulkRestController extends ModelRestController
     protected $agendaDiagnosisRepository;
 
     /**
+     * @var \Gems_Model_AppointmentModel
+     */
+    protected $appointmentModel;
+
+    /**
      * @var AppointmentRepository
      */
     protected $appointmentRepository;
@@ -48,6 +53,16 @@ class RespondentBulkRestController extends ModelRestController
      * @var Adapter
      */
     protected $db;
+
+    /**
+     * @var EpisodeOfCareModel
+     */
+    protected $episodeModel;
+
+    /**
+     * @var \Gems_Loader
+     */
+    protected $legacyLoader;
 
     /**
      * @var LoggerInterface
@@ -108,6 +123,22 @@ class RespondentBulkRestController extends ModelRestController
         }
 
         return $model;
+    }
+
+    protected function getAppointmentModel()
+    {
+        if ($this->appointmentModel instanceof \MUtil_Model_ModelAbstract) {
+            return $this->appointmentModel;
+        }
+        return $this->loader->create('Model_AppointmentModel');
+    }
+
+    protected function getEpisodeModel()
+    {
+        if ($this->episodeModel instanceof \MUtil_Model_ModelAbstract) {
+            return $this->episodeModel;
+        }
+        return $this->loader->create('Model\\EpisodeOfCareModel');
     }
 
     public function post(ServerRequestInterface $request, DelegateInterface $delegate)
@@ -216,11 +247,6 @@ class RespondentBulkRestController extends ModelRestController
             }
         }
 
-        $test = $this->model->load();
-
-
-
-
         $episodeResult = $this->processEpisodes($newRow, $usersPerOrganization);
         $appointmentResult = $this->processAppointments($newRow, $usersPerOrganization);
 
@@ -243,7 +269,7 @@ class RespondentBulkRestController extends ModelRestController
 
         $appointments = $row['appointments'];
 
-        $appointmentModel = $this->loader->create('Model_AppointmentModel');
+        $appointmentModel = $this->getAppointmentModel();
         //$appointmentModel->del('gap_id_procedure');
 
         $translator = new AppointmentImportTranslator($this->db, $this->agenda);
@@ -321,15 +347,12 @@ class RespondentBulkRestController extends ModelRestController
         $translator = new EpisodeOfCareImportTranslator($this->db, $this->agendaDiagnosisRepository, $this->logger, $this->organizationRepository, $this->agenda);
         $episodesOfCare = $translator->translateEpisodes($rawEpisodes, $usersPerOrganization);
 
-        $episodeModel = $this->loader->create('Model\\EpisodeOfCareModel');
+        $episodeModel = $this->getEpisodeModel();
         $processor = new ModelProcessor($this->loader, $episodeModel, $this->userId);
         $processor->setAddDefaults(false);
 
 
         foreach($episodesOfCare as $episode) {
-
-
-
             $update = isset($episode['gec_episode_of_care_id']);
 
             try {
@@ -387,5 +410,15 @@ class RespondentBulkRestController extends ModelRestController
             // Check Anesthesia
             $this->modelLoader->checkAnaesthesiaLink($OkRespondents['gr2o_id_user'], $OkRespondents['gr2o_id_organization']);
         }
+    }
+
+    public function setAppointmentModel(\Gems_Model_AppointmentModel $appointmentModel)
+    {
+        $this->appointmentModel = $appointmentModel;
+    }
+
+    public function setEpisodeModel(EpisodeOfCareModel $episodeModel)
+    {
+        $this->episodeModel = $episodeModel;
     }
 }
