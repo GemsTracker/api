@@ -285,6 +285,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gto_id_token',
                     'gto_id_survey',
                     'gto_round_description',
+                    'gto_round_order',
                     'gto_completion_time',
                     'gto_valid_from',
                     'gto_valid_until',
