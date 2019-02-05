@@ -1236,6 +1236,8 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         }
 
         $gemsModelProphecy = $this->prophesize($modelClass);
+        $gemsModelProphecy->createGemsUserId(Argument::cetera())->willReturnArgument(0);
+        $gemsModelProphecy->checkAnaesthesiaLink(Argument::cetera())->willReturn(null);
 
         $legacyLoaderProphecy = $this->prophesize(\Gems_Loader::class);
         $emmaImportLoggerProphecy = $this->prophesize(LoggerInterface::class);
