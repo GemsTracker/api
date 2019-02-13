@@ -53,6 +53,7 @@ class PatientNumberPerOrganizationController extends ModelRestController
             $allPatientsFilter = [
                 'gr2o_id_user' => $currentRespondentId,
                 'grc_success' => 1,
+                'gr2o_id_organization' => true,
             ];
 
             $allPatients = $this->model->load($allPatientsFilter);
