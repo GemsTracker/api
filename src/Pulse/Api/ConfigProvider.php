@@ -216,6 +216,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gr2o_changed_by',
                     'gr2o_created',
                     'gr2o_created_by',
+                    'gr2o_highrisk_token',
                 ],
                 'idField' => [
                     'gr2o_patient_nr',
