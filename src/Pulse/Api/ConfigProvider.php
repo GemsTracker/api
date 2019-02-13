@@ -15,6 +15,7 @@ use Pulse\Api\Action\EmmaSurveysRestController;
 use Pulse\Api\Action\EmmaTokenAnswersRestController;
 use Pulse\Api\Action\EnvTestController;
 use Pulse\Api\Action\InsertTrackTokenController;
+use Pulse\Api\Action\PatientNumberPerOrganizationController;
 use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\RespondentBulkRestController;
 use Pulse\Api\Action\RespondentRestController;
@@ -96,6 +97,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 EmmaSurveyQuestionsRestController::class => ReflectionFactory::class,
                 EmmaTokenAnswersRestController::class => ReflectionFactory::class,
                 EmmaSurveysRestController::class => ReflectionFactory::class,
+                PatientNumberPerOrganizationController::class => ReflectionFactory::class,
 
                 ActivityMatcher::class => ReflectionFactory::class,
 
@@ -197,7 +199,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
                 'applySettings' => 'applyEditSettings',
-                'allow_fields' => [
+                'allowed_fields' => [
                     'gr2o_patient_nr',
                     'grs_first_name',
                     'grs_initials_name',
@@ -240,6 +242,19 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gor_name',
                 ],*/
                 'organizationIdField' => 'gor_id_organization',
+            ],
+            'patient-numbers' => [
+                'model' => 'Model_RespondentModel',
+                'methods' => ['GET'],
+                'customAction' => PatientNumberPerOrganizationController::class,
+                'idField' => [
+                    'gr2o_patient_nr',
+                    'gr2o_id_organization',
+                ],
+                'idFieldRegex' => [
+                    '[A-Za-z0-9\-]+',
+                    '\d+',
+                ],
             ],
             'tracks' => [
                 'model' => 'Tracker_Model_TrackModel',
@@ -332,6 +347,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gr2t_id_organization',
                     'gr2t_start_date',
                     'gr2t_end_date',
+                    'gr2o_patient_nr',
                 ],
                 'allowed_save_fields' => [
                     'gr2t_id_respondent_track',

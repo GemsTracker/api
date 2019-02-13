@@ -5,6 +5,7 @@ return [
         'api.extreme-values' => ['GET'],
         'api.organizations' => ['GET'],
         'api.outcome-variables' => ['GET'],
+        'api.patient-numbers' => ['GET'],
         'api.respondents' => ['GET', 'PATCH'],
         'api.respondent-tracks' => ['GET', 'PATCH', 'POST', 'DELETE'],
         'api.surveys' => ['GET'],
