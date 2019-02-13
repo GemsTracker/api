@@ -76,8 +76,8 @@ CREATE TABLE gems__organizations (
   gor_id_organization integer not null,
   gor_name varchar(255) not null,
   gor_code varchar(255) not null,
-  gor_active tinyint(1) not null DEFAULT '0',
-  gor_add_respondents tinyint(1) not null DEFAULT '0',
+  gor_active tinyint(1) not null DEFAULT 0,
+  gor_add_respondents tinyint(1) not null DEFAULT 0,
 
 
   PRIMARY KEY (gor_id_organization)

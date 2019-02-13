@@ -322,7 +322,7 @@ class ModelProcessorTest extends ZendDbTestCase
         $processor->setAddDefaults(true);
         $result = $processor->save($row, false);
 
-        $expectedResult = $row + ['gor_id_organization' => '1'];
+        $expectedResult = $row + ['gor_id_organization' => '1', 'gor_active' => '0', 'gor_add_respondents' => '0'];
 
         $this->assertEquals($expectedResult, $result);
     }
