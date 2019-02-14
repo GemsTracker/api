@@ -104,6 +104,7 @@ class AppointmentImportTranslator extends ApiModelTranslator
 
         $row['gap_source']          = $source;
         $row['gap_code']            = 'A';
+        $row['gap_id_procedure']    = null;
 
         return $row;
     }
