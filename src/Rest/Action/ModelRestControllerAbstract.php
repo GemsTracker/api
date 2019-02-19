@@ -1002,7 +1002,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 }
             }
         } elseif (isset($newRow[$idField])) {
-            $routeParams['id'] = $newRow[$idField];
+            $routeParams[$idField] = $newRow[$idField];
         }
 
         if (!empty($routeParams)) {
