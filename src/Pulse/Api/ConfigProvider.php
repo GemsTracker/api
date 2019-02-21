@@ -202,6 +202,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'applySettings' => 'applyEditSettings',
                 'allowed_fields' => [
                     'gr2o_patient_nr',
+                    'gr2o_id_organization',
                     'grs_first_name',
                     'grs_initials_name',
                     'grs_surname_prefix',
@@ -221,6 +222,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
                 'allowed_save_fields' => [
                     'gr2o_patient_nr',
+                    'gr2o_id_organization',
                     'grs_id_user',
                     'grs_first_name',
                     'grs_initials_name',
