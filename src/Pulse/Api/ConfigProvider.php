@@ -31,6 +31,7 @@ use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
+use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\RespondentResults;
@@ -196,7 +197,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
             ],
             'respondents' => [
-                'model' => 'Model_RespondentModel',
+                'model' => RespondentModel::class,
                 'methods' => ['GET', 'POST', 'PATCH'],
                 'applySettings' => 'applyEditSettings',
                 'allowed_fields' => [
