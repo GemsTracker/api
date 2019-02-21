@@ -6,6 +6,7 @@ namespace Pulse\Api\Action;
 
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Exception\RestException;
+use Gems\Rest\Model\RouteOptionsModelFilter;
 use Gems\Rest\Repository\AccesslogRepository;
 use Gems\Rest\Repository\RespondentRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
@@ -167,6 +168,25 @@ class RespondentTrackRestController extends ModelRestController
         return new EmptyResponse(204);
     }
 
+    /**
+     * Filter the columns of a row with routeoptions like allowed_fields, disallowed_fields and readonly_fields
+     *
+     * @param $row Row with model values
+     * @param bool $save Will the row be saved after filter (enables readonly
+     * @param bool $useKeys Use keys or values in the filter of the row
+     * @return array Filtered array
+     */
+    protected function filterColumns($row, $save=false, $useKeys=true)
+    {
+        $routeOptions = $this->routeOptions;
+        $fieldNames = $this->getTrackFieldNames($row['gr2t_id_track']);
+        $routeOptions['allowed_save_fields'] += $fieldNames;
+
+        $row = RouteOptionsModelFilter::filterColumns($row, $routeOptions, $save, $useKeys);
+
+        return $row;
+    }
+
     protected function getRespondentByPatientNr($patientNr, $organizationId)
     {
         $select = $this->db1->select();
@@ -175,7 +195,18 @@ class RespondentTrackRestController extends ModelRestController
             ->where('gr2o_id_organization = ?', $organizationId);
 
         return $this->db1->fetchOne($select);
+    }
 
+    protected function getTrackFieldNames($trackId)
+    {
+        $engine = $this->tracker->getTrackEngine($trackId);
+        $fields = array_keys($engine->getFieldNames());
+        foreach($engine->getFieldCodes() as $code) {
+            if ($code !== null) {
+                $fields[] = $code;
+            }
+        }
 
+        return $fields;
     }
 }
