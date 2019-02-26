@@ -29,8 +29,10 @@ class RespondentImportTranslator extends ApiModelTranslator
      */
     public $translations = [
         "grs_initials_name" => "initials_name",
+        "grs_first_name" => "first_name",
         "grs_last_name" => "last_name",
         "grs_ssn" => "ssn",
+        "grs_surname_prefix" => "surname_prefix",
         "grs_gender" => "gender",
         "grs_birthday" => "birthday",
         "grs_address_1" => "address",
