@@ -4,6 +4,7 @@
 namespace Gems\Rest\Model;
 
 
+use Psr\Log\LoggerInterface;
 use Zalt\Loader\ProjectOverloader;
 
 class ModelProcessor
@@ -16,6 +17,11 @@ class ModelProcessor
     protected $idField;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @var \MUtil_Model_ModelAbstract
      */
     protected $model;
@@ -26,11 +32,12 @@ class ModelProcessor
 
     protected $validators;
 
-    public function __construct(ProjectOverloader $loader, \MUtil_Model_ModelAbstract $model, $userId)
+    public function __construct(ProjectOverloader $loader, \MUtil_Model_ModelAbstract $model, $userId, $logger=null)
     {
         $this->loader = $loader;
         $this->model = $model;
         $this->userId = $userId;
+        $this->logger = $logger;
     }
 
     protected function addDefaults($row)
