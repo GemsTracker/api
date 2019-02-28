@@ -77,9 +77,11 @@ class TreatmentEpisodesRepository
         $tracks = [];
         if ($treatmentTrack = $this->getTrack($trackTreatmentFilters)) {
             $tracks[] = $treatmentTrack;
+            // The intake track should be the same organization as the treatment track!
+            $intakeFilters['gr2o_id_organization'] = $treatmentTrack['gr2t_id_organization'];
         }
 
-        if ($intakeTrack    = $this->getTrack($intakeFilters)) {
+        if ($intakeTrack = $this->getTrack($intakeFilters)) {
             $tracks[] = $intakeTrack;
         }
 
