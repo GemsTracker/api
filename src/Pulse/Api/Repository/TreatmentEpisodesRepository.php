@@ -37,6 +37,7 @@ class TreatmentEpisodesRepository
         "gr2t_mailable",
         "gr2t_id_respondent_track",
         "gr2t_id_organization",
+        'gr2o_patient_nr',
     ];
 
     protected $treatmentTrackValues = [];
