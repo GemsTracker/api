@@ -37,7 +37,14 @@ class EmmaRespondentTokensController extends ModelRestController
             'intake PC',
             'intake FL',
             'intake PR',
-            'ZKN',
+            'intake orth',
+        ],
+        'gor_code' => [
+            'xpert',
+            'helder',
+            'velthuis',
+            'eva',
+            'xpert-ortho',
         ]
     ];
 
