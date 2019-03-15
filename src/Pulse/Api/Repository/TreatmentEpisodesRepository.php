@@ -76,13 +76,13 @@ class TreatmentEpisodesRepository
         $intakeFilters[] = 'gtr_code = "intake"';
 
         $tracks = [];
-        if ($treatmentTrack = $this->getTrack($trackTreatmentFilters)) {
+        if ($treatmentTrack = $this->getTrack($trackTreatmentFilters, true, true)) {
             $tracks[] = $treatmentTrack;
             // The intake track should be the same organization as the treatment track!
             $intakeFilters['gr2o_id_organization'] = $treatmentTrack['gr2t_id_organization'];
         }
 
-        if ($intakeTrack = $this->getTrack($intakeFilters)) {
+        if ($intakeTrack = $this->getTrack($intakeFilters, true, false)) {
             $tracks[] = $intakeTrack;
         }
 
@@ -97,7 +97,7 @@ class TreatmentEpisodesRepository
 
     }
 
-    protected function getTrack($filters, $addFields=true)
+    protected function getTrack($filters, $addFields=true, $setTreatment=true)
     {
         $respondentTrackModel = $this->tracker->getRespondentTrackModel();
 
@@ -131,33 +131,35 @@ class TreatmentEpisodesRepository
 
             $track['fields'] = $fields;
 
-            $treatmentCodes = $fieldDefinition->getFieldCodesOfType('treatment');
+            if ($setTreatment) {
+                $treatmentCodes = $fieldDefinition->getFieldCodesOfType('treatment');
 
-            foreach($treatmentCodes as $treatmentCode=>$value) {
-                if (array_key_exists($treatmentCode, $fieldData)) {
-                    $treatmentId = $fieldData[$treatmentCode];
-                    $treatment = $this->getTreatment($treatmentId);
+                foreach ($treatmentCodes as $treatmentCode => $value) {
+                    if (array_key_exists($treatmentCode, $fieldData)) {
+                        $treatmentId = $fieldData[$treatmentCode];
+                        $treatment = $this->getTreatment($treatmentId);
+                    }
+
+                    break;
                 }
 
-                break;
-            }
+                if (!empty($treatment)) {
+                    $this->treatmentTrackValues['treatment'] = [
+                        'id' => $treatment['ptr_id_treatment'],
+                        'ptr_name' => $treatment['ptr_name'],
+                    ];
+                }
 
-            if (!empty($treatment)) {
-                $this->treatmentTrackValues['treatment'] = [
-                    'id' => $treatment['ptr_id_treatment'],
-                    'ptr_name' => $treatment['ptr_name'],
-                ];
-            }
+                if (isset($fields['side'])) {
+                    $this->treatmentTrackValues['side'] = $fields['side'];
+                }
 
-            if (isset($fields['side'])) {
-                $this->treatmentTrackValues['side'] = $fields['side'];
-            }
-
-            if (isset($fields['treatmentAppointment'])) {
-                $treatmentAppointment = $fields['treatmentAppointment'];
-                $appointment = $this->getAppointment($treatmentAppointment);
-                if ($appointment instanceof \Gems_Agenda_Appointment) {
-                    $this->treatmentTrackValues['treatmentAppointment'] = $appointment->getAdmissionTime();
+                if (isset($fields['treatmentAppointment'])) {
+                    $treatmentAppointment = $fields['treatmentAppointment'];
+                    $appointment = $this->getAppointment($treatmentAppointment);
+                    if ($appointment instanceof \Gems_Agenda_Appointment) {
+                        $this->treatmentTrackValues['treatmentAppointment'] = $appointment->getAdmissionTime();
+                    }
                 }
             }
         }
