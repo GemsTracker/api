@@ -40,7 +40,7 @@ abstract class RestModelConfigProviderAbstract
             AuthorizeGemsAndOauthMiddleware::class,
             ApiGateMiddleware::class,
             ApiOrganizationGateMiddleware::class,
-            //AccessLogMiddleware::class,
+            AccessLogMiddleware::class,
             SecurityHeadersMiddleware::class,
             ModelRestController::class,
         ];

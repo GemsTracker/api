@@ -278,6 +278,8 @@ class AccesslogRepository
         if ($log === null || (int)$changed != $log['gla_changed']) {
             $update = false;
             $by = $request->getAttribute('user_id');
+            $organization = $request->getAttribute('user_organization');
+            $role = $request->getAttribute('user_role', '');
             $message = $this->getMessage($request);
             $data = $this->getData($request);
             $ip = $this->getIp($request);
@@ -291,6 +293,8 @@ class AccesslogRepository
                 'gla_data' => json_encode($data),
                 'gla_remote_ip' => $ip,
                 'gla_respondent_id' => $respondentId,
+                'gla_organization' => $organization,
+                'gla_role' => $role,
             ];
         } elseif ($respondentId && $log['gla_respondent_id'] === null) {
             $log['gla_respondent_id'] = $respondentId;
