@@ -20,6 +20,11 @@ class RespondentImportTranslator extends ApiModelTranslator
     protected $logger;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $respondentErrorLogger;
+
+    /**
      * @var RespondentRepository
      */
     protected $respondentRepository;
@@ -46,9 +51,10 @@ class RespondentImportTranslator extends ApiModelTranslator
         "gr2o_patient_nr" => "patient_nr",
     ];
 
-    public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger)
+    public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger, LoggerInterface $respondentErrorLogger)
     {
         $this->logger = $logger;
+        $this->respondentErrorLogger = $respondentErrorLogger;
         $this->respondentRepository = $respondentRepository;
         parent::__construct(null);
     }
@@ -71,15 +77,51 @@ class RespondentImportTranslator extends ApiModelTranslator
                                 // A patient already exists under a different patient nr. We will overwrite this patient!
                                 $copyId = $model->getKeyCopyName('gr2o_patient_nr');
                                 $row[$copyId] = $patient['gr2o_patient_nr'];
+
+                                // We also need to check if the patient already exists as the current organization, if so we might need to merge!
+                                $altPatient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
+                                if ($altPatient) {
+                                    // new patientnumber and organization combo also already exists.. we might have to merge!
+
+                                    $message = 'Respondent exists as two respondents in Pulse';
+                                    $context = [
+                                        'patient1' => [
+                                            'patientNr'     => $patient['gr2o_patient_nr'],
+                                            'organization'  => $patient['gr2o_id_organization'],
+                                            'respondentId'  => $patient['gr2o_id_user'],
+                                            'ssn'           => $patient['grs_ssn'],
+                                        ],
+                                        'patient2' => [
+                                            'patientNr'     => $altPatient['gr2o_patient_nr'],
+                                            'organization'  => $altPatient['gr2o_id_organization'],
+                                            'respondentId'  => $altPatient['gr2o_id_user'],
+                                            'ssn'           => $altPatient['grs_ssn'],
+                                        ],
+                                    ];
+
+                                    $this->logger->debug($message, $context);
+                                    $this->respondentErrorLogger->error($message, $context);
+
+                                    exit;
+
+                                    // For now remove ssn and merge into new, but we're going to have to merge the patient completely
+                                    $row['grs_id_user'] = $row['gr2o_id_user'] = $altPatient['gr2o_id_user'];
+                                    unset($row['grs_ssn']);
+                                    $row['new_respondent'] = false;
+
+                                    return $row;
+
+                                }
                             }
 
-                            $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                            $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['gr2o_id_user'];
                             $row['new_respondent'] = false;
+
                             return $row;
                         }
                     }
 
-                    $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['grs_id_user'];
+                    $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['gr2o_id_user'];
                     $altPatient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
                     if ($altPatient) {
                         $row['grs_id_user'] = $row['gr2o_id_user'] = $altPatient['gr2o_id_user'];
@@ -100,8 +142,6 @@ class RespondentImportTranslator extends ApiModelTranslator
                             $row['grs_ssn'], $row['gr2o_patient_nr'], $row['gr2o_id_organization']));
                     return false;
                 }
-
-
                 /*if ($ssnPatNr && ($ssnPatNr != $row['gr2o_patient_nr'])) {
                     unset($row['grs_ssn']);
                     $bsnComm = "\nBSN removed, was duplicate of $ssnPatNr BSN.\n";

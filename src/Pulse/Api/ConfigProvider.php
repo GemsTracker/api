@@ -4,6 +4,7 @@
 namespace Pulse\Api;
 
 use Gems\Rest\Factory\ReflectionFactory;
+use Gems\Rest\Log\Formatter\SimpleMulti;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
@@ -128,10 +129,28 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                         'name' => 'stream',
                         'priority' => Logger::DEBUG,
                         'options' => [
+                            /*'formatter' => [
+                                'name' => SimpleMulti::class,
+                            ],*/
                             'stream' => GEMS_ROOT_DIR . '/data/logs/emma-import.log',
-                        ]
-                    ]
-                ]
+
+                        ],
+                    ],
+                ],
+            ],
+            'EmmaRespondentErrorLogger' => [
+                'writers' => [
+                    'stream' => [
+                        'name' => 'stream',
+                        'priority' => Logger::DEBUG,
+                        'options' => [
+                            'formatter' => [
+                                'name' => SimpleMulti::class,
+                            ],
+                            'stream' => GEMS_ROOT_DIR . '/data/logs/emma-respondent-error.log',
+                        ],
+                    ],
+                ],
             ],
             'errorLogger' => [
                 'writers' => [
@@ -140,23 +159,23 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                         'priority' => Logger::DEBUG,
                         'options' => [
                             'stream' => GEMS_ROOT_DIR . '/data/logs/api-error.log',
-                        ]
-                    ]
-                ]
-            ]
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
     public function getRestModels()
     {
         return [
-            'emma/appointments' => [
+            /*'emma/appointments' => [
                 'model' => 'Model_AppointmentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
                 'customAction' => AppointmentRestController::class,
                 'idField' => 'gap_id_in_source',
 
-            ],
+            ],*/
             'emma/respondents' => [
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET', 'POST', 'PATCH'],
@@ -177,6 +196,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Tracker_Model_StandardTokenModel',
                 'methods' => ['GET'],
                 'idField' => 'gr2o_patient_nr',
+                'idFieldRegex' => '[0-9]{6}-A[0-9]{3}',
                 'allowed_fields' => [
                     'patient_nr',
                     'organization',
@@ -199,7 +219,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'respondents' => [
                 'model' => RespondentModel::class,
                 'methods' => ['GET', 'POST', 'PATCH'],
-                'applySettings' => 'applyEditSettings',
+                'applySettings' => [
+                    'applyEditSettings',
+                ],
                 'allowed_fields' => [
                     'gr2o_patient_nr',
                     'gr2o_id_organization',

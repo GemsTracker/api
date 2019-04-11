@@ -55,6 +55,11 @@ class RespondentBulkRestController extends ModelRestController
     protected $db;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $emmaRespondentErrorLogger;
+
+    /**
      * @var EpisodeOfCareModel
      */
     protected $episodeModel;
@@ -93,6 +98,7 @@ class RespondentBulkRestController extends ModelRestController
                                 \Gems_Model $modelLoader,
                                 \Gems_Loader $legacyLoader,
                                 $EmmaImportLogger,
+                                $EmmaRespondentErrorLogger,
                                 $LegacyDb
     )
     {
@@ -102,6 +108,7 @@ class RespondentBulkRestController extends ModelRestController
         $this->appointmentRepository = $appointmentRepository;
         $this->db = $db;
         $this->logger = $EmmaImportLogger;
+        $this->emmaRespondentErrorLogger = $EmmaRespondentErrorLogger;
         $this->modelLoader = $modelLoader;
         $this->organizationRepository = $organizationRepository;
         $this->respondentRepository = $respondentRepository;
@@ -171,7 +178,7 @@ class RespondentBulkRestController extends ModelRestController
         //$this->logger->debug('Starting import of bulk respondent', ['PatientNr' => $patientNr]);
         $this->logger->debug('Starting import of bulk respondent', $respondentRow);
 
-        $translator = new RespondentImportTranslator($this->respondentRepository, $this->logger);
+        $translator = new RespondentImportTranslator($this->respondentRepository, $this->logger, $this->emmaRespondentErrorLogger);
         $row = $translator->translateRowOnce($respondentRow, true);
 
         $organizations = $this->organizationRepository->getOrganizationTranslations($row['organizations']);
@@ -204,9 +211,15 @@ class RespondentBulkRestController extends ModelRestController
                 $new = $patientRow['new_respondent'];
             }
 
+            if ($new) {
+                $this->logger->debug('Respondent is new');
+            } else {
+                $this->logger->debug('Respondent exists');
+            }
+
             $this->model->applyEditSettings($new);
 
-            $processor = new ModelProcessor($this->loader, $this->model, $this->userId);
+            $processor = new ModelProcessor($this->loader, $this->model, $this->userId, $this->logger);
             $processor->setAddDefaults(true);
 
             if ($new) {
