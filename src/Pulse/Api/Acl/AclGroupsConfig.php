@@ -20,6 +20,7 @@ return [
         'token-answers' => ['GET'],
         'track-fields' => ['GET'],
         'treatment-episodes' => ['GET'],
+        'treatments-with-norms' => ['GET'],
     ],
     'emma-transfer' => [
         'ping' => ['GET'],
