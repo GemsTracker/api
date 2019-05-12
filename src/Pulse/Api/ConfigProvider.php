@@ -129,9 +129,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                         'name' => 'stream',
                         'priority' => Logger::DEBUG,
                         'options' => [
-                            /*'formatter' => [
+                            'formatter' => [
                                 'name' => SimpleMulti::class,
-                            ],*/
+                            ],
                             'stream' => GEMS_ROOT_DIR . '/data/logs/emma-import.log',
 
                         ],
