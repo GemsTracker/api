@@ -57,11 +57,23 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function __invoke()
     {
         return [
+            'acl-groups'    => $this->getAclGroups(),
             'dependencies'  => $this->getDependencies(),
             //'templates'   => $this->getTemplates(),
             'routes'        => $this->getRoutes(),
             'log'           => $this->getLoggers(),
         ];
+    }
+
+    /**
+     * Return the acl group config in which route access groups can be made
+     *
+     * @return array
+     */
+    public function getAclGroups()
+    {
+        $aclGroupsConfig = include(__DIR__ . '/Acl/AclGroupsConfig.php');
+        return $aclGroupsConfig;
     }
 
     public function getDependencies()
@@ -527,7 +539,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'path' => '/env-test',
                 'middleware' => EnvTestController::class,
                 'allowed_methods' => ['GET'],
-            ]
+            ],
         ];
 
 

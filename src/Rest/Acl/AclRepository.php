@@ -72,6 +72,31 @@ class AclRepository
         return;
     }
 
+    public function createPermission($role, $permission, $method)
+    {
+        $sql = new Sql($this->db);
+        $insert = $sql->insert();
+        $insert->into('gems__api_permissions')
+            ->columns(['gapr_role', 'gapr_resource', 'gapr_permission', 'gapr_allowed'])
+            ->values(
+                [
+                    'gapr_role'         => $role,
+                    'gapr_resource'     => $permission,
+                    'gapr_permission'   => $method,
+                    'gapr_allowed'      => 1,
+                ]
+            );
+
+        try {
+            $statement = $sql->prepareStatementForSqlObject($insert);
+            $statement->execute();
+        } catch(\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Change result to array with keyfield as key
      *
@@ -138,6 +163,36 @@ class AclRepository
     }
 
     /**
+     * Get the existing roles from a specific role
+     *
+     * @param string $currentRole
+     * @return array
+     */
+    public function getExistingPermissions($currentRole)
+    {
+        $sql = new Sql($this->db);
+        $select = $sql->select();
+
+        $select->from('gems__api_permissions')
+            ->where(['gapr_allowed' => 1, 'gapr_role' => $currentRole]);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+
+        $permissions = iterator_to_array($result);
+
+        $groupedPermissions = [];
+        foreach($permissions as $permission) {
+            if (!array_key_exists($permission['gapr_resource'], $groupedPermissions)) {
+                $groupedPermissions[$permission['gapr_resource']] = [];
+            }
+            $groupedPermissions[$permission['gapr_resource']][] = $permission['gapr_permission'];
+        }
+
+        return $groupedPermissions;
+    }
+
+    /**
      * Get list of Roles from the DB
      *
      * @return array
@@ -167,8 +222,6 @@ class AclRepository
 
         return $this->gemsRoles;
     }
-
-
 
     /**
      * Get the current roles in the Acl
@@ -268,6 +321,28 @@ class AclRepository
         foreach($roles as $role) {
             $this->addRole($role, $roles);
         }
+    }
+
+    public function removePermission($role, $permission, $method)
+    {
+        $sql = new Sql($this->db);
+        $delete = $sql->delete();
+        $delete->from('gems__api_permissions')
+            ->where([
+                'gapr_role'         => $role,
+                'gapr_resource'     => $permission,
+                'gapr_permission'   => $method,
+                'gapr_allowed'      => 1,
+            ]);
+
+        try {
+            $statement = $sql->prepareStatementForSqlObject($delete);
+            $statement->execute();
+        } catch(\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

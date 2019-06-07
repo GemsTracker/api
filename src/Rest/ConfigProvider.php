@@ -4,7 +4,12 @@ namespace Gems\Rest;
 
 use Gems\Rest\Acl\AclFactory;
 use Gems\Rest\Acl\AclRepository;
+use Gems\Rest\Action\AclGroupsController;
+use Gems\Rest\Action\AclGlobalPermissionsController;
+use Gems\Rest\Action\AclRolePermissionsController;
+use Gems\Rest\Action\AclRolesController;
 use Gems\Rest\Action\ApiDefinitionAction;
+use Gems\Rest\Action\ApiRolesController;
 use Gems\Rest\Action\DevAction;
 use Gems\Rest\Action\PingController;
 use Gems\Rest\Auth\AccessTokenAction;
@@ -67,11 +72,23 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function __invoke()
     {
         return [
-            'oauth2' => $this->getOauth2(),
-            'dependencies' => $this->getDependencies(),
-            'templates'    => $this->getTemplates(),
-            'routes'       => $this->getRoutes(),
+            'acl-groups'    => $this->getAclGroups(),
+            'dependencies'  => $this->getDependencies(),
+            'oauth2'        => $this->getOauth2(),
+            'routes'        => $this->getRoutes(),
+            'templates'     => $this->getTemplates(),
         ];
+    }
+
+    /**
+     * Return the acl group config in which route access groups can be made
+     *
+     * @return array
+     */
+    public function getAclGroups()
+    {
+        $aclGroupsConfig = include(__DIR__ . '/Acl/AclGroupsConfig.php');
+        return $aclGroupsConfig;
     }
 
     /**
@@ -118,6 +135,11 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 PingController::class => ReflectionFactory::class,
                 ApiDefinitionAction::class => ReflectionFactory::class,
+                AclGroupsController::class => ReflectionFactory::class,
+                AclGlobalPermissionsController::class => ReflectionFactory::class,
+                AclRolePermissionsController::class => ReflectionFactory::class,
+                AclRolesController::class => ReflectionFactory::class,
+                ApiRolesController::class => ReflectionFactory::class,
 
                 DevAction::class => ReflectionFactory::class,
 
@@ -261,6 +283,36 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     AuthorizeGemsAndOauthMiddleware::class,
                     ApiDefinitionAction::class,
                 ],
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'acl-groups',
+                'path' => '/acl-groups',
+                'middleware' => $this->getCustomActionMiddleware(AclGroupsController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'acl-global-permissions',
+                'path' => '/acl-global-permissions',
+                'middleware' => $this->getCustomActionMiddleware(AclGlobalPermissionsController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'acl-role-permissions',
+                'path' => '/acl-role-permissions/[{role:[a-zA-Z0-9-_]+}]',
+                'middleware' => $this->getCustomActionMiddleware(AclRolePermissionsController::class),
+                'allowed_methods' => ['GET', 'PATCH'],
+            ],
+            [
+                'name' => 'acl-roles',
+                'path' => '/acl-roles',
+                'middleware' => $this->getCustomActionMiddleware(AclRolesController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'api-roles',
+                'path' => '/api-roles',
+                'middleware' => $this->getCustomActionMiddleware(ApiRolesController::class),
                 'allowed_methods' => ['GET'],
             ],
         ];
