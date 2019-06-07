@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>table-test</title>
+    <link rel="stylesheet" type="text/css" href="dist/bulma.css">
+    <style type="text/css">
+html {
+  overflow-x: auto;
+}
+
+.table tr th {
+  background-color: rgb(97,98,101);
+  color: white;
+}
+    </style>
+  </head>
+  <body>
+    <div class="container is-fluid">
+      <div id="app">
+        <model-table target-model="organizations" default-columns='[["name", "task", "location"], ["contact_name", "active", "has_login"], ["add_respondents", "has_respondents", "respondent_group"], "accessible_by"]'></model-table>
+      
+      </div>
+    </div>
+    <script src="dist/app.js"></script>
+  </body>
+</html>
