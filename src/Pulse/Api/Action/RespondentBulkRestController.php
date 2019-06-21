@@ -20,6 +20,7 @@ use Pulse\Api\Model\Emma\EpisodeOfCareImportTranslator;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentImportTranslator;
 use Pulse\Api\Model\Emma\RespondentRepository;
+use Pulse\Log\AppointmentActivity;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Sql\Sql;
@@ -138,6 +139,14 @@ class RespondentBulkRestController extends ModelRestController
             return $this->appointmentModel;
         }
         return $this->loader->create('Model_AppointmentModel');
+    }
+
+    /**
+     * @return AppointmentActivity
+     */
+    protected function getAppointmentActivityLogger()
+    {
+        return $this->legacyLoader->getAppointmentActivityLogger();
     }
 
     protected function getEpisodeModel()
@@ -318,12 +327,29 @@ class RespondentBulkRestController extends ModelRestController
 
             $appointmentModel->applyEditSettings($appointmentData['gap_id_organization']);
 
-            $new = !$this->appointmentRepository->getAppointmentExistsBySourceId($appointmentData['gap_id_in_source'], $appointmentData['gap_id_in_source']);
+            $new = !$this->appointmentRepository->getAppointmentExistsBySourceId($appointmentData['gap_id_in_source'], 'emma');
 
             $processor = new ModelProcessor($this->loader, $appointmentModel, $this->userId);
             $processor->setAddDefaults($new);
             try {
                 $newAppointmentData = $processor->save($appointmentData, !$new);
+
+                if ($processor->getChanged() && !$new) {
+                    $admissionTime = $newAppointmentData['gap_admission_time'];
+                    if ($admissionTime instanceof \MUtil_Date) {
+                        $admissionTime = $admissionTime->toString('yyyy-MM-dd HH:mm:ss');
+                    }
+                    $appointmentActivityLogger = $this->getAppointmentActivityLogger();
+                    $appointmentActivityLogger->logAppointmentChange(
+                        $newAppointmentData['gap_id_appointment'],
+                        $row['gr2o_patient_nr'],
+                        $newAppointmentData['gap_id_user'],
+                        $newAppointmentData['gap_id_organization'],
+                        $new,
+                        $admissionTime
+                    );
+                }
+
             } catch(\Exception $e) {
                 // Row could not be saved.
 

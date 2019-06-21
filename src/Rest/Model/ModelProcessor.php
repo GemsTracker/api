@@ -59,6 +59,11 @@ class ModelProcessor
         return $row;
     }
 
+    public function getChanged()
+    {
+        return $this->model->getChanged();
+    }
+
     /**
      * Get the id field of the model if it is set in the model keys
      *
