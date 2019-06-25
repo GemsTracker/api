@@ -299,7 +299,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             [
                 'name' => 'acl-role-permissions',
-                'path' => '/acl-role-permissions/[{role:[a-zA-Z0-9-_]+}]',
+                'path' => '/acl-role-permissions/[{role}]',
                 'middleware' => $this->getCustomActionMiddleware(AclRolePermissionsController::class),
                 'allowed_methods' => ['GET', 'PATCH'],
             ],
