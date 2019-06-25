@@ -7,4 +7,12 @@ e.g.: 'test-group' => [
 ];
 */
 
-return [];
+return [
+    'api-permissions' => [
+        'acl-groups' => ['GET'],
+        'acl-global-permissions' => ['GET'],
+        'acl-role-permissions' => ['GET', 'PATCH'],
+        'acl-roles' => ['GET'],
+        'api-roles' => ['GET'],
+    ],
+];
