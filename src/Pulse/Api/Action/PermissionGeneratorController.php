@@ -26,15 +26,25 @@ class PermissionGeneratorController implements MiddlewareInterface
     protected $aclRepository;
 
     /**
+     * @var array acl group config as defined in general config
+     */
+    protected $aclGroupsConfig;
+
+    /**
      * @var Adapter
      */
     protected $db;
 
-    public function __construct(AclRepository $aclRepository, Acl $acl, Adapter $db)
+    public function __construct(AclRepository $aclRepository, Acl $acl, Adapter $db, $config)
     {
         $this->aclRepository = $aclRepository;
         $this->acl = $acl;
+        if (array_key_exists('acl-groups', $config)) {
+            $this->aclGroupsConfig = $config['acl-groups'];
+        }
+
         $this->db = $db;
+
     }
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
@@ -146,12 +156,18 @@ class PermissionGeneratorController implements MiddlewareInterface
 
     protected function getRequiredPermissions($queryParams)
     {
-        $aclGroupsConfig = include(__DIR__ . '/../Acl/AclGroupsConfig.php');
         $requiredPermissions = $globalPermissions = $this->aclRepository->getRoutePermissions();
 
         $usingGroup = 'global (all routes!)';
-        if (isset($queryParams['group'], $aclGroupsConfig[$queryParams['group']])) {
-            $requiredPermissions = $aclGroupsConfig[$queryParams['group']];
+        if (isset($queryParams['group'])) {
+            $test1 = true;
+        }
+        if (isset($this->aclGroupsConfig[$queryParams['group']])) {
+            $test2 = true;
+        }
+
+        if (isset($queryParams['group'], $this->aclGroupsConfig[$queryParams['group']])) {
+            $requiredPermissions = $this->aclGroupsConfig[$queryParams['group']]['permissions'];
             $usingGroup = $queryParams['group'];
 
             foreach ($requiredPermissions as $resource => $permissions) {

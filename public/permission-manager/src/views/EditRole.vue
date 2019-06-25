@@ -24,16 +24,18 @@
 
 
         <h4>Voorgedefineerde groepen</h4>
-        <table class="table table-condensed table-striped">
+        <table class="table table-condensed table-striped acl-groups">
             <thead>
                 <tr>
                     <th>Groep</th>
-                    <th>Toegevoegd</th>
+                    <th>Omschrijving</th>
+                    <th>Helemaal toegevoegd</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(active, aclGroup, index) in aclGroupsActive" :key="index">
                     <th>{{aclGroup}} <i v-if="active === false" :title="aclGroupsMissingText[aclGroup]" class="acl-missing-help-text fa fa-question-circle" aria-hidden="true"></i></th>
+                    <td class="description">{{aclGroups[aclGroup].description}}</td>
                     <td><toggle-button @change="applyGroupToPermissions(aclGroup, active)" :value="active" :sync="true" :color="{checked: '#23d160', unchecked: '#f7adb3'}" /></td>
                 </tr>
             </tbody>
@@ -101,7 +103,7 @@ export default {
             if (this.aclGroups && this.currentPermissions) {
                 let groupsActive = {};
                 for(const groupName in this.aclGroups) {
-                    const permissions = this.aclGroups[groupName];
+                    const permissions = this.aclGroups[groupName].permissions;
                     groupsActive[groupName] = null;
                     for (const permission in permissions) {
                         const methods = permissions[permission];
@@ -163,7 +165,7 @@ export default {
 
             const currentActive = { ...this.aclGroupsActive };
 
-            const changeValues = this.aclGroups[aclGroup];
+            const changeValues = this.aclGroups[aclGroup].permissions;
             for (const permission in changeValues) {
                 for(const key in changeValues[permission]) {
                     const method = changeValues[permission][key];
@@ -182,8 +184,8 @@ export default {
                     if (groupName === aclGroup) {
                         continue;
                     }
-                    if (currentActive[groupName] === true) {
-                        for(const permission in this.aclGroups[groupName]) {
+                    if (currentActive[groupName] === true && this.aclGroups[groupName].hasOwnProperty('permissions')) {
+                        for(const permission in this.aclGroups[groupName].permissions) {
                             for(const key in changeValues[permission]) {
                                 const method = changeValues[permission][key];
                                 if (this.currentPermissions.hasOwnProperty(permission) && this.currentPermissions[permission].hasOwnProperty(method) && this.currentPermissions[permission][method] === false) {
@@ -307,6 +309,12 @@ export default {
     .fade-enter, .fade-leave-to {
         opacity: 0;
     }
+
+    .acl-groups .description {
+        font-size: .9rem;
+        font-style: italic;
+    }
+
 </style>
 
 

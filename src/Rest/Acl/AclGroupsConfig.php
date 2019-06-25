@@ -9,10 +9,13 @@ e.g.: 'test-group' => [
 
 return [
     'api-permissions' => [
-        'acl-groups' => ['GET'],
-        'acl-global-permissions' => ['GET'],
-        'acl-role-permissions' => ['GET', 'PATCH'],
-        'acl-roles' => ['GET'],
-        'api-roles' => ['GET'],
+        'description' => 'API Roles manager permissions',
+        'permissions' => [
+            'acl-groups' => ['GET'],
+            'acl-global-permissions' => ['GET'],
+            'acl-role-permissions' => ['GET', 'PATCH'],
+            'acl-roles' => ['GET'],
+            'api-roles' => ['GET'],
+        ],
     ],
 ];
