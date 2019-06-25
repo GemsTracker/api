@@ -27,9 +27,6 @@ export default {
     methods: {
         async getRoles() {
             const roles = await this.rolesModel.all();
-            console.log('get roles!');
-            console.log(roles);
-            console.log('nyan');
             this.roles = roles;
             return roles;
         }

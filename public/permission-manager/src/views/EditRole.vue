@@ -15,6 +15,13 @@
             <button @click="restorePermissions" :disabled="!changedPermissions  || updating" class="btn btn-xs btn-danger" title="Herstel naar originele waarden">Originele waarden</button>
         </div>
 
+        <transition name="fade">
+            <div v-if="alert.visible" class="alert" :class="'alert-'+alert.type">
+                <button @click="alert.visible = false" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                {{alert.messages[alert.type]}}
+            </div>
+        </transition>
+
 
         <h4>Voorgedefineerde groepen</h4>
         <table class="table table-condensed table-striped">
@@ -76,6 +83,14 @@ export default {
         rolePermissions: null,
         rolePermissionsModel: new RolePermissionsModel,
         updating: false,
+        alert: {
+            visible: false,
+            type: 'success',
+            messages: {
+                success: 'Rol opgeslagen',
+                danger: 'Rol kon niet worden opgeslagen',
+            },
+        }
     }),
     components: { ToggleButton },
     computed: {
@@ -113,10 +128,10 @@ export default {
             if (this.aclGroupsMissing && this.aclGroups && this.currentPermissions) {
                 let groupsMissing = {};
                 for(const groupName in this.aclGroupsMissing) {
-                    const permissions = this.aclGroups[groupName];
+                    const permissions = this.aclGroupsMissing[groupName];
                     groupsMissing[groupName] = "MISSING: \n";
                     for (const permission in permissions) {
-                        const methods = permissions[permission];
+                        const methods = Object.keys(permissions[permission]);
                         groupsMissing[groupName] += permission + ': ' + methods.join(', ') + "\n";
                     }
                 }
@@ -231,7 +246,11 @@ export default {
             this.updating = true;
             await this.rolePermissionsModel.updateById(this.role, this.currentPermissions);
             await this.getCurrentPermissions(this.role, true);
-            //this.updating = false;
+
+
+            this.updating = false;
+            this.alert.type = 'success';
+            this.alert.visible = true;
         },
     },
     mounted() {
@@ -254,6 +273,12 @@ export default {
         }
     }
 
+    @keyframes spinner {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
     button .loader {
         display: inline-block;
         margin: 0 1em;
@@ -270,10 +295,17 @@ export default {
             margin-top: -5px;
             margin-left: -5px;
             border-radius: 50%;
-            border-top: 2px solid red;
+            border-top: 2px solid #07d;
             border-right: 2px solid transparent;
             animation: spinner .6s linear infinite;
         }
+    }
+
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity .3s;
+    }
+    .fade-enter, .fade-leave-to {
+        opacity: 0;
     }
 </style>
 

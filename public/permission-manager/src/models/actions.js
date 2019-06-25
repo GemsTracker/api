@@ -98,8 +98,6 @@ export default {
                     }
                     data = firstEntry;
                 }
-                console.log('this happens in the action!');
-                console.log(data);
                 context.commit('SUCCESS', data);
                 return data;
             });
