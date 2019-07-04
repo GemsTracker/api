@@ -1,31 +1,68 @@
 <?php
 
-
 namespace Gems\Legacy;
-
 
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use MUtil\Controller\Response\ExpressiveResponseWrapper;
+use MUtil\Controller\Router\ExpressiveRouteWrapper;
+use MUtil\Controller\Front;
+use MUtil\Controller\Request\ExpressiveRequestWrapper;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Diactoros\Response\HtmlResponse;
-use Zend\Expressive\Router\RouterInterface;
+use Zend\Expressive\Helper\UrlHelper;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
 class LegacyControllerMiddleware implements MiddlewareInterface
 {
-    public function __construct(ProjectOverloader $loader)
-    {
-        $this->loader = $loader;
-        $this->serviceManager = $this->loader->getServiceManager();
-        $this->config = $this->serviceManager->get('config');
 
+    /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * @var ProjectOverloader
+     */
+    protected $loader;
+
+    /**
+     * @var \Gems_Menu
+     */
+    protected $menu;
+
+    /**
+     * @var \Zend\ServiceManager\ServiceManager
+     */
+    protected $serviceManager;
+
+    /**
+     * @var UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
+     * @var \Zend_View
+     */
+    protected $view;
+
+    public function __construct(ProjectOverloader $loader, \Zend_View $view, UrlHelper $urlHelper, TemplateRendererInterface $template, $config, $LegacyMenu)
+    {
+        $this->config         = $config;
+        $this->loader         = $loader;
+        $this->menu           = $LegacyMenu;
+        $this->serviceManager = $this->loader->getServiceManager();
+        $this->template       = $template;
+        $this->urlHelper      = $urlHelper;
+        $this->view           = $view;
     }
 
     protected function loadControllerDependencies($object)
     {
         $objectProperties = get_object_vars($object);
-        foreach($objectProperties as $name=>$value) {
+        foreach ($objectProperties as $name => $value) {
             if ($value === null) {
                 $legacyName = 'Legacy' . ucFirst($name);
                 if ($this->serviceManager->has($legacyName)) {
@@ -38,76 +75,123 @@ class LegacyControllerMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
-        $route = $routeResult->getMatchedRoute();
-        $config = $this->loader->getServiceManager()->get('config');
+
+        $route  = $routeResult->getMatchedRoute();
         if ($route) {
-            $options = $route->getOptions();
-            if (isset($options['controller'])) {
+            $options    = $route->getOptions();
+            $controller = $request->getAttribute('controller', 'index');
+            $action     = $request->getAttribute('action', 'index');
+            $actionName = $action . 'Action';
 
-                $controllerName = ucfirst($options['controller']) . 'Controller';
 
-                $controllerClass = null;
-                if (!isset($config['controllerDirs'])) {
-                    throw new \Exception("No controller dirs set in config");
+            $controllerName = ucfirst(str_replace('-', '', ucwords($controller, '-'))) . 'Controller';
+
+            $controllerClass = null;
+            if (!isset($this->config['controllerDirs'])) {
+                throw new \Exception("No controller dirs set in config");
+            }
+            \Zend_Controller_Action_HelperBroker::addPrefix('Gems_Controller_Action_Helper');
+
+            foreach ($this->config['controllerDirs'] as $controllerDir) {
+                $controllerClassLocation = $controllerDir . DIRECTORY_SEPARATOR . $controllerName . '.php';
+                if (file_exists($controllerClassLocation)) {
+                    include $controllerClassLocation;
+
+                    //$legacyRequest = new \Zend_Controller_Request_Http;
+                    //$legacyResponse = new \Zend_Controller_Response_Http;
+                    $requestWrapper = new ExpressiveRequestWrapper($request);
+                    $this->serviceManager->setService('LegacyRequest', $requestWrapper);
+
+                    $response = new ExpressiveResponseWrapper(new HtmlResponse(''));
+
+
+
+                    $routeWrapper = new ExpressiveRouteWrapper($request, $this->urlHelper);
+
+                    Front::setRequest($requestWrapper);
+                    Front::setResponse($response);
+                    Front::setRouter($routeWrapper);
+
+                    $resp = new \Zend_Controller_Response_Http();
+                    $req  = new \Zend_Controller_Request_Http();
+                    $req->setControllerName($controller);
+                    $req->setActionName($action);
+                    $req->setParams($requestWrapper->getParams()); 
+                    
+                    Front::setLegacyRequest($req);
+
+                    $bootstrap = \MUtil_Bootstrap::bootstrap(array('fontawesome' => true));
+                    \MUtil_Bootstrap::enableView($this->view);
+
+                    \Zend_Controller_Front::getInstance()->setControllerDirectory(APPLICATION_PATH . '/controllers');
+
+                    // Defer init, we first need to inject all our dependencies
+                    $controllerObject = $this->loader->create($controllerName, $req, $resp, [], false);
+
+                    $this->loadControllerDependencies($controllerObject);
+                    $controllerObject->init();
+                    //$controllerObject->html = new \MUtil_Html_Sequence();
+                    //$controllerObject->initHtml();
+                    break;
+                }
+            }
+
+            if (!$controllerObject) {
+                throw new \Exception(sprintf(
+                                "Controller %s could not be found in paths %s",
+                                $controllerName,
+                                join('; ', $this->config['controllerDirs'])
+                ));
+            }
+
+            if (method_exists($controllerObject, $actionName) && is_callable([$controllerObject, $actionName])) {
+
+                $menuItem = $this->menu->find(['action' => $action, 'controller' => $controller]);
+                if ($menuItem instanceof \Gems_Menu_SubMenuItem) {
+                    $this->menu->setCurrent($menuItem);
                 }
 
-                foreach($config['controllerDirs'] as $controllerDir) {
-                    $controllerClassLocation = $controllerDir.DIRECTORY_SEPARATOR.$controllerName.'.php';
-                    if (file_exists($controllerClassLocation)) {
-                        include $controllerClassLocation;
-
-                        $legacyRequest = new \Zend_Controller_Request_Http;
-                        $legacyResponse = new \Zend_Controller_Response_Http;
-
-                        $controllerObject = $this->loader->create(new $controllerName($legacyRequest, $legacyResponse));
-                        $this->loadControllerDependencies($controllerObject);
-                    }
+                $response = call_user_func_array([$controllerObject, $actionName], []);
+                if ($response instanceof ResponseInterface) {
+                    return $response;
                 }
-
-                if (!$controllerObject) {
-                    throw new \Exception(sprintf(
-                        "Controller %s could not be found in paths %s",
-                        $controllerName,
-                        join('; ', $config['controllerDirs'])
-                    ));
-                }
-
-                $action = 'indexAction';
-                if (isset($options['action'])) {
-                    $action = $options['action'] . 'Action';
-                }
-
-                if (method_exists($controllerObject, $action) && is_callable([$controllerObject, $action])) {
-                    call_user_func_array([$controllerObject, $action], []);
-                } else {
-                    throw new \Exception(sprintf(
-                        "Controller action %s could not be found in paths %s",
-                        $action
-                    ));
-                }
-
-                $view = new \Zend_View;
-                $content = $controllerObject->html->render($view);
-
-                $data = [
-                    'content' => $content
-                ];
-
-                $template = $this->serviceManager->has(TemplateRendererInterface::class)
-                    ? $this->serviceManager->get(TemplateRendererInterface::class)
-                    : null;
-
-                if ($template) {
-                    return new HtmlResponse($template->render('app::gemstracker-responsive', $data));
-                }        
-                
-                return new HtmlResponse($content);
-
+            } else {
+                throw new \Exception(sprintf(
+                                "Controller action %s could not be found in paths %s",
+                                $actionName
+                ));
             }
 
 
+
+
+            $content = $controllerObject->html->render($this->view);
+            
+            $data = [
+                'content' => $content,
+            ];
+            
+            // TODO naar layout rendering middleware zetten zodat deze niet te groot wordt
+            /** @var \Gems_Menu $menu */
+            if ($this->menu->isVisible()) {
+
+                // Make sure the actual $request and $controller in use at the end
+                // of the dispatchloop is used and make \Zend_Navigation object
+                $data['menuHtml'] = $this->menu->render($this->view);
+            }
+
+            $response = Front::getResponse()->getResponse();
+            $headers = $response->getHeaders();
+            $statusCode = $response->getStatusCode();
+
+            if ($this->template) {
+                return new HtmlResponse($this->template->render('app::gemstracker-responsive', $data), $statusCode, $headers);
+            }
+
+            return new HtmlResponse($content, $statusCode, $headers);
         }
 
         throw new \Exception('No Controller in route');
     }
+
 }

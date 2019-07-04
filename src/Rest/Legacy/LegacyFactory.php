@@ -43,6 +43,7 @@ class LegacyFactory implements FactoryInterface
             case \Gems_Events::class:
             case \Gems_Agenda::class:
             case \Gems_Model::class:
+            case \Gems_Menu::class:
                 $requestedName = $this->stripOverloader($requestedName);
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
@@ -52,6 +53,9 @@ class LegacyFactory implements FactoryInterface
                 return $project;
                 break;
 
+            case 'LegacyCurrentOrganization':
+                return $this->getCurrentOrganization();
+                break;
             case 'LegacyCurrentUser':
                 return $this->getCurrentUser();
                 break;
@@ -70,8 +74,9 @@ class LegacyFactory implements FactoryInterface
                 break;
 
             case Locale::class:
-                //return $this->loader->create('Locale', 'en');
-                return new \Zend_Locale('en');
+                $locale = new \Zend_Locale('en');
+                \Zend_Registry::set('Zend_Locale', $locale);
+                return $locale;
                 break;
 
             case \Gems_Log::class:
@@ -123,7 +128,8 @@ class LegacyFactory implements FactoryInterface
     protected function getAcl()
     {
         $cache = $this->container->get('LegacyCache');
-        return $this->loader->create('Roles', $cache);
+        $roles = $this->loader->create('Roles', $cache);
+        return $roles->getAcl();
     }
 
     protected function getCache()
@@ -199,6 +205,13 @@ class LegacyFactory implements FactoryInterface
         $this->cacheFactoryWrapper = $wrapper;
     }
 
+    public function getCurrentOrganization()
+    {
+        $user = $this->getCurrentUser();
+        $organization = $user->getCurrentOrganization();
+        return $organization;
+    }
+
     public function getCurrentUser()
     {
         $currentUserRepository = $this->container->get(CurrentUserRepository::class);
@@ -248,7 +261,7 @@ class LegacyFactory implements FactoryInterface
 
     protected function getProjectSettings()
     {
-        $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/config/project');
+        $projectArray = $this->includeFile(APPLICATION_PATH . '/configs/project');
 
         $project = $this->loader->create('Project_ProjectSettings', $projectArray);
 
@@ -334,6 +347,8 @@ class LegacyFactory implements FactoryInterface
             'scan'            => \Zend_Translate::LOCALE_FILENAME);
 
         $translate = \MUtil_Translate_Adapter_Potemkin::create();
+
+        \Zend_Registry::set('Zend_Translate', $translate);
 
         return $translate;
     }
