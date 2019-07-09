@@ -327,11 +327,13 @@ class RespondentBulkRestController extends ModelRestController
 
             $appointmentModel->applyEditSettings($appointmentData['gap_id_organization']);
 
-            $new = !$this->appointmentRepository->getAppointmentExistsBySourceId($appointmentData['gap_id_in_source'], 'emma');
-
             $processor = new ModelProcessor($this->loader, $appointmentModel, $this->userId);
-            $processor->setAddDefaults($new);
+
+            $new = $this->checkExistingAppointment($appointmentData, $processor);
+
             try {
+
+                $processor->setAddDefaults($new);
                 $newAppointmentData = $processor->save($appointmentData, !$new);
 
                 if ($processor->getChanged() && !$new) {
@@ -373,6 +375,39 @@ class RespondentBulkRestController extends ModelRestController
             $this->logger->debug(sprintf('Appointment %s has successfully been imported.', $appointment['id']));
         }
         return true;
+    }
+
+    protected function checkExistingAppointment(array $appointmentData, ModelProcessor $processor)
+    {
+        $existingAppointmentData = $this->appointmentRepository->getAppointmentDataBySourceId($appointmentData['gap_id_in_source'], 'emma');
+        $new = !(boolean) $existingAppointmentData;
+
+        if ($existingAppointmentData !== false) {
+            $existingAppointmentDate = strtotime($existingAppointmentData['gap_admission_time']);
+            $newAppointmentDate = strtotime($appointmentData['gap_admission_time']);
+
+            if ($existingAppointmentDate != $newAppointmentDate) {
+                $currentAppointmentVersion = $this->appointmentRepository->getLatestAppointmentVersion($appointmentData['gap_id_in_source'], 'emma');
+                $canceledSourceId = $appointmentData['gap_id_in_source'] . $this->appointmentRepository->sourceVersionSuffix . ($currentAppointmentVersion + 1);
+
+                $existingAppointmentData['gap_id_in_source'] = $canceledSourceId;
+                $existingAppointmentData['gap_status'] = $this->appointmentRepository->canceledAppointmentStatus;
+                $existingAppointmentData['gap_comment'] = 'Version ' . ($currentAppointmentVersion+1) . ' duplicate canceled because appointment date has changed in EMMA.';
+
+                $processor->setAddDefaults($new);
+
+                try {
+                    $processor->save($existingAppointmentData, true);
+                } catch (\Exception $e) {
+                    $this->logger->error($e->getMessage());
+                }
+                $new = true;
+            }
+        }
+
+
+        // Return if the appointment should be new
+        return $new;
     }
 
     protected function processEpisodes($row, $usersPerOrganization)
@@ -450,6 +485,8 @@ class RespondentBulkRestController extends ModelRestController
             $this->modelLoader->checkAnaesthesiaLink($OkRespondents['gr2o_id_user'], $OkRespondents['gr2o_id_organization']);
         }
     }
+
+
 
     public function setAppointmentModel(\Gems_Model_AppointmentModel $appointmentModel)
     {
