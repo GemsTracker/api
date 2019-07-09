@@ -1242,18 +1242,20 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $legacyLoaderProphecy = $this->prophesize(\Gems_Loader::class);
         $emmaImportLoggerProphecy = $this->prophesize(LoggerInterface::class);
 
+        $emmaRespondentErrorLoggerProphecy = $this->prophesize(LoggerInterface::class);
+
         $accesslogRepository = $this->prophesize(AccesslogRepository::class);
 
         $controller =  new RespondentBulkRestController($accesslogRepository->reveal(), $loader, $urlHelperProphecy->reveal(), $this->db,
             $agendaDiagnosisRepositoryProphecy->reveal(),
             $appointmentRepositoryProphecy->reveal(),
             $organizationRepositoryProphecy->reveal(),
-            //$respondentRepositoryProphecy->reveal(),
             $respondentRepository,
             $gemsAgendaProphecy->reveal(),
             $gemsModelProphecy->reveal(),
             $legacyLoaderProphecy->reveal(),
             $emmaImportLoggerProphecy->reveal(),
+            $emmaRespondentErrorLoggerProphecy->reveal(),
             $this->db1
         );
 

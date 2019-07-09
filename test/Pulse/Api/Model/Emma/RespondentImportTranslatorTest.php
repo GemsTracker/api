@@ -188,7 +188,8 @@ class RespondentImportTranslatorTest extends TestCase
         $respondentRepositoryProphecy->getPatient(2,1)->willReturn(false);
 
         $loggerProphecy = $this->prophesize(LoggerInterface::class);
+        $respondentErrorLoggerProphecy = $this->prophesize(LoggerInterface::class);
 
-        return new RespondentImportTranslator($respondentRepositoryProphecy->reveal(), $loggerProphecy->reveal());
+        return new RespondentImportTranslator($respondentRepositoryProphecy->reveal(), $loggerProphecy->reveal(), $respondentErrorLoggerProphecy->reveal());
     }
 }

@@ -42,6 +42,7 @@ class AppointmentImportTranslatorTest extends ZendDbTestCase
             'gap_id_organization' => 1,
             'gap_source' => 'emma',
             'gap_code' => 'A',
+            'gap_id_procedure' => null,
         ];
         $this->assertEquals($expectedResult, $result, 'Default settings not as expected');
     }
@@ -66,6 +67,7 @@ class AppointmentImportTranslatorTest extends ZendDbTestCase
             'location' => 'somewhere',
             'attended_by' => 'someone',
             'activity' => 'some action',
+            'gap_id_procedure' => null,
         ];
         $this->assertEquals($expectedResult, $result, 'Matched ids not as expected');
     }
@@ -83,7 +85,8 @@ class AppointmentImportTranslatorTest extends ZendDbTestCase
             'gap_source' => 'emma',
             'gap_code' => 'A',
             'gap_id_episode' => '11',
-            'episode_id' => 1
+            'episode_id' => 1,
+            'gap_id_procedure' => null,
         ];
         $this->assertEquals($expectedResult, $result, 'episode of care id not as expected');
     }
@@ -101,7 +104,8 @@ class AppointmentImportTranslatorTest extends ZendDbTestCase
             'gap_source' => 'emma',
             'gap_code' => 'A',
             'gap_id_episode' => null,
-            'episode_id' => 999
+            'episode_id' => 999,
+            'gap_id_procedure' => null,
         ];
         $this->assertEquals($expectedResult, $result, 'episode of care id not as expected');
     }
