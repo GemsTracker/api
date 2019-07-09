@@ -59,14 +59,15 @@ class LegacyFactoryTest extends TestCase
 
     public function testGetAcl()
     {
-        $acl = $this->prophesize(\Gems_Roles::class)->reveal();
-
+        $zendAcl = $this->prophesize(\Zend_Acl::class)->reveal();
+        $acl = $this->prophesize(\Gems_Roles::class);
+        $acl->getAcl()->willReturn($zendAcl);
+        $acl->reveal();
         $cache = $this->prophesize(\Zend_Cache_Core::class)->reveal();
-
         $container = $this->getContainer(['Roles' => $acl], ['LegacyCache' => $cache]);
         $legacyFactory = new LegacyFactory();
         $result = $legacyFactory->__invoke($container, \Zend_Acl::class);
-        $this->assertInstanceOf(\Gems_Roles::class, $result);
+        $this->assertInstanceOf(\Zend_Acl::class, $result);
     }
 
     public function testGetCache()
