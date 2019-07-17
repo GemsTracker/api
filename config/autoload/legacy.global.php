@@ -3,14 +3,6 @@
 use Gems\Rest\Legacy\LegacyFactory;
 use Gems\Rest\Factory\ReflectionFactory;
 
-defined('VENDOR_DIR') || define('VENDOR_DIR', GEMS_ROOT_DIR . '/vendor/');
-defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
-defined('MUTIL_LIBRARY_DIR') || define('MUTIL_LIBRARY_DIR', realpath(VENDOR_DIR . '/magnafacta/mutil/src'));
-defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR . '/src/App');
-
-define('GEMS_PROJECT_NAME', 'pulse');
-defined('GEMS_PROJECT_NAME_UC') || define('GEMS_PROJECT_NAME_UC', ucfirst(GEMS_PROJECT_NAME));
-
 return [
     'dependencies' => [
         'factories' => [
