@@ -11,6 +11,7 @@ use Gems\Rest\Action\AclRolesController;
 use Gems\Rest\Action\ApiDefinitionAction;
 use Gems\Rest\Action\ApiRolesController;
 use Gems\Rest\Action\DevAction;
+use Gems\Rest\Action\GemsSessionTestController;
 use Gems\Rest\Action\PingController;
 use Gems\Rest\Auth\AccessTokenAction;
 use Gems\Rest\Auth\AccessTokenRepository;
@@ -140,6 +141,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AclRolePermissionsController::class => ReflectionFactory::class,
                 AclRolesController::class => ReflectionFactory::class,
                 ApiRolesController::class => ReflectionFactory::class,
+
+                GemsSessionTestController::class => ReflectionFactory::class,
 
                 DevAction::class => ReflectionFactory::class,
 
@@ -274,6 +277,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'name' => 'ping',
                 'path' => '/ping',
                 'middleware' => $this->getCustomActionMiddleware(PingController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'gems-session-test',
+                'path' => '/gems-session-test',
+                'middleware' => GemsSessionTestController::class,
                 'allowed_methods' => ['GET'],
             ],
             [
