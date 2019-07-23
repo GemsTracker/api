@@ -62,6 +62,6 @@ return [
         ]
     ],
     'controllerDirs' => [
-        'gems' => GEMS_LIBRARY_DIR . '/controllers',
+        //'gems' => GEMS_LIBRARY_DIR . '/controllers',
     ],
 ];

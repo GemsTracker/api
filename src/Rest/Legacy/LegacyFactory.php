@@ -25,25 +25,37 @@ class LegacyFactory implements FactoryInterface
 
     protected $container;
 
+    protected $init;
+
     /**
      * @var \Zalt\Loader\ProjectOverloader;
      */
     protected $loader;
 
-    public function __construct()
+    protected function init()
     {
-        defined('VENDOR_DIR') || define('VENDOR_DIR', GEMS_ROOT_DIR . '/vendor/');
-        defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
-        defined('MUTIL_LIBRARY_DIR') || define('MUTIL_LIBRARY_DIR', realpath(VENDOR_DIR . '/magnafacta/mutil/src'));
-        defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR . '/src/App');
+        if (!$this->init) {
+            defined('VENDOR_DIR') || define('VENDOR_DIR', GEMS_ROOT_DIR . '/vendor/');
 
-        defined('GEMS_PROJECT_NAME') || define('GEMS_PROJECT_NAME', 'pulse');
-        defined('GEMS_PROJECT_NAME_UC') || define('GEMS_PROJECT_NAME_UC', ucfirst(GEMS_PROJECT_NAME));
+            defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
+            defined('MUTIL_LIBRARY_DIR') || define('MUTIL_LIBRARY_DIR', realpath(VENDOR_DIR . '/magnafacta/mutil/src'));
+            //defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR . '/src/App');
+
+            if (!defined('GEMS_PROJECT_NAME') && isset($this->config['project'], $this->config['project']['name'])) {
+                define('GEMS_PROJECT_NAME', $this->config['project']['name']);
+            }
+            defined('GEMS_PROJECT_NAME_UC') || define('GEMS_PROJECT_NAME_UC', ucfirst(GEMS_PROJECT_NAME));
+            $this->init = true;
+        }
     }
 
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         $this->container = $container;
+        $this->config = $container->get('config');
+
+        $this->init();
+
         $this->loader = $this->container->get('loader');
 
         switch ($requestedName) {
@@ -272,7 +284,7 @@ class LegacyFactory implements FactoryInterface
 
     protected function getProjectSettings()
     {
-        $projectArray = $this->includeFile(APPLICATION_PATH . '/configs/project');
+        $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/config/project');
 
         $project = $this->loader->create('Project_ProjectSettings', $projectArray);
 
@@ -357,8 +369,28 @@ class LegacyFactory implements FactoryInterface
             'disableNotices'  => true,
             'scan'            => \Zend_Translate::LOCALE_FILENAME);
 
-        $translate = \MUtil_Translate_Adapter_Potemkin::create();
+        $translate = new \Zend_Translate($options);
 
+        // If we don't find the needed language, use a fake translator to disable notices
+        if (! $translate->isAvailable($language)) {
+            $translate = \MUtil_Translate_Adapter_Potemkin::create();
+        }
+        return $translate;
+
+        //Now if we have a project specific language file, add it
+        $projectLanguageDir = APPLICATION_PATH . '/languages/';
+        if (file_exists($projectLanguageDir)) {
+            $options['content']        = $projectLanguageDir;
+            $options['disableNotices'] = true;
+            $projectTranslations       = new \Zend_Translate($options);
+            //But only when it has the requested language
+            if ($projectTranslations->isAvailable($language)) {
+                $translate->addTranslation(array('content' => $projectTranslations));
+            }
+            unset($projectTranslations);  //Save some memory
+        }
+
+        $translate->setLocale($language);
         \Zend_Registry::set('Zend_Translate', $translate);
 
         return $translate;
