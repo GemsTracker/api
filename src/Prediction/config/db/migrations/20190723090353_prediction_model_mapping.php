@@ -39,7 +39,7 @@ class PredictionModelMapping extends AbstractMigration
             ->addColumn('gpm_url', 'string', ['limit' => 255, 'null' => true])
             ->addColumn('gpm_changed', 'timestamp')
             ->addColumn('gpm_changed_by', 'biginteger')
-            ->addColumn('gpm_created', 'timestamp')
+            ->addColumn('gpm_created', 'timestamp', ['null' => true])
             ->addColumn('gpm_created_by', 'biginteger')
             ->create();
 
@@ -51,7 +51,7 @@ class PredictionModelMapping extends AbstractMigration
             ]
         );
         $predictionModels
-            ->addColumn('gpm_name', 'string', ['limit' => 100])
+            ->addColumn('gpmm_name', 'string', ['limit' => 100])
             ->addColumn('gpmm_required', 'boolean')
             ->addColumn('gpmm_type', 'string', ['limit' => 100])
             ->addColumn('gpmm_type_id', 'string', ['limit' => 100])
@@ -59,7 +59,7 @@ class PredictionModelMapping extends AbstractMigration
             ->addColumn('gpmm_custom_mapping', 'text', ['null' => true])
             ->addColumn('gpmm_changed', 'timestamp')
             ->addColumn('gpmm_changed_by', 'biginteger')
-            ->addColumn('gpmm_created', 'timestamp')
+            ->addColumn('gpmm_created', 'timestamp', ['null' => true])
             ->addColumn('gpmm_created_by', 'biginteger')
             ->create();
 

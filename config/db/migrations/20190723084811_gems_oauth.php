@@ -41,7 +41,7 @@ class GemsOauth extends AbstractMigration
             ->addColumn('expires_at', 'datetime')
             ->addColumn('changed', 'timestamp')
             ->addColumn('changed_by', 'biginteger')
-            ->addColumn('created', 'timestamp')
+            ->addColumn('created', 'timestamp', ['null' => true])
             ->addColumn('created_by', 'biginteger')
             ->addIndex(['id', 'user_id'])
             ->create();
@@ -67,7 +67,7 @@ class GemsOauth extends AbstractMigration
             ->addColumn('active', 'boolean')
             ->addColumn('changed', 'timestamp')
             ->addColumn('changed_by', 'biginteger')
-            ->addColumn('created', 'timestamp')
+            ->addColumn('created', 'timestamp', ['null' => true])
             ->addColumn('created_by', 'biginteger')
             ->addIndex(['user_id'])
             ->create();
@@ -81,14 +81,14 @@ class GemsOauth extends AbstractMigration
             ->addIndex(['id', 'access_token_id'])
             ->create();
 
-        $clients = $this->table('gems__oauth_clients', ['signed' => false]);
+        $clients = $this->table('gems__oauth_scope', ['signed' => false]);
         $clients
             ->addColumn('name', 'string', ['limit' => 255])
             ->addColumn('description', 'string', ['limit' => 255])
             ->addColumn('active', 'boolean')
             ->addColumn('changed', 'timestamp')
             ->addColumn('changed_by', 'biginteger')
-            ->addColumn('created', 'timestamp')
+            ->addColumn('created', 'timestamp', ['null' => true])
             ->addColumn('created_by', 'biginteger')
             ->addIndex(['name'])
             ->create();
