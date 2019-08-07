@@ -39,7 +39,14 @@ class LegacyFactory implements FactoryInterface
 
             defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', VENDOR_DIR . '/gemstracker/gemstracker');
             defined('MUTIL_LIBRARY_DIR') || define('MUTIL_LIBRARY_DIR', realpath(VENDOR_DIR . '/magnafacta/mutil/src'));
-            //defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR . '/src/App');
+
+            if (!defined('APPLICATION_PATH')) {
+                if (isset($this->config['project'], $this->config['project']['vendor'])) {
+                    define('APPLICATION_PATH', VENDOR_DIR . $this->config['project']['vendor'] . '/application');
+                } else {
+                    define('APPLICATION_PATH', null);
+                }
+            }
 
             if (!defined('GEMS_PROJECT_NAME') && isset($this->config['project'], $this->config['project']['name'])) {
                 define('GEMS_PROJECT_NAME', $this->config['project']['name']);

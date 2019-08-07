@@ -11,5 +11,6 @@ return [
     'project' => [
         'name' => 'pulse',
         'environment' => 'development',
+        'vendor' => 'mddejong/pulse',
     ],
 ];
