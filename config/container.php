@@ -28,9 +28,11 @@ if (! defined('APPLICATION_ENV')) {
     define('APPLICATION_ENV', $env);
 }
 
+$ucFirstProjectName = ucfirst($config['project']['name']);
+
 // Build container
 $loader = new ProjectOverloaderSourceContainer([
-	$config['project']['name'],
+    $ucFirstProjectName,
     'Gems',
     'MUtil',
 ]);
@@ -52,7 +54,7 @@ $container->setService(ProjectOverloader::class, $loader);
 // Set the used namespaces and a registry source in the \MUtil_Model
 $source = new \Gems\Rest\Legacy\ServiceManagerRegistrySource($container);
 \MUtil_Model::addNameSpace('Gems');
-\MUtil_Model::addNameSpace($config['project']['name']);
+\MUtil_Model::addNameSpace($ucFirstProjectName);
 \MUtil_Model::setSource($source);
 
 

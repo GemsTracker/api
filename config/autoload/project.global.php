@@ -9,7 +9,7 @@
 
 return [
     'project' => [
-        'name' => 'Pulse',
+        'name' => 'pulse',
         'environment' => 'development',
     ],
 ];
