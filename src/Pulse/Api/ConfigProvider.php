@@ -144,7 +144,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                             'formatter' => [
                                 'name' => SimpleMulti::class,
                             ],
-                            'stream' => GEMS_ROOT_DIR . '/data/logs/emma-import.log',
+                            'stream' => GEMS_LOG_DIR . '/emma-import.log',
 
                         ],
                     ],
@@ -159,7 +159,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                             'formatter' => [
                                 'name' => SimpleMulti::class,
                             ],
-                            'stream' => GEMS_ROOT_DIR . '/data/logs/emma-respondent-error.log',
+                            'stream' => GEMS_LOG_DIR . '/emma-respondent-error.log',
                         ],
                     ],
                 ],
@@ -170,7 +170,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                         'name' => 'stream',
                         'priority' => Logger::DEBUG,
                         'options' => [
-                            'stream' => GEMS_ROOT_DIR . '/data/logs/api-error.log',
+                            'stream' => GEMS_LOG_DIR . '/api-error.log',
                         ],
                     ],
                 ],
