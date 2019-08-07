@@ -21,3 +21,61 @@ gems__reception_codes:
     grc_changed_by: 1
     grc_created: 2018-01-01 00:00:00
     grc_created_by: 1
+gems__consents:
+  - gco_description: 'consent given'
+    gco_changed_by: '1'
+    gco_created: '2012-09-07'
+    gco_created_by: '1'
+gems__surveys:
+  -
+    gsu_id_survey: '1'
+    gsu_survey_name: 'test survey'
+    gsu_id_primary_group: '222'
+    gsu_code: 'intake test'
+    gsu_active: 1
+    gsu_id_source: '1'
+    gsu_changed_by: '1'
+    gsu_created: '2012-03-29 10:55:55'
+    gsu_created_by: '1'
+gems__agenda_activities:
+  -
+    gaa_id_activity: 1
+    gaa_name: 'Activity 1 cough'
+    gaa_id_organization: 1
+    gaa_name_for_resp:
+    gaa_match_to: 'Activity 1 cough'
+    gaa_code:
+    gaa_active: 1
+    gaa_filter: 0
+    gaa_changed: '2017-08-09'
+    gaa_changed_by: 1
+    gaa_created: '2017-08-09'
+    gaa_created_by: 1
+pulse__activity2anaesthesiology:
+  -
+    pa2a_activity: '%cough%'
+    pa2a_code: 'intake test'
+    pa2a_changed: '2019-01-08'
+    pa2a_changed_by: 1
+    pa2a_created: '2019-01-08'
+    pa2a_created_by: 1
+gems__respondents:
+  -
+    grs_id_user: 123
+    grs_first_name: Janneke
+    grs_last_name: Janssen
+    grs_ssn: 111222333
+    grs_changed: 2018-12-05 00:00:00
+    grs_changed_by: 1
+    grs_created: 2018-12-05 00:00:00
+    grs_created_by: 1
+gems__respondent2org:
+  -
+    gr2o_id_user: 123
+    gr2o_patient_nr: T001
+    gr2o_id_organization: 1
+    gr2o_opened_by: 1
+    gr2o_changed: 2018-12-05 00:00:00
+    gr2o_changed_by: 1
+    gr2o_created: 2018-12-05 00:00:00
+    gr2o_created_by: 1

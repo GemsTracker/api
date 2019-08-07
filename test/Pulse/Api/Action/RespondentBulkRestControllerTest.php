@@ -1015,7 +1015,40 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         $this->assertEmpty($testResultArray);
     }
 
+    public function testAnasesthesiaLinkSingle()
+    {
+        $controller = $this->getController(true, true, [], true);
 
+        $newData = [
+            'gr2o_patient_nr' => 'T001',
+            'organizations' => [
+                'Test organization',
+            ],
+            'grs_last_name' => 'Janssen',
+            'gr2o_reception_code' => 'OK', // default in sqlite gets quoted extra
+            'appointments' => [
+                [
+                    'id' => 1,
+                    'organization' => 'Test organization',
+                    'admission_time' => '2019-01-01T01:23:45',
+                    'activity' => 'Activity 1 cough',
+                ],
+            ],
+        ];
+
+        $request = $this->getRequest('POST', [], [], $newData, $this->routeOptions);
+        $delegator = $this->getDelegator();
+
+        $response = $controller->process($request, $delegator);
+
+        $this->checkResponse($response, EmptyResponse::class, 201);
+
+        $testResultArray = $this->getAllAppointmentsFromDb();
+
+        $this->assertEquals($testResultArray[0]['gap_id_in_source'], '1');
+        $this->assertEquals($testResultArray[0]['gap_id_organization'], '1');
+        $this->assertEquals($testResultArray[0]['gap_admission_time'], '2019-01-01T01:23:45');
+    }
 
 
 
@@ -1043,7 +1076,7 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
         return iterator_to_array($testResult);
     }
 
-    private function getController($realLoader=false, $realModel=true, $urlHelperRoutes=[])
+    private function getController($realLoader=false, $realModel=true, $urlHelperRoutes=[], $realModelLoader=false)
     {
         \Gems_Model::setCurrentUserId(1);
 
@@ -1094,6 +1127,9 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
 
         $gemsAgendaProphecy = $this->prophesize(\Gems_Agenda::class);
         $gemsAgendaProphecy->matchLocation('Home', '1', false)->willReturn(['glo_id_location' => 99]);
+
+        $gemsAgendaProphecy->matchActivity('Activity 1 cough', 1)->willReturn(1);
+
         $gemsAgendaProphecy->getStatusCodesInactive()->willReturn(['AB' => 'Aborted appointment', 'CA' => 'Cancelled appointment']);
         $gemsAgendaProphecy->getStatusKeysInactive()->willReturn(['AB', 'CA']);
         $gemsAgendaProphecy->getTypeCodes()->willReturn([
@@ -1123,12 +1159,22 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
 
         $gemsAgendaProphecy->getAppointment(Argument::type('array'))->willReturn($appointment->reveal());
 
-
+        $appointmentActivityLogger = $this->prophesize(\Pulse\Log\AppointmentActivity::class);
+        $appointmentActivityLogger->logAppointmentActivity(Argument::any())->willReturn(null);
 
         $organizationProphecy = $this->prophesize(\Gems_User_Organization::class);
-        $legacyLoaderProphecy = $this->prophesize(\Gems_Loader::class);
+
+        $loaderClass = \Gems_Loader::class;
+        if (class_exists(\Pulse_Loader::class, true)) {
+            $loaderClass = \Pulse_Loader::class;
+        }
+
+        $legacyLoaderProphecy = $this->prophesize($loaderClass);
         $legacyLoaderProphecy->getOrganization(Argument::cetera())->willReturn($organizationProphecy->reveal());
         $legacyLoaderProphecy->getAgenda()->willReturn($gemsAgendaProphecy->reveal());
+        if ($loaderClass === \Pulse_Loader::class) {
+            $legacyLoaderProphecy->getAppointmentActivityLogger()->willReturn($appointmentActivityLogger->reveal());
+        }
 
         $utilProphecy = $this->prophesize(\Gems_Util::class);
 
@@ -1204,6 +1250,7 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
 
         $agendaDiagnosisRepositoryProphecy = $this->prophesize(AgendaDiagnosisRepository::class);
         $appointmentRepositoryProphecy = $this->prophesize(AppointmentRepository::class);
+        $appointmentRepositoryProphecy->getAppointmentDataBySourceId(Argument::any(), Argument::type('string'))->willReturn(false);
         $organizationRepositoryProphecy = $this->prophesize(OrganizationRepository::class);
 
         $organizationRepositoryProphecy->getOrganizationTranslations(['Test organization'])->willReturn(['1' => 'Test organization']);
@@ -1235,9 +1282,14 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
             $modelClass = \Pulse_Model::class;
         }
 
-        $gemsModelProphecy = $this->prophesize($modelClass);
-        $gemsModelProphecy->createGemsUserId(Argument::cetera())->willReturnArgument(0);
-        $gemsModelProphecy->checkAnaesthesiaLink(Argument::cetera())->willReturn(null);
+        if ($realModelLoader === true) {
+            $gemsModel = $loader->create($modelClass, $loader, []);
+        } else {
+            $gemsModelProphecy = $this->prophesize($modelClass);
+            $gemsModelProphecy->createGemsUserId(Argument::cetera())->willReturnArgument(0);
+            $gemsModelProphecy->checkAnaesthesiaLink(Argument::cetera())->willReturn(null);
+            $gemsModel = $gemsModelProphecy->reveal();
+        }
 
         $legacyLoaderProphecy = $this->prophesize(\Gems_Loader::class);
         $emmaImportLoggerProphecy = $this->prophesize(LoggerInterface::class);
@@ -1252,7 +1304,7 @@ class RespondentBulkRestControllerTest extends ZendDbTestCase
             $organizationRepositoryProphecy->reveal(),
             $respondentRepository,
             $gemsAgendaProphecy->reveal(),
-            $gemsModelProphecy->reveal(),
+            $gemsModel,
             $legacyLoaderProphecy->reveal(),
             $emmaImportLoggerProphecy->reveal(),
             $emmaRespondentErrorLoggerProphecy->reveal(),

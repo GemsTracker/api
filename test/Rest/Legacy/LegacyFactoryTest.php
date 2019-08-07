@@ -28,7 +28,9 @@ class LegacyFactoryTest extends TestCase
         $this->fileSystem = vfsStream::setup('testDirectory');
 
         defined('GEMS_ROOT_DIR') || define('GEMS_ROOT_DIR', vfsStream::url('testDirectory'));
-        defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', vfsStream::url('localeDirectory'));
+        defined('VENDOR_DIR') || define('VENDOR_DIR', dirname(dirname(dirname(__DIR__))).'/vendor');
+
+        //defined('GEMS_LIBRARY_DIR') || define('GEMS_LIBRARY_DIR', vfsStream::url('localeDirectory'));
         defined('APPLICATION_PATH') || define('APPLICATION_PATH', GEMS_ROOT_DIR);
         defined('GEMS_PROJECT_NAME') || define('GEMS_PROJECT_NAME', 'TEST');
 
@@ -363,6 +365,10 @@ description = 'Gemstracker Test'
 
         $container = $this->getContainer([], ['LegacyLocale' => $locale]);
         $legacyFactory = new LegacyFactory();
+
+        //vfsStream::newFile('localeDirectory/languages/')->at($this->fileSystem)->setContent();
+
+
         $result = $legacyFactory->__invoke($container, \Zend_Translate::class);
         $this->assertInstanceOf(\Zend_Translate::class, $result);
     }

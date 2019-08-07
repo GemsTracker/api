@@ -249,3 +249,109 @@ CREATE TABLE gems__episodes_of_care (
 
         PRIMARY KEY (gec_episode_of_care_id)
 );
+
+CREATE TABLE if not exists gems__agenda_activities (
+        gaa_id_activity     INTEGER not null ,
+        gaa_name            varchar(250) ,
+
+        gaa_id_organization INTEGER,
+
+        gaa_name_for_resp   varchar(50) ,
+        gaa_match_to        varchar(250) ,
+        gaa_code            varchar(40) ,
+
+        gaa_active          TINYINT(1) not null default 1,
+        gaa_filter          TINYINT(1) not null default 0,
+
+        gaa_changed         TEXT not null default current_timestamp,
+        gaa_changed_by      INTEGER not null,
+        gaa_created         TEXT not null default '0000-00-00 00:00:00',
+        gaa_created_by      INTEGER not null,
+
+        PRIMARY KEY (gaa_id_activity)
+);
+
+CREATE TABLE if not exists gems__surveys (
+        gsu_id_survey               int not null ,
+        gsu_survey_name             varchar(100) not null,
+        gsu_survey_description      varchar(100) ,
+
+        gsu_surveyor_id             int(11),
+        gsu_surveyor_active         TINYINT(1) not null default 1,
+
+        gsu_survey_pdf              varchar(128) ,
+        gsu_beforeanswering_event   varchar(128) ,
+        gsu_completed_event         varchar(128) ,
+        gsu_display_event           varchar(128) ,
+
+        gsu_id_source               int not null,
+        gsu_active                  TINYINT(1) not null default 0,
+        gsu_status                  varchar(127) ,
+
+        gsu_id_primary_group        INTEGER,
+
+        gsu_insertable              TINYINT(1) not null default 0,
+        gsu_valid_for_unit          char(1) not null default 'M',
+        gsu_valid_for_length        int not null default 6,
+        gsu_insert_organizations    varchar(250) ,
+
+        gsu_result_field            varchar(20) ,
+
+        gsu_agenda_result           varchar(20) ,
+        gsu_duration                varchar(50) ,
+
+        gsu_code                    varchar(64),
+        gsu_export_code             varchar(64),
+
+        gsu_changed                 TEXT not null default current_timestamp,
+        gsu_changed_by              INTEGER not null,
+        gsu_created                 TEXT not null,
+        gsu_created_by              INTEGER not null,
+
+        PRIMARY KEY(gsu_id_survey)
+);
+
+CREATE TABLE if not exists gems__consents (
+      gco_description varchar(20) not null,
+      gco_order smallint not null default 10,
+      gco_code varchar(20) not null default 'do not use',
+
+      gco_changed TEXT not null default current_timestamp,
+      gco_changed_by INTEGER not null,
+      gco_created TEXT not null,
+      gco_created_by INTEGER not null,
+
+      PRIMARY KEY (gco_description)
+);
+
+CREATE TABLE if not exists pulse__activity2anaesthesiology (
+        pa2a_activity      varchar(200) not null,
+        pa2a_active        TINYINT(1) not null default 1,
+        pa2a_intake        TINYINT(1) not null default 1,
+        pa2a_aneasthesia   TINYINT(1) not null default 0,
+        pa2a_code          varchar(64),
+
+        pa2a_changed       TEXT not null default current_timestamp,
+        pa2a_changed_by    INTEGER not null,
+        pa2a_created       TEXT not null default '0000-00-00 00:00:00',
+        pa2a_created_by    INTEGER not null,
+
+        PRIMARY KEY (pa2a_activity)
+);
+
+CREATE TABLE gems__log_setup (
+        gls_id_action       int not null ,
+        gls_name            varchar(64) not null unique,
+
+        gls_when_no_user    TINYINT(1) not null default 0,
+        gls_on_action       TINYINT(1) not null default 0,
+        gls_on_post         TINYINT(1) not null default 0,
+        gls_on_change       TINYINT(1) not null default 1,
+
+        gls_changed         TEXT not null default current_timestamp,
+        gls_changed_by      INTEGER not null,
+        gls_created         TEXT not null,
+        gls_created_by      INTEGER not null,
+
+        PRIMARY KEY (gls_id_action)
+);

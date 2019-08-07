@@ -46,8 +46,8 @@ class RespondentRepositoryTest extends ZendDbTestCase
         $repository = $this->getRepository();
         $result = $repository->getPatientsbySsn('1234567890');
         $this->assertCount(2, $result);
-        $this->assertEquals(1, $result[0]['grs_id_user']);
-        $this->assertEquals(1, $result[1]['grs_id_user']);
+        $this->assertEquals(1, $result[0]['gr2o_id_user']);
+        $this->assertEquals(1, $result[1]['gr2o_id_user']);
 
         $result2 = $repository->getPatientsBySsn('4567');
         $this->assertNull($result2);
