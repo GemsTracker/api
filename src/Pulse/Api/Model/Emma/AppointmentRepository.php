@@ -51,6 +51,7 @@ class AppointmentRepository
             ->columns(['gap_id_in_source'])
             ->where(['gap_source' => $source]);
         $select->where->like('gap_id_in_source', $sourcePrefix . '%');
+        $select->order('gap_id_in_source DESC');
 
         $statement = $sql->prepareStatementForSqlObject($select);
 
