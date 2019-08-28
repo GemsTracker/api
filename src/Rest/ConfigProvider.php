@@ -10,6 +10,7 @@ use Gems\Rest\Action\AclRolePermissionsController;
 use Gems\Rest\Action\AclRolesController;
 use Gems\Rest\Action\ApiDefinitionAction;
 use Gems\Rest\Action\ApiRolesController;
+use Gems\Rest\Action\DashboardConfigController;
 use Gems\Rest\Action\DevAction;
 use Gems\Rest\Action\GemsSessionTestController;
 use Gems\Rest\Action\PingController;
@@ -142,6 +143,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AclRolesController::class => ReflectionFactory::class,
                 ApiRolesController::class => ReflectionFactory::class,
 
+                DashboardConfigController::class => ReflectionFactory::class,
+
                 GemsSessionTestController::class => ReflectionFactory::class,
 
                 DevAction::class => ReflectionFactory::class,
@@ -192,6 +195,17 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function getRestModels()
     {
         return [
+            'dashboard-configs' => [
+                'methods' => ['GET', 'PATCH', 'POST'],
+                'idField' => 'gcc_sid',
+                'allowed_fields' => [
+                    'gcc_id',
+                    'gcc_sid',
+                    'gcc_config',
+                    'gcc_description'
+                ],
+                'customAction' => DashboardConfigController::class,
+            ],
             /*'organizations' => [
                 'model' => 'Model_OrganizationModel',
                 'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
