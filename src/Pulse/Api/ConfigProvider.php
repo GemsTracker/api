@@ -208,7 +208,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Tracker_Model_StandardTokenModel',
                 'methods' => ['GET'],
                 'idField' => 'gr2o_patient_nr',
-                'idFieldRegex' => '[0-9]{6}-A[0-9]{3}',
+                'idFieldRegex' => '[0-9]{5,9}',
                 'allowed_fields' => [
                     'patient_nr',
                     'organization',
