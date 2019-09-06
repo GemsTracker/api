@@ -383,8 +383,12 @@ class RespondentBulkRestController extends ModelRestController
         $new = !(boolean) $existingAppointmentData;
 
         if ($existingAppointmentData !== false) {
+            $admissionTime = $appointmentData['gap_admission_time'];
+            if (substr($admissionTime, -1) === 'Z') {
+                $admissionTime = substr($admissionTime, 0, -1);
+            }
             $existingAppointmentDate = strtotime($existingAppointmentData['gap_admission_time']);
-            $newAppointmentDate = strtotime($appointmentData['gap_admission_time']);
+            $newAppointmentDate = strtotime($admissionTime);
 
             if ($existingAppointmentDate != $newAppointmentDate) {
                 $currentAppointmentVersion = $this->appointmentRepository->getLatestAppointmentVersion($appointmentData['gap_id_in_source'], 'emma');
