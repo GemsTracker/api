@@ -357,6 +357,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_fields' => [
                     'gto_id_token',
                     'gto_id_survey',
+                    'gto_id_respondent_track',
                     'gto_round_description',
                     'gto_round_order',
                     'gto_completion_time',
