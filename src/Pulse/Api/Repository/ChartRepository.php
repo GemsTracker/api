@@ -101,6 +101,15 @@ class ChartRepository
      */
     protected function addChartDataFromScores($norms, $normType='')
     {
+        $firstNorm = reset($norms);
+        if ($firstNorm['pt2o_graph'] == 'errorbar') {
+            $errorData = $this->getErrorData($norms);
+            if (isset($errorData['error_y'])) {
+                $norms = $errorData['norms'];
+                $errorY = $errorData['error_y'];
+            }
+        }
+
         $area = [];
         $order = [];
         $groups = [];
@@ -181,6 +190,11 @@ class ChartRepository
                 'name' => $descriptiveLabel,
                 'type' => $this->type,
             ];
+
+            if (isset($errorY)) {
+                $descriptiveData['type'] = 'bar';
+                $descriptiveData['error_y'] = $errorY;
+            }
 
             //if (isset($groups[$descriptive]) && $groups[$descriptive] !== false) {
             if (!empty($normType)) {
@@ -263,7 +277,7 @@ class ChartRepository
 
         $select->where->notEqualTo('gro_id_round', 0);
         $select->where->notEqualTo('gro_round_description', 'Stand-alone survey');
-            //->where(['pt2o_id' => $outcomeVariableId]);
+        //->where(['pt2o_id' => $outcomeVariableId]);
 
         foreach($normFieldToDbField as $normFieldName=>$dbFieldName) {
             if ($normFieldName == 'treatment') {
@@ -385,6 +399,62 @@ class ChartRepository
         return $name;
     }
 
+    /**
+     * Get the error data for error bars depending on the range of scores
+     *
+     * @param $norms array norm scores from the database
+     * @return array
+     */
+    protected function getErrorData($norms)
+    {
+        $sortedData = [];
+        $baseNorms = [];
+
+        foreach($norms as $norm) {
+            $order = $norm['gno_order'];
+            $roundOrder = $norm['gro_id_order'];
+            $sortedData[$roundOrder][$order] = $norm['gno_value'];
+            if ($order == 0) {
+                $baseNorms[] = $norm;
+            }
+        }
+
+        ksort($sortedData);
+
+        $correctLower = [];
+        $correctUpper = [];
+
+        foreach($sortedData as $roundOrder=>$values) {
+            if (array_key_exists(0, $values)) {
+                $mainValue = $values[0];
+
+                if (array_key_exists(1, $values)) {
+                    $correctLower[] = $mainValue - $values[1];
+                }
+
+                if (array_key_exists(2, $values)) {
+                    $correctUpper[] = $values[2] - $mainValue;
+                }
+            }
+
+        }
+
+        $errorData = [
+            'norms' => $baseNorms
+        ];
+
+        if (!empty($correctLower) && !empty($correctUpper)) {
+            $errorData['error_y'] = [
+                'type' => 'data',
+                'symmetric' => false,
+                'array' => $correctUpper,
+                'arrayminus' => $correctLower,
+            ];
+        }
+
+        return $errorData;
+    }
+
     public function getOutcomeVariable($outcomeVariableId)
     {
         $sql = new Sql($this->db);
@@ -461,7 +531,7 @@ class ChartRepository
                     $variableName,
                     false,
                     false,
-                    'scatter');
+                    $this->type);
 
                 $this->chartData[] = $respondentData;
                 $key++;
@@ -532,7 +602,7 @@ class ChartRepository
             ->where([
                 'ptr_id_treatment' => $treatmentId,
                 'ptr_active' => 1
-                ]);
+            ]);
 
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
