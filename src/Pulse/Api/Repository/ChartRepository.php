@@ -84,12 +84,40 @@ class ChartRepository
      */
     protected $type;
 
+    /**
+     * @var array List of chart Ids and their used rounds
+     */
+    protected $usedRounds;
+
     public function __construct(Adapter $db, \Zend_Locale $locale, \Gems_Tracker $tracker, \Zend_Translate_Adapter $translateAdapter)
     {
         $this->db = $db;
         $this->locale = $locale;
         $this->tracker = $tracker;
         $this->translateAdapter = $translateAdapter;
+    }
+
+    /**
+     * Add the base round data to each chart. This is mock data setting the rounds in their correct order
+     * regardless of order of the added charts. This base round data will only be added if the respondent data
+     * has rounds that or not in the base norm data
+     *
+     */
+    protected function addBaseRoundsData()
+    {
+        if (!is_array($this->usedRounds)) {
+            return;
+        }
+        ksort($this->usedRounds);
+        $chartData = [
+            'x' => array_values($this->usedRounds),
+            'mode' => 'none',
+            "showlegend" => false,
+            "hoverinfo" => "none",
+        ];
+
+
+        array_unshift($this->chartData, $chartData);
     }
 
     /**
@@ -121,10 +149,14 @@ class ChartRepository
         $normDate = false;
 
         $scores = [];
-        foreach($norms as $norm) {
+        foreach ($norms as $norm) {
             $descriptive = $norm['gno_descriptive'];
             $round = $norm['gro_round_description'];
             $scores[$descriptive][$round] = (float)$norm['gno_value'];
+
+            if ($normType == 'base') {
+                $this->usedRounds[$norm['gro_id_order']] = $norm['gro_round_description'];
+            }
 
             $order[$norm['gno_order']] = $descriptive;
 
@@ -142,7 +174,7 @@ class ChartRepository
 
             if ($range === false && isset($norm['gno_range'])) {
                 $range = explode('-', $norm['gno_range']);
-                foreach($range as $key=>$value) {
+                foreach ($range as $key => $value) {
                     $range[$key] = (int)$value;
                 }
             }
@@ -170,7 +202,7 @@ class ChartRepository
 
         $descriptiveCount = 1;
 
-        foreach($order as $descriptive) {
+        foreach ($order as $descriptive) {
             $descriptiveScores = $scores[$descriptive];
             if (!empty($normType)) {
                 $descriptiveVariableNames[] = $variableName = $normType . '_descriptive_' . $descriptiveCount;
@@ -231,7 +263,7 @@ class ChartRepository
             }
         }
 
-        foreach($nValues as $roundDescription=>$nValue) {
+        foreach ($nValues as $roundDescription => $nValue) {
             $nLabels[$roundDescription] = 'N = ' . $nValue;
             $nYValues[] = $nYValue;
         }
@@ -321,6 +353,7 @@ class ChartRepository
             $this->addChartDataFromScores($respondentData);
         }
 
+        $this->addBaseRoundsData();
 
         $chartData = [
             'data' => $this->chartData,
@@ -536,7 +569,6 @@ class ChartRepository
                 $this->chartData[] = $respondentData;
                 $key++;
             }
-            $test = false;
         }
     }
 
@@ -569,6 +601,8 @@ class ChartRepository
 
             $respondentScores = [];
 
+            $addedRounds = false;
+
             foreach($tokens as $currentToken) {
                 $token = $this->tracker->getToken($currentToken['gto_id_token']);
                 $tokenAnswers = $token->getRawAnswers();
@@ -584,9 +618,17 @@ class ChartRepository
 
                         if (is_numeric($answer)) {
                             $respondentScores[$questionCode][$currentToken['gto_round_description']] = $answer;
+                            if (!array_key_exists($currentToken['gto_round_order'], $this->usedRounds)) {
+                                $this->usedRounds[$currentToken['gto_round_order']] = $currentToken['gto_round_description'];
+                                $addedRounds = true;
+                            }
                         }
                     }
                 }
+            }
+
+            if (!$addedRounds) {
+                $this->usedRounds = null;
             }
 
             return $respondentScores;
