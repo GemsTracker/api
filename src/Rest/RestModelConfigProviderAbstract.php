@@ -16,7 +16,7 @@ abstract class RestModelConfigProviderAbstract
     /**
      * Get an array of default routing middleware for REST actions with a custom action instead of the default controller
      *
-     * @param $customAction classname of the custom action
+     * @param $customAction string classname of the custom action
      * @return array
      */
     public function getCustomActionMiddleware($customAction)

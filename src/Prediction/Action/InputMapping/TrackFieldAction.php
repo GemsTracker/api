@@ -45,6 +45,7 @@ class TrackFieldAction implements MiddlewareInterface
             if ($code) {
                 $filteredData[$code] = [
                     'name' => $field['gtf_field_name'],
+                    'type' => $field['gtf_field_type'],
                 ];
 
                 if ($field['gtf_field_values'] !== null) {

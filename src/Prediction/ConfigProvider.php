@@ -133,46 +133,31 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             [
                 'name' => 'api.prediction/chart-definitions',
                 'path' => '/prediction/chart-definitions',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    ChartsDefinitionsAction::class,
-                ],
+                'middleware' => $this->getCustomActionMiddleware(ChartsDefinitionsAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'name' => 'api.prediction/charts',
                 'path' => '/prediction/charts/[{modelId:[a-zA-Z0-9-_]+}]',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    ChartDataAction::class,
-                ],
+                'middleware' => $this->getCustomActionMiddleware(ChartDataAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'name' => 'api.prediction/respondents',
                 'path' => '/prediction/respondents',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    RespondentAction::class,
-                ],
+                'middleware' => $this->getCustomActionMiddleware(RespondentAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'name' => 'api.prediction/track-fields',
                 'path' => '/prediction/track-fields/{trackId:\d+}',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    TrackFieldAction::class,
-                ],
+                'middleware' => $this->getCustomActionMiddleware(TrackFieldAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
                 'name' => 'api.prediction/survey-questions',
                 'path' => '/prediction/survey-questions/{surveyId:\d+}',
-                'middleware' => [
-                    AuthorizeGemsAndOauthMiddleware::class,
-                    SurveyQuestions::class,
-                ],
+                'middleware' => $this->getCustomActionMiddleware(SurveyQuestions::class),
                 'allowed_methods' => ['GET'],
             ],
         ];
