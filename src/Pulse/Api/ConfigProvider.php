@@ -37,7 +37,6 @@ use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\RespondentResults;
 use Pulse\Api\Repository\RespondentTrackfieldsRepository;
-use Pulse\Api\Repository\SurveyQuestionsRepository;
 use Pulse\Api\Repository\TokenAnswerRepository;
 use Pulse\Api\Repository\TrackfieldsRepository;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
@@ -81,7 +80,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         return [
             'factories'  => [
                 SurveyQuestionsRestController::class => ReflectionFactory::class,
-                SurveyQuestionsRepository::class => ReflectionFactory::class,
 
                 TokenAnswersRestController::class => ReflectionFactory::class,
                 TokenAnswerRepository::class => ReflectionFactory::class,

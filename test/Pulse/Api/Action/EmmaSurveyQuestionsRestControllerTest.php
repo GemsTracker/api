@@ -7,7 +7,7 @@ namespace Pulse\Api\Action;
 use GemsTest\Rest\Test\RequestTestUtils;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Pulse\Api\Repository\SurveyQuestionsRepository;
+use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Zend\Diactoros\Response\JsonResponse;
 
 class EmmaSurveyQuestionsRestControllerTest extends TestCase

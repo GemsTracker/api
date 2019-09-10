@@ -4,6 +4,7 @@
 namespace Prediction\Action\InputMapping;
 
 
+use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,45 +13,21 @@ use Zend\Diactoros\Response\JsonResponse;
 class SurveyQuestions implements MiddlewareInterface
 {
     /**
-     * @var \Zend_Locale
+     * @var SurveyQuestionsRepository
      */
-    protected $locale;
+    protected $surveyQuestionsRepository;
 
-    /**
-     * @var \Gems_Tracker
-     */
-    protected $tracker;
-
-    public function __construct(\Gems_Tracker $tracker, \Zend_Locale $locale)
+    public function __construct(SurveyQuestionsRepository $surveyQuestionsRepository)
     {
-        $this->locale = $locale;
-        $this->tracker = $tracker;
+        $this->surveyQuestionsRepository = $surveyQuestionsRepository;
     }
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $surveyId = $id = $request->getAttribute('surveyId');
-        $survey = $this->tracker->getSurvey($surveyId);
 
-        if ($survey) {
-            $language = $this->locale->getLanguage();
-            $questionInformation = $survey->getQuestionInformation($language);
-
-            $surveyQuestions = [];
-            foreach($questionInformation as $questionCode=>$questionInformation) {
-                $surveyQuestions[$questionCode] = [
-                    'question'  => $questionInformation['question'],
-                ];
-
-                if (isset($questionInformation['answers']) && is_array($questionInformation['answers'])) {
-                    if (count($questionInformation['answers']) === 1 && isset($questionInformation['answers'][0]) && empty($questionInformation[0])) {
-                        unset($questionInformation['answers'][0]);
-                    }
-                    if (!empty($questionInformation['answers'])) {
-                        $surveyQuestions[$questionCode]['answers'] = $questionInformation['answers'];
-                    }
-                }
-            }
+        if ($surveyId) {
+            $surveyQuestions = $this->surveyQuestionsRepository->getSurveyListAndAnswers($surveyId, true);
 
             return new JsonResponse($surveyQuestions, 200);
         }

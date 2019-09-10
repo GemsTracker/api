@@ -40,6 +40,7 @@ use Gems\Rest\Repository\AccesslogRepository;
 use Gems\Rest\Repository\ApiDefinitionRepository;
 use Gems\Rest\Repository\LoginAttemptsRepository;
 use Gems\Rest\Repository\RespondentRepository;
+use Gems\Rest\Repository\SurveyQuestionsRepository;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -161,6 +162,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AclRepository::class => ReflectionFactory::class,
                 AccesslogRepository::class => ReflectionFactory::class,
                 ApiDefinitionRepository::class => ReflectionFactory::class,
+                SurveyQuestionsRepository::class => ReflectionFactory::class,
 
                 RespondentRepository::class => ReflectionFactory::class,
 

@@ -8,7 +8,7 @@ use Gems\Rest\Action\RestControllerAbstract;
 use Gems\Rest\Exception\RestException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Pulse\Api\Repository\SurveyQuestionsRepository;
+use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Zend\Diactoros\Response\JsonResponse;
 
 class SurveyQuestionsRestController extends RestControllerAbstract
@@ -35,7 +35,7 @@ class SurveyQuestionsRestController extends RestControllerAbstract
     ];
 
     /**
-     * @var SurveyQuestionsRepository
+     * @var \Gems\Rest\Repository\SurveyQuestionsRepository
      */
     protected $surveyQuestionsRepository;
 

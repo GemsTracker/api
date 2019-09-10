@@ -1,12 +1,12 @@
 <?php
 
 
-namespace PulseTest\Rest\Api\Repository;
+namespace GemsTest\Rest\Api\Repository;
 
 
 use Gems\Rest\Exception\RestException;
 use PHPUnit\Framework\TestCase;
-use Pulse\Api\Repository\SurveyQuestionsRepository;
+use Gems\Rest\Repository\SurveyQuestionsRepository;
 
 class SurveyQuestionsRepositoryTest extends TestCase
 {
