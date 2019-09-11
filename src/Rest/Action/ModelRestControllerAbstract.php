@@ -8,6 +8,7 @@ use Gems\Rest\Model\ModelProcessor;
 use Gems\Rest\Model\ModelValidationException;
 use Gems\Rest\Model\RouteOptionsModelFilter;
 use Gems\Rest\Repository\AccesslogRepository;
+use MUtil\Model\Type\JsonData;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Zalt\Loader\ProjectOverloader;
@@ -776,6 +777,12 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                                 default:
                                     $structure[$columnLabel][$attributeName] = 'no_value';
                                     break;
+                            }
+                            if ($this->model->has($columnName, \MUtil_Model_ModelAbstract::SAVE_TRANSFORMER)) {
+                                $transformer = $this->model->get($columnName, \MUtil_Model_ModelAbstract::SAVE_TRANSFORMER);
+                                if (is_array($transformer) && $transformer[0] instanceof JsonData) {
+                                    $structure[$columnLabel][$attributeName] = 'json';
+                                }
                             }
                         }
 
