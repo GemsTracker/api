@@ -4,6 +4,7 @@
 namespace Prediction\Model;
 
 
+use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Gems\Tracker\Field\AppointmentField;
 use Zalt\Loader\ProjectOverloader;
 use Zend\Db\Adapter\Adapter;
@@ -27,19 +28,29 @@ class DataCollectionRepository
      */
     protected $respondent;
 
-
+    /**
+     * @var int RespondentTrackId
+     */
     protected $respondentTrackId;
+
+    /**
+     * @var SurveyQuestionsRepository
+     */
+    protected $surveyQuestionsRepository;
 
     /**
      * @var \Gems_Tracker
      */
     protected $tracker;
 
-    public function __construct(Adapter $db, ProjectOverloader $loader, \Gems_Tracker $tracker)
+
+    public function __construct(Adapter $db, ProjectOverloader $loader,  SurveyQuestionsRepository $surveyQuestionsRepository,\Gems_Tracker $tracker)
     {
         $this->db = $db;
         $this->loader = $loader;
+        $this->surveyQuestionsRepository = $surveyQuestionsRepository;
         $this->tracker = $tracker;
+
     }
 
     protected function changeToJsonDates($data)
@@ -51,6 +62,65 @@ class DataCollectionRepository
         }
 
         return $data;
+    }
+
+    protected function getCalculatedDate($rawDate, $calculationCommand, \Gems_Tracker_Token $token, $trackfields)
+    {
+        $commands = explode(':', $calculationCommand);
+        if (count($commands) > 1) {
+            $timeSetting = $commands[0];
+            $calculateWith = $commands[1];
+            if (isset($commands[2])) {
+                $calculateWithValue = $commands[2];
+            }
+
+            switch($calculateWith) {
+                case 'survey-valid-from':
+                    $zeroDate = $token->getValidFrom();
+                    break;
+                case 'survey-valid-until':
+                    $zeroDate = $token->getValidUntil();
+                    break;
+                case 'survey-completion':
+                    $zeroDate = $token->getCompletionTime();break;
+                case 'track-start':
+                    $zeroDate = $token->getRespondentTrack()->getStartDate();
+                    break;
+                case 'track-end':
+                    $zeroDate = $token->getRespondentTrack()->getEndDate();
+                    break;
+                case 'field':
+                    if (isset($calculateWithValue) && array_key_exists($calculateWithValue, $trackfields)) {
+                        $zeroDate = $trackfields[$calculateWithValue];
+                    }
+                    break;
+            }
+
+            if (isset($zeroDate, $rawDate)) {
+                if ($zeroDate instanceof \MUtil_Date) {
+                    $zeroDate = $zeroDate->getDateTime();
+                } else {
+                    $zeroDate = new \DateTime($zeroDate);
+                }
+                if ($rawDate instanceof \MUtil_Date) {
+                    $rawDate = $rawDate->getDateTime();
+                } else {
+                    $rawDate = new \DateTime($rawDate);
+                }
+
+                if ($rawDate instanceof \DateTime && $zeroDate instanceof \DateTime) {
+
+                    switch($timeSetting) {
+                        case 'days since':
+                            $interval = $zeroDate->diff($rawDate);
+                            return $interval->days;
+                        default:
+                            return $rawDate;
+                    }
+                }
+            }
+        }
+        return $rawDate;
     }
 
     protected function getDataFromTypes($predictionTypes)
@@ -252,24 +322,35 @@ class DataCollectionRepository
         $filter = [
             'gto_id_respondent'     => $this->respondent->getId(),
             'gto_id_organization'   => $this->respondent->getOrganizationId(),
-            'gto_id_survey'        => $surveys,
-            'gto_completion_time IS NOT NULL',
-            'grc_success'           => 1,
+            //'gto_id_survey'        => $surveys,
+            //'gto_completion_time IS NOT NULL',
+            //'grc_success'           => 1,
         ];
 
-        $sort = [
+        /*$sort = [
             'gto_id_survey',
             'gto_round_order'
-        ];
+        ];*/
+
+        $tokenModel->getItemCount();
+        $tokenModel->getSelect();
+
+        $sort = [];
 
         $tokens = $tokenModel->load($filter, $sort);
+
+        $surveyInformation = [];
+        foreach($surveys as $surveyId) {
+            $surveyInformation[$surveyId] = $this->surveyQuestionsRepository->getSurveyListAndAnswers($surveyId, true);
+        }
 
         $incompleteRounds = [];
 
         foreach($tokens as $tokenData) {
             $token = $this->tracker->getToken($tokenData);
+            $surveyId = $tokenData['gto_id_survey'];
             $answers = $token->getRawAnswers();
-            foreach($mappingsPerSurvey[$tokenData['gto_id_survey']] as $mapping) {
+            foreach($mappingsPerSurvey[$surveyId] as $mapping) {
                 if ($mapping['gpmm_type_sub_id'] == "{{completion_time}}") {
                     $data[$tokenData['gto_round_description']][$mapping['gpmm_name']] = $token->getCompletionTime();
                 }
@@ -299,9 +380,15 @@ class DataCollectionRepository
                         $itemData = (float)$itemData;
                     }
                     if ($mapping['gpmm_custom_mapping']) {
-                        $customMapping = json_decode($mapping['gpmm_custom_mapping'], true);
-                        if (isset($customMapping[$itemData])) {
-                            $itemData = $customMapping[$itemData];
+                        $questionType = $surveyInformation[$surveyId]['type'];
+
+                        if ($questionType == 'date') {
+                            $itemData = $this->getCalculatedDate($itemData, $mapping['gpmm_custom_mapping'], $token, $trackfieldData);
+                        } else {
+                            $customMapping = json_decode($mapping['gpmm_custom_mapping'], true);
+                            if (isset($customMapping[$itemData])) {
+                                $itemData = $customMapping[$itemData];
+                            }
                         }
                     }
 
