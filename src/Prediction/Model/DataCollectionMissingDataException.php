@@ -10,6 +10,6 @@ class DataCollectionMissingDataException extends RestException
 {
     public function __construct($errorMessage, $hint = null)
     {
-        parent::construct($errorMessage, 101, 'missing_required_data', 409, $hint);
+        parent::__construct($errorMessage, 101, 'missing_required_data', 409, $hint);
     }
 }

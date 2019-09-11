@@ -80,4 +80,24 @@ class RestException extends \Exception
 
         return $response->withStatus($this->getHttpStatusCode());
     }
+
+    /**
+     * Get the type of the error
+     *
+     * @return string
+     */
+    public function getErrorType()
+    {
+        return $this->errorType;
+    }
+
+    /**
+     * get the HTML status code
+     *
+     * @return int
+     */
+    public function getHttpStatusCode()
+    {
+        return $this->httpStatusCode;
+    }
 }
