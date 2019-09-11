@@ -34,7 +34,6 @@ class ChartDataAction implements MiddlewareInterface
     {
         $params = $request->getQueryParams();
         $modelId = $params['modelId'];
-
         try {
             $data = $this->dataCollectionRepository->getPredicationDataInputModel(
                 $modelId,
@@ -44,9 +43,9 @@ class ChartDataAction implements MiddlewareInterface
             );
             //$data = $this->dataCollectionRepository->getPredicationDataInputModel(1, '800101-A001', 70, 1);
         } catch(RestException $e) {
-            $e->generateHttpResponse(new JsonResponse(null));
+            return $e->generateHttpResponse(new JsonResponse(null));
         }
-        //var_dump($data);
+        //return new JsonResponse($data);
 
         $response = $this->client->request('/prediction1/chart/' . $modelId, 'POST', $data);
 

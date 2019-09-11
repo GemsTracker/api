@@ -53,25 +53,20 @@ class DataCollectionRepository
 
     }
 
-    protected function changeToJsonDates($data)
-    {
-        foreach($data as $key=>$value) {
-            if ($value instanceof \MUtil_Date) {
-                $data[$key] = $value->toString(\MUtil_Date::ISO_8601);
-            }
-        }
-
-        return $data;
-    }
-
-    protected function getCalculatedDate($rawDate, $calculationCommand, \Gems_Tracker_Token $token, $trackfields)
+    protected function getCalculatedDate($rawDate, $calculationCommand, \Gems_Tracker_Token $token)
     {
         $commands = explode(':', $calculationCommand);
+        $trackfields = $token->getRespondentTrack()->getFieldData();
+
         if (count($commands) > 1) {
             $timeSetting = $commands[0];
             $calculateWith = $commands[1];
             if (isset($commands[2])) {
                 $calculateWithValue = $commands[2];
+            }
+
+            if ($timeSetting == 'null' || $calculateWith == 'null') {
+                return null;
             }
 
             switch($calculateWith) {
@@ -120,7 +115,7 @@ class DataCollectionRepository
                 }
             }
         }
-        return $rawDate;
+        return null;
     }
 
     protected function getDataFromTypes($predictionTypes)
@@ -128,6 +123,7 @@ class DataCollectionRepository
         $respondentData = [];
         $trackfieldData = [];
         $surveyData = [];
+        $fixedData = [];
 
         /*foreach($predictionTypes as $type=>$mappings) {
             switch ($type) {
@@ -153,11 +149,10 @@ class DataCollectionRepository
         }
 
         if (isset($predictionTypes['survey'])) {
-            $surveyData = $this->getRespondentSurveyData($predictionTypes['survey'], $trackfieldData);
+            $surveyData = $this->getRespondentSurveyData($predictionTypes['survey']);
         }
 
         if (isset($predictionTypes['static'])) {
-            $fixedData = [];
             foreach ($predictionTypes['static'] as $mapping) {
                 $fixedData[$mapping['gpmm_name']] = $mapping['gpmm_type_id'];
             }
@@ -239,10 +234,11 @@ class DataCollectionRepository
     protected function getPredictionMappingsByType($predictionMappings)
     {
         $predictionTypes = [];
-        foreach ($predictionMappings as $predictionMapping)
-        {
-            $type = $predictionMapping['gpmm_type'];
-            $predictionTypes[$type][] = $predictionMapping;
+        if (array_key_exists('mappings', $predictionMappings) && is_array($predictionMappings['mappings'])) {
+            foreach ($predictionMappings['mappings'] as $predictionMapping) {
+                $type = $predictionMapping['gpmm_type'];
+                $predictionTypes[$type][] = $predictionMapping;
+            }
         }
 
         return $predictionTypes;
@@ -250,7 +246,14 @@ class DataCollectionRepository
 
     protected function getPredictionMappings($predictionId)
     {
-        $sql = new Sql($this->db);
+        $model = new PredictionModelsWithMappingModel();
+        $filter = [
+            'gpm_source_id' => $predictionId,
+        ];
+
+        return $model->loadFirst($filter);
+
+        /*$sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__prediction_model_mapping')
             ->join('gems__prediction_models', 'gpm_id = gpmm_prediction_model_id', [])
@@ -260,7 +263,7 @@ class DataCollectionRepository
         $resultSet = new ResultSet();
         $resultSet->initialize($result);
 
-        return $resultSet->toArray();
+        return $resultSet->toArray();*/
     }
 
     protected function getRespondent()
@@ -306,7 +309,7 @@ class DataCollectionRepository
         return $data;
     }
 
-    protected function getRespondentSurveyData($mappings, $trackfieldData=null)
+    protected function getRespondentSurveyData($mappings)
     {
         $data = [];
         $tokenModel = $this->tracker->getTokenModel();
@@ -322,9 +325,9 @@ class DataCollectionRepository
         $filter = [
             'gto_id_respondent'     => $this->respondent->getId(),
             'gto_id_organization'   => $this->respondent->getOrganizationId(),
-            //'gto_id_survey'        => $surveys,
-            //'gto_completion_time IS NOT NULL',
-            //'grc_success'           => 1,
+            'gto_id_survey'        => $surveys,
+            'gto_completion_time IS NOT NULL',
+            'grc_success'           => 1,
         ];
 
         /*$sort = [
@@ -351,12 +354,14 @@ class DataCollectionRepository
             $surveyId = $tokenData['gto_id_survey'];
             $answers = $token->getRawAnswers();
             foreach($mappingsPerSurvey[$surveyId] as $mapping) {
-                if ($mapping['gpmm_type_sub_id'] == "{{completion_time}}") {
+                $questionCode = $mapping['gpmm_type_sub_id'];
+                if ($questionCode == "{{completion_time}}") {
                     $data[$tokenData['gto_round_description']][$mapping['gpmm_name']] = $token->getCompletionTime();
                 }
 
                 // Possibly Temporary calculation of time in days. Might be cut and put into R
-                if ($mapping['gpmm_type_sub_id'] == "{{time_in_days}}") {
+                if ($questionCode == "{{time_in_days}}") {
+                    $trackfieldData = $token->getRespondentTrack()->getFieldData();
                     if (isset($trackfieldData[0])) {
                         $zero = $trackfieldData[0];
                     } else {
@@ -369,23 +374,26 @@ class DataCollectionRepository
 
                 // Possibly temporary filter of the SIDE trackfield in a survey variable. For MHQ questionair.
                 // Might be solved in Limesurvey
-                if (strpos($mapping['gpmm_type_sub_id'], '{{side}}') !== false && isset($trackfieldData['side'])) {
-                    $side = strtolower($trackfieldData['side']);
-                    $mapping['gpmm_type_sub_id'] = str_replace('{{side}}', $side, $mapping['gpmm_type_sub_id']);
+                if (strpos($questionCode, '{{side}}') !== false) {
+                    $trackfieldData = $token->getRespondentTrack()->getFieldData();
+                    if  (isset($trackfieldData['side'])) {
+                        $side = strtolower($trackfieldData['side']);
+                        $questionCode = str_replace('{{side}}', $side, $questionCode);
+                    }
                 }
 
-                if (array_key_exists($mapping['gpmm_type_sub_id'], $answers)) {
-                    $itemData = $answers[$mapping['gpmm_type_sub_id']];
+                if (array_key_exists($questionCode, $answers)) {
+                    $itemData = $answers[$questionCode];
                     if (is_numeric($itemData) && is_string($itemData)) {
                         $itemData = (float)$itemData;
                     }
                     if ($mapping['gpmm_custom_mapping']) {
-                        $questionType = $surveyInformation[$surveyId]['type'];
+                        $questionType = $surveyInformation[$surveyId][$questionCode]['type'];
 
                         if ($questionType == 'date') {
-                            $itemData = $this->getCalculatedDate($itemData, $mapping['gpmm_custom_mapping'], $token, $trackfieldData);
+                            $itemData = $this->getCalculatedDate($itemData, $mapping['gpmm_custom_mapping'], $token);
                         } else {
-                            $customMapping = json_decode($mapping['gpmm_custom_mapping'], true);
+                            $customMapping = $mapping['gpmm_custom_mapping'];
                             if (isset($customMapping[$itemData])) {
                                 $itemData = $customMapping[$itemData];
                             }
