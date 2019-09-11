@@ -37,7 +37,7 @@ class TrackFieldAction implements MiddlewareInterface
         $fields = $engine->getFieldsDefinition();
         $model = $fields->getMaintenanceModel();
 
-        $fieldData = $model->load();
+        $fieldData = $model->load(['gtf_id_track' => $trackId]);
 
         $filteredData = [];
         foreach($fieldData as $field) {
