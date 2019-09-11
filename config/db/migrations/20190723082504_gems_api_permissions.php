@@ -31,12 +31,15 @@ class GemsApiPermissions extends AbstractMigration
      */
     public function change()
     {
-        $permissions = $this->table('gems__api_permissions', ['id' => 'gapr_id', 'signed' => false]);
-        $permissions
-            ->addColumn('gapr_role', 'string', ['limit' => 30])
-            ->addColumn('gapr_resource', 'string', ['limit' => 50])
-            ->addColumn('gapr_permission', 'string', ['limit' => 30])
-            ->addColumn('gapr_allowed', 'boolean')
-            ->create();
+        $exists = $this->hasTable('gems__api_permissions');
+        if (!$exists) {
+            $permissions = $this->table('gems__api_permissions', ['id' => 'gapr_id', 'signed' => false]);
+            $permissions
+                ->addColumn('gapr_role', 'string', ['limit' => 30])
+                ->addColumn('gapr_resource', 'string', ['limit' => 50])
+                ->addColumn('gapr_permission', 'string', ['limit' => 30])
+                ->addColumn('gapr_allowed', 'boolean')
+                ->create();
+        }
     }
 }

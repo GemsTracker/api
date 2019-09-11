@@ -31,66 +31,81 @@ class GemsOauth extends AbstractMigration
      */
     public function change()
     {
-        $accessTokens = $this->table('gems__oauth_access_tokens', ['id' => 'access_token_id', 'signed' => false]);
-        $accessTokens
-            ->addColumn('id', 'string', ['limit' => 100])
-            ->addColumn('user_id', 'string', ['limit' => 255])
-            ->addColumn('client_id', 'string', ['limit' => 255])
-            ->addColumn('scopes', 'text', ['null' => true])
-            ->addColumn('revoked', 'boolean')
-            ->addColumn('expires_at', 'datetime')
-            ->addColumn('changed', 'timestamp')
-            ->addColumn('changed_by', 'biginteger')
-            ->addColumn('created', 'timestamp', ['null' => true])
-            ->addColumn('created_by', 'biginteger')
-            ->addIndex(['id', 'user_id'])
-            ->create();
+        $exists = $this->hasTable('gems__oauth_access_tokens');
+        if (!$exists) {
+            $accessTokens = $this->table('gems__oauth_access_tokens', ['id' => 'access_token_id', 'signed' => false]);
+            $accessTokens
+                ->addColumn('id', 'string', ['limit' => 100])
+                ->addColumn('user_id', 'string', ['limit' => 255])
+                ->addColumn('client_id', 'string', ['limit' => 255])
+                ->addColumn('scopes', 'text', ['null' => true])
+                ->addColumn('revoked', 'boolean')
+                ->addColumn('expires_at', 'datetime')
+                ->addColumn('changed', 'timestamp')
+                ->addColumn('changed_by', 'biginteger')
+                ->addColumn('created', 'timestamp', ['null' => true])
+                ->addColumn('created_by', 'biginteger')
+                ->addIndex(['id', 'user_id'])
+                ->create();
+        }
 
-        $authCodes = $this->table('gems__oauth_auth_codes', ['id' => 'auth_code_id', 'signed' => false]);
-        $authCodes
-            ->addColumn('id', 'string', ['limit' => 100])
-            ->addColumn('user_id', 'string', ['limit' => 255])
-            ->addColumn('client_id', 'string', ['limit' => 255])
-            ->addColumn('scopes', 'text', ['null' => true])
-            ->addColumn('redirect', 'string', ['limit' => 255, 'null' => true])
-            ->addColumn('revoked', 'boolean')
-            ->addColumn('expires_at', 'datetime')
-            ->addIndex(['id', 'user_id'])
-            ->create();
+        $exists = $this->hasTable('gems__oauth_auth_codes');
+        if (!$exists) {
+            $authCodes = $this->table('gems__oauth_auth_codes', ['id' => 'auth_code_id', 'signed' => false]);
+            $authCodes
+                ->addColumn('id', 'string', ['limit' => 100])
+                ->addColumn('user_id', 'string', ['limit' => 255])
+                ->addColumn('client_id', 'string', ['limit' => 255])
+                ->addColumn('scopes', 'text', ['null' => true])
+                ->addColumn('redirect', 'string', ['limit' => 255, 'null' => true])
+                ->addColumn('revoked', 'boolean')
+                ->addColumn('expires_at', 'datetime')
+                ->addIndex(['id', 'user_id'])
+                ->create();
+        }
 
-        $clients = $this->table('gems__oauth_clients', ['signed' => false]);
-        $clients
-            ->addColumn('user_id', 'string', ['limit' => 255])
-            ->addColumn('name', 'string', ['limit' => 255])
-            ->addColumn('secret', 'string', ['limit' => 255])
-            ->addColumn('redirect', 'string', ['limit' => 255, 'null' => true])
-            ->addColumn('active', 'boolean')
-            ->addColumn('changed', 'timestamp')
-            ->addColumn('changed_by', 'biginteger')
-            ->addColumn('created', 'timestamp', ['null' => true])
-            ->addColumn('created_by', 'biginteger')
-            ->addIndex(['user_id'])
-            ->create();
+        $exists = $this->hasTable('gems__oauth_clients');
+        if (!$exists) {
+            $clients = $this->table('gems__oauth_clients', ['signed' => false]);
+            $clients
+                ->addColumn('user_id', 'string', ['limit' => 255])
+                ->addColumn('name', 'string', ['limit' => 255])
+                ->addColumn('secret', 'string', ['limit' => 255])
+                ->addColumn('redirect', 'string', ['limit' => 255, 'null' => true])
+                ->addColumn('active', 'boolean')
+                ->addColumn('changed', 'timestamp')
+                ->addColumn('changed_by', 'biginteger')
+                ->addColumn('created', 'timestamp', ['null' => true])
+                ->addColumn('created_by', 'biginteger')
+                ->addIndex(['user_id'])
+                ->create();
+        }
 
-        $refreshTokens = $this->table('gems__oauth_refresh_tokens', ['id' => 'refresh_token_id', 'signed' => false]);
-        $refreshTokens
-            ->addColumn('id', 'string', ['limit' => 100])
-            ->addColumn('access_token_id', 'string', ['limit' => 100])
-            ->addColumn('revoked', 'boolean')
-            ->addColumn('expires_at', 'datetime', ['null' => true])
-            ->addIndex(['id', 'access_token_id'])
-            ->create();
+        $exists = $this->hasTable('gems__oauth_refresh_tokens');
+        if (!$exists) {
+            $refreshTokens = $this->table('gems__oauth_refresh_tokens', ['id' => 'refresh_token_id', 'signed' => false]);
+            $refreshTokens
+                ->addColumn('id', 'string', ['limit' => 100])
+                ->addColumn('access_token_id', 'string', ['limit' => 100])
+                ->addColumn('revoked', 'boolean')
+                ->addColumn('expires_at', 'datetime', ['null' => true])
+                ->addIndex(['id', 'access_token_id'])
+                ->create();
+        }
 
-        $clients = $this->table('gems__oauth_scope', ['signed' => false]);
-        $clients
-            ->addColumn('name', 'string', ['limit' => 255])
-            ->addColumn('description', 'string', ['limit' => 255])
-            ->addColumn('active', 'boolean')
-            ->addColumn('changed', 'timestamp')
-            ->addColumn('changed_by', 'biginteger')
-            ->addColumn('created', 'timestamp', ['null' => true])
-            ->addColumn('created_by', 'biginteger')
-            ->addIndex(['name'])
-            ->create();
+        $exists = $this->hasTable('gems__oauth_scope');
+        if (!$exists) {
+            $clients = $this->table('gems__oauth_scope', ['signed' => false]);
+            $clients
+                ->addColumn('name', 'string', ['limit' => 255])
+                ->addColumn('description', 'string', ['limit' => 255])
+                ->addColumn('active', 'boolean')
+                ->addColumn('changed', 'timestamp')
+                ->addColumn('changed_by', 'biginteger')
+                ->addColumn('created', 'timestamp', ['null' => true])
+                ->addColumn('created_by', 'biginteger')
+                ->addIndex(['name'])
+                ->create();
+        }
     }
 }
