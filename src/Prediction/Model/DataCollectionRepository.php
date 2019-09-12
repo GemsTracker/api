@@ -330,15 +330,13 @@ class DataCollectionRepository
             'grc_success'           => 1,
         ];
 
-        /*$sort = [
+        $sort = [
+            'gto_round_order',
             'gto_id_survey',
-            'gto_round_order'
-        ];*/
+        ];
 
         $tokenModel->getItemCount();
         $tokenModel->getSelect();
-
-        $sort = [];
 
         $tokens = $tokenModel->load($filter, $sort);
 
@@ -348,6 +346,7 @@ class DataCollectionRepository
         }
 
         $incompleteRounds = [];
+        $repeatValues = [];
 
         foreach($tokens as $tokenData) {
             $token = $this->tracker->getToken($tokenData);
@@ -400,8 +399,8 @@ class DataCollectionRepository
                         }
                     }
 
-                    if ($mapping['gpmm_required'] && $itemData === null) {
-                        $incompleteRounds[$tokenData['gto_round_description']] = true;
+                    if ($mapping['gpmm_repeat']) {
+                        $repeatValues[$mapping['gpmm_name']][$tokenData['gto_round_description']] = $mapping['gpmm_repeat'];
                     }
 
                     $data[$tokenData['gto_round_description']][$mapping['gpmm_name']] = $itemData;
@@ -412,8 +411,32 @@ class DataCollectionRepository
             $data[$tokenData['gto_round_description']][$surveyColumnName] = $tokenData['gto_completion_time'];*/
         }
 
+        foreach($repeatValues as $variableName=>$values) {
+
+            $currentValue = reset($values);
+            foreach($data as $roundDescription=>$roundData) {
+                if (array_key_exists($roundDescription, $values)) {
+                    $currentValue = $values[$roundDescription];
+                }
+
+                if (!array_key_exists($variableName, $roundData) || $roundData[$variableName] === null) {
+                    $data[$roundDescription][$variableName] = $currentValue;
+                }
+            }
+        }
+
+        foreach($mappings as $mapping) {
+            if ($mapping['gpmm_required']) {
+                foreach($data as $roundDescription=>$roundData) {
+                    if (!array_key_exists($mapping['gpmm_name'], $roundData) || $roundData[$mapping['gpmm_name']] === null) {
+                        $incompleteRounds[$roundDescription] = true;
+                    }
+                }
+            }
+        }
+
         if (count($data) === count($incompleteRounds)) {
-            throw new DataCollectionMissingDataException('Required data not found in surveys');
+            throw new DataCollectionMissingDataException('Required data not found in any rounds');
         }
 
         foreach($incompleteRounds as $round=>$value) {
