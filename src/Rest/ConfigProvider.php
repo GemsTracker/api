@@ -14,6 +14,7 @@ use Gems\Rest\Action\DashboardConfigController;
 use Gems\Rest\Action\DevAction;
 use Gems\Rest\Action\GemsSessionTestController;
 use Gems\Rest\Action\PingController;
+use Gems\Rest\Action\RelatedTokensController;
 use Gems\Rest\Auth\AccessTokenAction;
 use Gems\Rest\Auth\AccessTokenRepository;
 use Gems\Rest\Auth\AuthCodeGrantFactory;
@@ -54,6 +55,7 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
+use Pulse\Api\Action\TokenController;
 use Zend\Permissions\Acl\Acl;
 
 
@@ -143,6 +145,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 AclRolePermissionsController::class => ReflectionFactory::class,
                 AclRolesController::class => ReflectionFactory::class,
                 ApiRolesController::class => ReflectionFactory::class,
+                RelatedTokensController::class => ReflectionFactory::class,
 
                 DashboardConfigController::class => ReflectionFactory::class,
 
@@ -207,6 +210,29 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gcc_description'
                 ],
                 'customAction' => DashboardConfigController::class,
+            ],
+            'related-tokens' => [
+                'model' => 'Tracker_Model_StandardTokenModel',
+                'methods' => ['GET'],
+                'customAction' => RelatedTokensController::class,
+                'idField' => 'action',
+                'idFieldRegex' => '[a-zA-Z0-9-_]+',
+                'allowed_fields' => [
+                    'gto_id_token',
+                    'gto_id_survey',
+                    'gto_id_respondent_track',
+                    'gto_round_description',
+                    'gto_round_order',
+                    'gto_completion_time',
+                    'gto_valid_from',
+                    'gto_valid_until',
+
+                    'gsu_survey_name',
+                    'gsu_code',
+                    'gsu_result_field',
+
+                    'ggp_staff_members',
+                ],
             ],
             /*'organizations' => [
                 'model' => 'Model_OrganizationModel',
