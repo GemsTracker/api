@@ -217,7 +217,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Tracker_Model_StandardTokenModel',
                 'methods' => ['GET'],
                 'customAction' => RelatedTokensController::class,
-                'idField' => 'action',
+                'idField' => 'relation',
                 'idFieldRegex' => '[a-zA-Z0-9-_]+',
                 'allowed_fields' => [
                     'gto_id_token',
