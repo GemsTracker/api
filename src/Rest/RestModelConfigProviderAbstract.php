@@ -9,6 +9,7 @@ use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\Middleware\AccessLogMiddleware;
 use Gems\Rest\Middleware\ApiGateMiddleware;
 use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
+use Gems\Rest\Middleware\LocaleMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 
 abstract class RestModelConfigProviderAbstract
@@ -37,6 +38,7 @@ abstract class RestModelConfigProviderAbstract
     public function getMiddleware()
     {
         return [
+            LocaleMiddleware::class,
             AuthorizeGemsAndOauthMiddleware::class,
             ApiGateMiddleware::class,
             ApiOrganizationGateMiddleware::class,

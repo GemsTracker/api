@@ -104,8 +104,7 @@ class LegacyFactory implements FactoryInterface
                 break;
 
             case Locale::class:
-                $locale = new \Zend_Locale('en');
-                \Zend_Registry::set('Zend_Locale', $locale);
+                $locale = $this->getLocale();
                 return $locale;
                 break;
 
@@ -264,6 +263,14 @@ class LegacyFactory implements FactoryInterface
         }
 
         return 'development';
+    }
+
+    protected function getLocale()
+    {
+        $locale = new \Zend_Locale('default');
+        \Zend_Registry::set('Zend_Locale', $locale);
+
+        return $locale;
     }
 
     protected function getLogger()
