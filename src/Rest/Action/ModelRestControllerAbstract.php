@@ -261,7 +261,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     /**
      * Filter the columns of a row with routeoptions like allowed_fields, disallowed_fields and readonly_fields
      *
-     * @param $row Row with model values
+     * @param array $row Row with model values
      * @param bool $save Will the row be saved after filter (enables readonly
      * @param bool $useKeys Use keys or values in the filter of the row
      * @return array Filtered array
@@ -299,19 +299,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         $id = $this->getId($request);
 
         if ($id !== null) {
-            $idField = $this->getIdField();
-            if ($idField) {
-                $filter = $this->getIdFilter($id, $idField);
-
-                $row = $this->model->loadFirst($filter);
-                $this->logRequest($request, $row);
-                if (is_array($row)) {
-                    $row = $this->translateRow($row);
-                    $row = $this->filterColumns($row);
-                    return new JsonResponse($row);
-                }
-            }
-            return new EmptyResponse(404);
+            return $this->getOne($id, $request);
         } else {
             return $this->getList($request, $delegate);
         }
@@ -636,6 +624,30 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
         }
 
         return $filters;
+    }
+
+    /**
+     * Get one item from the model from an ID field
+     *
+     * @param $id
+     * @param ServerRequestInterface $request
+     * @return EmptyResponse|JsonResponse
+     */
+    public function getOne($id, ServerRequestInterface $request)
+    {
+        $idField = $this->getIdField();
+        if ($idField) {
+            $filter = $this->getIdFilter($id, $idField);
+
+            $row = $this->model->loadFirst($filter);
+            $this->logRequest($request, $row);
+            if (is_array($row)) {
+                $translatedRow = $this->translateRow($row);
+                $filteredRow = $this->filterColumns($translatedRow);
+                return new JsonResponse($filteredRow);
+            }
+        }
+        return new EmptyResponse(404);
     }
 
     /**
