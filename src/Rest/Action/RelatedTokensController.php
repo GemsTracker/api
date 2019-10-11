@@ -35,7 +35,7 @@ class RelatedTokensController extends ModelRestController
 
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $params = $request->getQueryParams();
+        $params = $this->getListFilter($request);
         if (!isset($params['gr2o_patient_nr'])) {
             $exception = new RestException('Patient nr not supplied', 400, 'missing_data');
             $response = new Response();
@@ -55,12 +55,12 @@ class RelatedTokensController extends ModelRestController
             $findByToken = true;
         }
 
-        if (!$findByToken && !isset($params['respondentTrackId'])) {
+        if (!$findByToken && !isset($params['gto_id_respondent_track'])) {
             $exception = new RestException('Respondent Track ID not supplied', 400, 'missing_data');
             $response = new Response();
             return $exception->generateHttpResponse($response);
         }
-        if (!$findByToken && !isset($params['surveyId'])) {
+        if (!$findByToken && !isset($params['gto_id_survey'])) {
             $exception = new RestException('Survey ID not supplied', 400, 'missing_data');
             $response = new Response();
             return $exception->generateHttpResponse($response);
@@ -162,36 +162,36 @@ class RelatedTokensController extends ModelRestController
                 if ($findByToken) {
                     $filters['gto_id_token'] = $params['tokenId'];
                 } else {
-                    $filters['gto_id_respondent_track'] = $params['respondentTrackId'];
-                    $filters['gto_id_survey'] = $params['surveyId'];
+                    $filters['gto_id_respondent_track'] = $params['gto_id_respondent_track'];
+                    $filters['gto_id_survey'] = $params['gto_id_survey'];
                     $filter['limit'] = 1;
                     $order = ['gto_round_order DESC'];
                 }
                 break;
 
             case 'all':
-                $filters['gto_id_survey'] = $params['surveyId'];
+                $filters['gto_id_survey'] = $params['gto_id_survey'];
                 break;
 
             case 'all-in-track':
-                $filters['gto_id_survey'] = $params['surveyId'];
-                $filters['gto_id_respondent_track'] = $params['respondentTrackId'];
+                $filters['gto_id_survey'] = $params['gto_id_survey'];
+                $filters['gto_id_respondent_track'] = $params['gto_id_respondent_track'];
                 break;
 
             case 'all-in-track-type':
                 if (!isset($params['trackId'])) {
-                    $params['trackId'] = $this->getTrackIdFromRespondentTrackId($params['respondentTrackId']);
+                    $params['trackId'] = $this->getTrackIdFromRespondentTrackId($params['gto_id_respondent_track']);
                 }
                 $filters['gto_id_track'] = $params['TrackId'];
-                $filters['gto_id_respondent_track'] = $params['respondentTrackId'];
+                $filters['gto_id_respondent_track'] = $params['gto_id_respondent_track'];
                 break;
 
             case 'all-code-in-track':
                 if (!isset($params['surveyCode'])) {
-                    $params['surveyCode'] = $this->getSurveyCodeFromSurveyId($params['surveyId']);
+                    $params['surveyCode'] = $this->getSurveyCodeFromSurveyId($params['gto_id_survey']);
                 }
                 $filters['gsu_code'] = $params['surveyCode'];
-                $filters['gto_id_respondent_track'] = $params['respondentTrackId'];
+                $filters['gto_id_respondent_track'] = $params['gto_id_respondent_track'];
                 break;
         }
 
