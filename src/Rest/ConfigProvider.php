@@ -204,10 +204,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         return [
             'dashboard-configs' => [
                 'methods' => ['GET', 'PATCH', 'POST'],
-                'idField' => 'gcc_sid',
+                'idField' => 'gcc_code',
+                'idFieldRegex' => '[a-zA-Z0-9-_]+',
                 'allowed_fields' => [
                     'gcc_id',
                     'gcc_sid',
+                    'gcc_code',
                     'gcc_config',
                     'gcc_description'
                 ],

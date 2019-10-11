@@ -4,6 +4,11 @@
 namespace Gems\Rest\Action;
 
 
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\EmptyResponse;
+use Zend\Diactoros\Response\JsonResponse;
+
 class DashboardConfigController extends ModelRestController
 {
     public function createModel()
@@ -24,6 +29,31 @@ class DashboardConfigController extends ModelRestController
         $model->set('gcc_description', 'label', $this->_('Description'));*/
 
         return $model;
+    }
+
+    /**
+     * Get one item from the model from an ID field
+     *
+     * @param $id
+     * @param ServerRequestInterface $request
+     * @return EmptyResponse|JsonResponse
+     */
+    public function getOne($id, ServerRequestInterface $request)
+    {
+        $idField = $this->getIdField();
+        if ($idField) {
+            $idFilter = $this->getIdFilter($id, $idField);
+            $filters = $idFilter + $this->getListFilter($request);
+
+            $row = $this->model->loadFirst($filters);
+            $this->logRequest($request, $row);
+            if (is_array($row)) {
+                $translatedRow = $this->translateRow($row);
+                $filteredRow = $this->filterColumns($translatedRow);
+                return new JsonResponse($filteredRow);
+            }
+        }
+        return new EmptyResponse(404);
     }
 
     public function loadJson($json)
