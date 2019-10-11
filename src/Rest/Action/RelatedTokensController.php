@@ -98,7 +98,7 @@ class RelatedTokensController extends ModelRestController
         $select->from('gems__tokens')
             ->join('gems__surveys', 'gto_id_survey = gsu_id_survey', ['surveyCode' => 'gsu_code'])
             ->columns(['respondentTrackId' => 'gto_id_respondent_track', 'surveyId' => 'gto_id_survey', 'trackId' => 'gto_id_track'])
-            ->where('gto_id_token = ?', $tokenId)
+            ->where(['gto_id_token' => $tokenId])
             ->limit(1);
 
         $statement = $sql->prepareStatementForSqlObject($select);
