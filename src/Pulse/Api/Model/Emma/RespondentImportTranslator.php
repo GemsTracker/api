@@ -176,6 +176,7 @@ class RespondentImportTranslator extends ApiModelTranslator
         }
 
         if (array_key_exists('gr2o_email', $row) && $row['gr2o_email'] !== null) {
+            $row['gr2o_email'] = trim($row['gr2o_email']);
             if ($row['gr2o_email'] === '') {
                 $row['gr2o_email'] = null;
             }
