@@ -5,11 +5,13 @@ namespace Pulse\Api;
 
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\Log\Formatter\SimpleMulti;
+
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\CorrectTokenController;
+use Pulse\Api\Action\CurrentIntakeController;
 use Pulse\Api\Action\EmmaRespondentTokensController;
 use Pulse\Api\Action\EmmaSurveyQuestionsRestController;
 use Pulse\Api\Action\EmmaSurveysRestController;
@@ -35,6 +37,7 @@ use Pulse\Api\Model\Emma\RespondentRepository;
 use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
+use Pulse\Api\Repository\IntakeAnesthesiaCheckRepository;
 use Pulse\Api\Repository\RespondentResults;
 use Pulse\Api\Repository\RespondentTrackfieldsRepository;
 use Pulse\Api\Repository\TokenAnswerRepository;
@@ -79,6 +82,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     {
         return [
             'factories'  => [
+                CurrentIntakeController::class => ReflectionFactory::class,
+
                 SurveyQuestionsRestController::class => ReflectionFactory::class,
 
                 TokenAnswersRestController::class => ReflectionFactory::class,
@@ -113,10 +118,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 ActivityMatcher::class => ReflectionFactory::class,
 
-                OrganizationRepository::class => ReflectionFactory::class,
-                RespondentRepository::class => ReflectionFactory::class,
                 AgendaDiagnosisRepository::class => ReflectionFactory::class,
                 AppointmentRepository::class => ReflectionFactory::class,
+                IntakeAnesthesiaCheckRepository::class => ReflectionFactory::class,
+                OrganizationRepository::class => ReflectionFactory::class,
+                RespondentRepository::class => ReflectionFactory::class,
+
 
                 TokenController::class => ReflectionFactory::class,
 
@@ -502,7 +509,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'middleware' => $this->getCustomActionMiddleware(CorrectTokenController::class),
                 'allowed_methods' => ['PATCH'],
             ],
-
+            [
+                'name' => 'current-intake',
+                'path' => '/current-intake',
+                'middleware' => $this->getCustomActionMiddleware(CurrentIntakeController::class),
+                'allowed_methods' => ['GET'],
+            ],
             [
                 'name' => 'permission-generator',
                 'path' => '/permission-generator',
