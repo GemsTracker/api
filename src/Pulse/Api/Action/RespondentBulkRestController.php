@@ -387,10 +387,11 @@ class RespondentBulkRestController extends ModelRestController
             if (substr($admissionTime, -1) === 'Z') {
                 $admissionTime = substr($admissionTime, 0, -1);
             }
-            $existingAppointmentDate = strtotime($existingAppointmentData['gap_admission_time']);
-            $newAppointmentDate = strtotime($admissionTime);
+            $existingAppointmentDate = new \MUtil_Date($existingAppointmentData['gap_admission_time'], 'yyyy-MM-dd HH:mm:ss');
+            $newAppointmentDate = new \MUtil_Date($admissionTime, 'yyyy-MM-dd HH:mm:ss');
 
-            if ($existingAppointmentDate != $newAppointmentDate) {
+
+            if (($existingAppointmentDate->getYear() != $newAppointmentDate->getYear()) || ($existingAppointmentDate->getMonth() != $newAppointmentDate->getMonth()) || ($existingAppointmentDate->getDay() != $newAppointmentDate->getDay())) {
                 $currentAppointmentVersion = $this->appointmentRepository->getLatestAppointmentVersion($appointmentData['gap_id_in_source'], 'emma');
                 $canceledSourceId = $appointmentData['gap_id_in_source'] . $this->appointmentRepository->sourceVersionSuffix . ($currentAppointmentVersion + 1);
 
