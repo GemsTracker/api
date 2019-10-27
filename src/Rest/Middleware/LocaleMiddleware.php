@@ -14,6 +14,8 @@ class LocaleMiddleware implements MiddlewareInterface
      */
     protected $config;
 
+    protected $fallbackLocale = 'en';
+
     /**
      * LocaleMiddleware constructor.
      * @param $config
@@ -32,6 +34,10 @@ class LocaleMiddleware implements MiddlewareInterface
 
         if (empty($language) && isset($this->config['project']['locale'], $this->config['project']['locale']['default'])) {
             $language = $this->config['project']['locale']['default'];
+        }
+
+        if (empty($language)) {
+            $language = $this->fallbackLocale;
         }
 
         $this->config['project']['local']['default'] = $language;
