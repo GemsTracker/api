@@ -49,6 +49,7 @@ class RespondentImportTranslator extends ApiModelTranslator
         //"gr2o_id_organization" => "organization",
         "gr2o_email" => "email",
         "gr2o_patient_nr" => "patient_nr",
+        "gr2o_epd_id" => "id",
     ];
 
     public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger, LoggerInterface $respondentErrorLogger)
