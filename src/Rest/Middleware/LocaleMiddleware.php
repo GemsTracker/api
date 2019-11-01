@@ -41,7 +41,12 @@ class LocaleMiddleware implements MiddlewareInterface
         }
 
         $this->config['project']['local']['default'] = $language;
-        \Zend_Locale::setDefault($language);
+
+        try {
+            \Zend_Locale::setDefault($language);
+        } catch (\Zend_Locale_Exception $e) {
+            // No default set, not a problem
+        }
 
         $response = $delegate->process($request);
 
