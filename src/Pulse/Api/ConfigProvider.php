@@ -6,6 +6,7 @@ namespace Pulse\Api;
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\Log\Formatter\SimpleMulti;
 
+use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
@@ -18,6 +19,7 @@ use Pulse\Api\Action\EmmaSurveysRestController;
 use Pulse\Api\Action\EmmaTokenAnswersRestController;
 use Pulse\Api\Action\EnvTestController;
 use Pulse\Api\Action\InsertTrackTokenController;
+use Pulse\Api\Action\LastAnsweredTokenController;
 use Pulse\Api\Action\PatientNumberPerOrganizationController;
 use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\RespondentBulkRestController;
@@ -38,9 +40,11 @@ use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\IntakeAnesthesiaCheckRepository;
+use Pulse\Api\Repository\SelectTranslator;
 use Pulse\Api\Repository\RespondentResults;
 use Pulse\Api\Repository\RespondentTrackfieldsRepository;
 use Pulse\Api\Repository\TokenAnswerRepository;
+use Pulse\Api\Repository\TokenRepository;
 use Pulse\Api\Repository\TrackfieldsRepository;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
@@ -123,9 +127,13 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 IntakeAnesthesiaCheckRepository::class => ReflectionFactory::class,
                 OrganizationRepository::class => ReflectionFactory::class,
                 RespondentRepository::class => ReflectionFactory::class,
+                SurveyQuestionsRepository::class => ReflectionFactory::class,
 
+                TokenRepository::class => ReflectionFactory::class,
+                SelectTranslator::class => ReflectionFactory::class,
 
                 TokenController::class => ReflectionFactory::class,
+                LastAnsweredTokenController::class => ReflectionFactory::class,
 
                 EnvTestController::class => ReflectionFactory::class,
 
@@ -352,6 +360,33 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gsu_id_survey',
                     'gsu_survey_name',
                     'ggp_staff_members',
+                ],
+            ],
+            'tokens/last-answered' => [
+                'model' => 'Tracker_Model_StandardTokenModel',
+                'methods' => ['GET'],
+                'customAction' => LastAnsweredTokenController::class,
+                'allowed_fields' => [
+                    'gto_id_token',
+                    'gto_id_survey',
+                    'gto_id_respondent_track',
+                    'gto_round_description',
+                    'gto_round_order',
+                    'gto_id_relationfield',
+                    'gto_completion_time',
+                    'gto_valid_from',
+                    'gto_valid_until',
+
+                    'gr2o_patient_nr',
+                    'gr2o_id_organization',
+
+                    'gsu_survey_name',
+                    'gsu_code',
+                    'gsu_result_field',
+
+                    'ggp_staff_members',
+
+                    'grc_success',
                 ],
             ],
             'tokens' => [
