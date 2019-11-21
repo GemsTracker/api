@@ -52,7 +52,7 @@ class ChartRepository
     /**
      * @var string Code of the question
      */
-    protected $questionCode;
+    protected $questionCodes;
 
     /**
      * @var int Id of the survey
