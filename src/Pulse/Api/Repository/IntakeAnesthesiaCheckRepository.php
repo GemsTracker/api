@@ -54,11 +54,14 @@ class IntakeAnesthesiaCheckRepository
             $filter['gr2t_id_respondent_track'] = $respondentTrackId;
         }
 
-        $sort = ['gap_admission_time DESC'];
+        $sort = ['gap_admission_time' => SORT_DESC];
 
         $tokenAppointment = $model->loadFirst($filter, $sort);
 
         if ($tokenAppointment) {
+            if (array_key_exists('gto_completion_time', $tokenAppointment) && $tokenAppointment['gto_completion_time'] instanceof \MUtil_Date) {
+                $tokenAppointment['gto_completion_time'] = $tokenAppointment['gto_completion_time']->toString(\MUtil_Date::ISO_8601);
+            }
 
             $filterFields = [
                 'gto_id_token',
