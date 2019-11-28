@@ -49,22 +49,12 @@ class TokenRepository
 
         $select = $this->selectTranslator->addRequestParamsToSelect($select, $prefixedParams);
 
-        $test = $sql->buildSqlString($select);
-
-
-
-
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
-        if ($result->valid()) {
-            $rows = iterator_to_array($result);
-            return $rows;
-        }
+        $rows = iterator_to_array($result);
 
-        if ($result->valid() && $result->current()) {
-            $row = $result->current();
-            $rows = iterator_to_array($result);
+        if ($rows) {
             return $rows;
         }
 

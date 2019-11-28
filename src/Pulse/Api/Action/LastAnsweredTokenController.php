@@ -52,7 +52,7 @@ class LastAnsweredTokenController extends RestControllerAbstract
             throw new RestException('Organisation id needs to be supplied', 1, 'organization_id_missing', 400);
         }
 
-        // Also filter incomming columns, as there is no model loaded to check on currently
+        // Also filter incoming columns, as there is no model loaded to check on currently
         $params = $this->filterColumns($request->getQueryParams());
 
         $tokens = $this->tokenRepository->getLatestTokensForSurveyCodes($params);
