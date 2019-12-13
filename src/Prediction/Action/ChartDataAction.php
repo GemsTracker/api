@@ -33,6 +33,7 @@ class ChartDataAction implements MiddlewareInterface
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $params = $request->getQueryParams();
+
         $modelId = $params['modelId'];
         try {
             $data = $this->dataCollectionRepository->getPredicationDataInputModel(
@@ -47,7 +48,7 @@ class ChartDataAction implements MiddlewareInterface
         }
         //return new JsonResponse($data);
 
-        $response = $this->client->request('/prediction1/chart/' . $modelId, 'POST', $data);
+        $response = $this->client->request('/prediction1/model/' . $modelId, 'POST', $data);
 
         $body = $response->getBody()->getContents();
         $plotlyData = json_decode($body, true);
