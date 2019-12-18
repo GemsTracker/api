@@ -68,7 +68,7 @@ class IntakeAnesthesiaCheckRepository
                 'gto_completion_time',
                 'gto_reception_code',
                 'gap_id_appointment',
-
+                'gto_id_survey',
             ];
 
             return array_intersect_key($tokenAppointment, array_flip($filterFields));
