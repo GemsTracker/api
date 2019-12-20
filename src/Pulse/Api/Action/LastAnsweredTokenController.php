@@ -57,6 +57,10 @@ class LastAnsweredTokenController extends RestControllerAbstract
 
         $tokens = $this->tokenRepository->getLatestTokensForSurveyCodes($params);
 
+        if ($tokens == false) {
+            return new EmptyResponse();
+        }
+
         $filteredTokens = [];
         foreach($tokens as $key=>$token) {
             $filteredTokens[] = $this->filterColumns($token);
