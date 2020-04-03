@@ -10,12 +10,12 @@ use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\Response\HtmlResponse;
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Response\HtmlResponse;
 use Gems\Rest\Auth\AccessTokenRepository;
 use Gems\Rest\Auth\ClientRepository;
 use Gems\Rest\Auth\UserRepository;
-use Zend\Expressive\Template\TemplateRendererInterface;
+use Mezzio\Template\TemplateRendererInterface;
 
 
 class AuthorizeAction implements ServerMiddlewareInterface

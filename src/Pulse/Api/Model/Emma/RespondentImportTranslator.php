@@ -8,9 +8,9 @@ use Gems\Rest\Model\ModelTranslateException;
 use Psr\Log\LoggerInterface;
 use Pulse\Api\Model\ApiModelTranslator;
 use Pulse\Validate\SimplePhpEmail;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Predicate\Predicate;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Predicate\Predicate;
+use Laminas\Db\Sql\Sql;
 
 class RespondentImportTranslator extends ApiModelTranslator
 {

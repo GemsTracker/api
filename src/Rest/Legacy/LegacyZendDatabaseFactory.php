@@ -4,7 +4,7 @@ namespace Gems\Rest\Legacy;
 
 use Exception;
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 use Zend_Db;
 use Zend_Db_Table;

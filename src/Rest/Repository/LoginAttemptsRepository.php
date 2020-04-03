@@ -4,8 +4,8 @@
 namespace Gems\Rest\Repository;
 
 
-use Zend\Db\Sql\Literal;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Sql\Literal;
+use Laminas\Db\Sql\Sql;
 
 class LoginAttemptsRepository
 {

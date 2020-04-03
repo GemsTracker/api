@@ -5,8 +5,8 @@ namespace Gems\Rest\Error;
 
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\DelegatorFactoryInterface;
-use Zend\Stratigility\Middleware\ErrorHandler;
+use Laminas\ServiceManager\Factory\DelegatorFactoryInterface;
+use Laminas\Stratigility\Middleware\ErrorHandler;
 
 class ErrorLogEventListenerDelegatorFactory implements DelegatorFactoryInterface
 {

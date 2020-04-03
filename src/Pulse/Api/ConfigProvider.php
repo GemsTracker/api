@@ -48,7 +48,7 @@ use Pulse\Api\Repository\TokenRepository;
 use Pulse\Api\Repository\TrackfieldsRepository;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
-use Zend\Log\Logger;
+use Laminas\Log\Logger;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
 {

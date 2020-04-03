@@ -7,10 +7,10 @@ namespace Gems\Rest\Action;
 use Gems\Rest\Acl\AclRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class AclRolePermissionsController extends RestControllerAbstract
 {

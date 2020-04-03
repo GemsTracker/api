@@ -8,7 +8,7 @@ use GemsTest\Rest\Test\RequestTestUtils;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Pulse\Api\Repository\TokenAnswerRepository;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class EmmaTokenAnswersRestControllerTest extends TestCase
 {

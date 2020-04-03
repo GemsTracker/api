@@ -11,7 +11,7 @@ use GemsTest\Rest\Action\ArrayModelRestController;
 use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Expressive\Helper\UrlHelper;
+use Mezzio\Helper\UrlHelper;
 
 class RestControllerFactoryTest extends TestCase
 {

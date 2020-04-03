@@ -22,11 +22,11 @@ use Pulse\Api\Model\Emma\RespondentImportTranslator;
 use Pulse\Api\Model\Emma\RespondentRepository;
 use Pulse\Log\AppointmentActivity;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Expressive\Helper\UrlHelper;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
+use Mezzio\Helper\UrlHelper;
 
 class RespondentBulkRestController extends ModelRestController
 {

@@ -1,6 +1,6 @@
 <?php
 
-use Zend\ConfigAggregator\ConfigAggregator;
+use Laminas\ConfigAggregator\ConfigAggregator;
 
 return [
     // Toggle the configuration cache. Set this to boolean false, or remove the

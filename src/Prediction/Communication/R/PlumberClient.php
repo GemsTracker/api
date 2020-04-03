@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use PHPUnit\Util\Json;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class PlumberClient
 {

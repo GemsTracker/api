@@ -4,13 +4,13 @@
 namespace Gems\Rest\Acl;
 
 
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Sql;
-use Zend\Permissions\Acl\Acl;
-use Zend\Permissions\Acl\Resource\GenericResource;
-use Zend\Permissions\Acl\Role\GenericRole;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Driver\ResultInterface;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\Sql\Sql;
+use Laminas\Permissions\Acl\Acl;
+use Laminas\Permissions\Acl\Resource\GenericResource;
+use Laminas\Permissions\Acl\Role\GenericRole;
 
 class AclRepository
 {

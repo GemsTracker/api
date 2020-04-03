@@ -11,7 +11,7 @@ use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Validator\NotEmpty;
+use Laminas\Validator\NotEmpty;
 
 class ModelProcessorTest extends ZendDbTestCase
 {

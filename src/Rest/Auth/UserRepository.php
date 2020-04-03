@@ -7,7 +7,7 @@ namespace Gems\Rest\Auth;
 use Gems\Rest\Model\EntityRepositoryAbstract;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Sql\Sql;
 
 class UserRepository extends EntityRepositoryAbstract implements UserRepositoryInterface
 {

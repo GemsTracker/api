@@ -5,8 +5,8 @@ namespace Gems\Rest\Log;
 
 
 use Interop\Container\ContainerInterface;
-use Zend\Log\LoggerAbstractServiceFactory;
-use Zend\Log\PsrLoggerAdapter;
+use Laminas\Log\LoggerAbstractServiceFactory;
+use Laminas\Log\PsrLoggerAdapter;
 
 class PsrLoggerAbstractServiceFactory extends LoggerAbstractServiceFactory
 {

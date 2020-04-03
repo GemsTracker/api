@@ -8,8 +8,8 @@ use Interop\Http\ServerMiddleware\MiddlewareInterface as ServerMiddlewareInterfa
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Diactoros\Stream;
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Stream;
 
 
 class AccessTokenAction implements ServerMiddlewareInterface

@@ -5,8 +5,8 @@ namespace Pulse\Api\Model\Emma;
 
 
 use Psr\Log\LoggerInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
 
 class EpisodeOfCareImportTranslator
 {

@@ -19,9 +19,9 @@ use League\OAuth2\Server\ResponseTypes\RedirectResponse;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\Response\HtmlResponse;
-use Zend\Expressive\Template\TemplateRendererInterface;
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Response\HtmlResponse;
+use Mezzio\Template\TemplateRendererInterface;
 
 class AuthorizeActionTest extends TestCase
 {

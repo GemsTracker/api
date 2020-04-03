@@ -6,7 +6,7 @@ namespace Gems\Rest\Auth;
 
 use Interop\Container\ContainerInterface;
 use League\OAuth2\Server\AuthorizationServer;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class AuthorizationServerFactory implements FactoryInterface
 {

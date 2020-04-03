@@ -15,13 +15,13 @@ use Psr\Http\Message\UriInterface;
 use GemsTest\Rest\Test\ZendDbTestCase;
 use Symfony\Component\Yaml\Yaml;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Diactoros\Uri;
-use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Router\Route;
-use Zend\Expressive\Router\RouteResult;
-use Zend\ServiceManager\Config;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Uri;
+use Mezzio\Helper\UrlHelper;
+use Mezzio\Router\Route;
+use Mezzio\Router\RouteResult;
+use Laminas\ServiceManager\Config;
 
 class ModelRestControllerTest extends ZendDbTestCase
 {
@@ -794,7 +794,7 @@ class ModelRestControllerTest extends ZendDbTestCase
         $routeResultProphecy->getMatchedRoute()->willReturn($route);
         $routeResult = $routeResultProphecy->reveal();
 
-        $requestProphesy->getAttribute('Zend\Expressive\Router\RouteResult')->willReturn($routeResult);
+        $requestProphesy->getAttribute('Mezzio\Router\RouteResult')->willReturn($routeResult);
 
         foreach($attributes as $attributeName=>$returnValue) {
             $requestProphesy->getAttribute($attributeName)->willReturn($returnValue);

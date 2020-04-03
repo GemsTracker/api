@@ -7,9 +7,9 @@ namespace Gems\Rest\Middleware;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Permissions\Acl\Acl;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Permissions\Acl\Acl;
 
 class ApiGateMiddleware implements MiddlewareInterface
 {
@@ -28,7 +28,7 @@ class ApiGateMiddleware implements MiddlewareInterface
     {
         $userRole = $this->currentUser->getRole(true);
         $method = $request->getMethod();
-        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
         $route = $routeResult->getMatchedRoute();
         $routeName = str_replace(['.structure', '.get', '.fixed'], '', $route->getName());
 

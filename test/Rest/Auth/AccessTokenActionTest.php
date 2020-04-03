@@ -11,7 +11,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class AccessTokenActionTest extends TestCase
 {

@@ -39,7 +39,7 @@ class ModelRestController extends ModelRestControllerAbstract
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
         $route = $routeResult->getMatchedRoute();
         if ($route) {
             $options = $route->getOptions();

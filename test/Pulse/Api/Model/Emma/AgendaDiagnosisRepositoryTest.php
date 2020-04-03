@@ -8,7 +8,7 @@ use GemsTest\Rest\Test\ZendDbTestCase;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use Pulse\Api\Model\DiagnosisModel;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Sql\Sql;
 
 class AgendaDiagnosisRepositoryTest extends ZendDbTestCase
 {

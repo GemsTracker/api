@@ -4,7 +4,7 @@
 namespace Gems\Rest\Legacy;
 
 
-use Zend\ServiceManager\ServiceManager;
+use Laminas\ServiceManager\ServiceManager;
 
 class ServiceManagerRegistrySource implements \MUtil_Registry_SourceInterface
 {

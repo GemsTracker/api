@@ -2,8 +2,8 @@
 
 namespace Gems\Rest\Action;
 
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class AclGroupsController extends RestControllerAbstract
 {

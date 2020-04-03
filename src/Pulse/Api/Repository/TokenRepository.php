@@ -4,9 +4,9 @@
 namespace Pulse\Api\Repository;
 
 
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Select;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Select;
+use Laminas\Db\Sql\Sql;
 
 class TokenRepository
 {
