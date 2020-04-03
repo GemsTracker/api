@@ -20,7 +20,8 @@ $aggregator = new ConfigAggregator([
     new ArrayProvider($cacheConfig),
 
     // Default App module config
-    Gems\Rest\ConfigProvider::class,
+    \Gems\Rest\ConfigProvider::class,
+    \Gems\Rest\Fhir\ConfigProvider::class,
     //Prediction\ConfigProvider::class,
     //Pulse\Api\ConfigProvider::class,
 
