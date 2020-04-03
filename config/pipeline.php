@@ -7,7 +7,7 @@ use Mezzio\Router\Middleware\DispatchMiddleware;
 use Mezzio\Router\Middleware\ImplicitHeadMiddleware;
 use Mezzio\Router\Middleware\ImplicitOptionsMiddleware;
 use Mezzio\Router\Middleware\RouteMiddleware;
-use Mezzio\Handler\NotFoundHandler;
+use Mezzio\Middleware\NotFoundHandler;
 use Laminas\Stratigility\Middleware\ErrorHandler;
 
 /**
