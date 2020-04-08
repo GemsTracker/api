@@ -9,13 +9,13 @@
 
 return [
     'project' => [
-        'name' => 'pulse',
-        'environment' => 'development',
-        'vendor' => 'mddejong/pulse',
-        'locale' => [
-            'default' => 'en',
+        'name' => 'pulse', // Project name. Mind the caps. Same as in the index.php in the htdocs of your GemsTracker installation
+        'environment' => 'development', // The environment of the linked Gemstracker. E.g. 'development'
+        'vendor' => 'mddejong/pulse', // vendor directoy of the linked project to set to APPLICATION_DIR
+        'locale' => [ //
+            'default' => 'en', // Default locales
         ],
-        'locales' => [
+        'locales' => [ // Available locales
             'en',
             'nl',
         ],

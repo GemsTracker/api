@@ -2,16 +2,16 @@
 
 return [
     'gems_auth' => [
-        'use_linked_gemstracker_session' => true,
+        'use_linked_gemstracker_session' => true, // Enable the usage of logging in with an existing Gemstracker Session
         'linked_gemstracker' => [
-            'project_name' => 'newProject',
-            'root_dir' => '/vagrant/gemsrest',
-            'application_env' => 'testing',
-            'cookie_path' => '/',
+            'project_name' => 'newProject', // Project name. Mind the caps. Same as in the index.php in the htdocs of your GemsTracker installation
+            'root_dir' => '/vagrant/gemsrest', // Absolute root dir of your Gemstracker installation. E.g. 'C:\dev\gemstracker'
+            'application_env' => 'testing', // The environment of the linked Gemstracker. E.g. 'development'
+            'cookie_path' => '/', // The cookie path used for the session. Normally '/' but can add a subdirectory of hosting multiple projects on a url
         ],
-        'allow_origin_domains' => [
+        'allow_origin_domains' => [ / Domains that are allowed in the origin of the request. Comment out to allow all
             'https://newproject.test',
         ],
-        'requested_width_check' => true,
+        'requested_width_check' => true, // CSRF protection for when we use a session
     ],
 ];

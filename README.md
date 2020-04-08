@@ -22,8 +22,11 @@ When prompted by Zend packages to inject an entry to the config, use the default
 Now you will need to add local configuration files. 
 
 Rename database.local.php.dist to database.local.php and fill in the db settings.
+Rename project.local.php.dist to project.local.php and fill in the project settings.
 
-If you wish to use Gemstracker Authentication to use the API (e.g. for front-ends in the API) instead of OAuth2, rename gems-auth.local.php.dist to gems-auth.local.php and fill in the linked Gemstracker root path and application environment. If hosted in a subdirectoy change the cookie path.
+If you wish to use Gemstracker Authentication to use the API (e.g. for front-ends in the API) instead of OAuth2, rename gems-auth.local.php.dist to gems-auth.local.php and fill in the linked Gemstracker root path and application environment. If hosted in a subdirectory change the cookie path.
+
+
 Make sure your Gemstracker user has the 'pr.api' privilege. 
 
 Finally if you wish to use Development mode, you can either rename development.local.php.dist to development.local.php in both the config and config/autoload directories, or run
@@ -44,3 +47,15 @@ $ php bin/generate-keys.php
 
 in your project directory.
 The keyfile permissions will need to be 600 or 660.
+
+
+### Database Migration
+To add extra database tables to your GemsTracker installation you can run database migrations. It uses the settings set in the database.local.php
+
+```bash
+$ vendor/bin/phinx migrate
+```
+Or on windows:
+```bash
+$ vendor/bin/phinx.bat migrate
+```
