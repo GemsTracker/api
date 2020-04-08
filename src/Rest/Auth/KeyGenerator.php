@@ -35,9 +35,23 @@ class KeyGenerator
         $config = [
             'private_key_bits' => $this->bits,
         ];
-        $resource = openssl_pkey_new($config);
 
-        openssl_pkey_export($resource, $this->privateKey);
+        $opts = getopt("l:");
+        if (array_key_exists('l', $opts)) {
+            if (file_exists($opts['l'])) {
+                $config['config'] = $opts['l'];
+            } else {
+                die(sprintf("File '%s' not found.", $opts['l']));
+            }
+        }
+        //$config['config'] = 'E:\xampp71\php\extras\openssl\openssl.cnf';
+        $resource = openssl_pkey_new($config);
+        if ($resource === false) {
+            die("If you are on windows, provide a valid location for the openssl.cnf like this:\r\n generate-keys.bat -l \"C:\\xampp\\php\\extras\\openssl\\openssl.cnf\"");
+        }
+
+        openssl_pkey_export($resource, $privKey, null, $config);
+        $this->privateKey = $privKey;
 
         $publicKey = openssl_pkey_get_details($resource);
         $this->publicKey = $publicKey["key"];
@@ -56,9 +70,11 @@ class KeyGenerator
         file_put_contents($this->publicKeyLocation, $this->publicKey);
         chmod($this->publicKeyLocation, $this->fileMode);
 
+        echo "Private key generated in " . realpath($this->privateKeyLocation) . "\r\n";
+        echo "Public key generated in " . realpath($this->publicKeyLocation);
         return true;
     }
-    
+
     public function generateApplicationKey()
     {
         $key = Key::createNewRandomKey();
