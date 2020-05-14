@@ -44,4 +44,14 @@ class PatientInformationFormatter
 
         return $displayName;
     }
+
+    public function getReference()
+    {
+        return $this->getPatientEndpoint() . $this->getIdentifier();
+    }
+
+    public function getPatientEndpoint()
+    {
+        return 'fhir/patient/';
+    }
 }

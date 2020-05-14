@@ -24,11 +24,13 @@ class AppointmentModel extends \Gems_Model_AppointmentModel
         $this->addLeftTable('gems__agenda_staff', ['gap_id_attended_by' =>  'gas_id_staff'], 'gas');
         $this->addLeftTable('gems__locations', ['gap_id_location' =>  'glo_id_location'], 'glo');
 
+        $this->addColumn('gap_admission_time', 'admission_date');
+
         $this->set('gap_id_appointment', 'label', $this->_('id'), 'apiName', 'id');
         $this->set('gap_status', 'label', $this->_('active'), 'apiName', 'status');
         $this->set('gap_admission_time', 'label', $this->_('start'), 'apiName', 'start');
         // Search options
-        $this->set('gap_admission_time', 'label', $this->_('date'), 'apiName', 'date');
+        $this->set('admission_date', 'label', $this->_('date'), 'apiName', 'date');
 
         $this->set('gap_discharge_time', 'label', $this->_('end'), 'apiName', 'end');
         $this->set('gap_created', 'label', $this->_('created'), 'apiName', 'created');
@@ -36,6 +38,10 @@ class AppointmentModel extends \Gems_Model_AppointmentModel
         $this->set('gap_comment', 'label', $this->_('description'), 'apiName', 'description');
 
         $this->set('serviceType', 'label', $this->_('serviceType'));
+
+        $this->set('gap_created', 'label', $this->_('created'), 'apiName', 'created');
+        $this->set('gap_changed', 'label', $this->_('changed'), 'apiName', 'changed');
+
         // Search options
         $this->set('service-type', 'label', $this->_('service-type'));
         $this->set('service-type.display', 'label', $this->_('service-type.display'));

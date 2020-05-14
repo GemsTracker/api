@@ -3,6 +3,7 @@
 namespace Gems\Rest\Fhir\Model;
 
 use Gems\Rest\Fhir\Model\Transformer\BooleanTransformer;
+use Gems\Rest\Fhir\Model\Transformer\ManagingOrganizationTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientHumanNameTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientManagingOrganizationTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientTelecomTransformer;
@@ -25,6 +26,9 @@ class PatientModel extends \Gems_Model_RespondentModel
         $this->set('grs_birthday', 'label', $this->_('birthDate'), 'apiName', 'birthDate');
 
         $this->set('name', 'label', $this->_('name'));
+        $this->set('gr2o_created', 'label', $this->_('created'), 'apiName', 'created');
+        $this->set('gr2o_changed', 'label', $this->_('changed'), 'apiName', 'changed');
+
         // search options
         $this->set('family', 'label', $this->_('name'));
         $this->set('given', 'label', $this->_('name'));
@@ -44,7 +48,7 @@ class PatientModel extends \Gems_Model_RespondentModel
 
         $this->addTransformer(new PatientHumanNameTransformer());
         $this->addTransformer(new PatientTelecomTransformer());
-        $this->addTransformer(new PatientManagingOrganizationTransformer());
+        $this->addTransformer(new ManagingOrganizationTransformer('gr2o_id_organization', true));
         $this->addTransformer(new BooleanTransformer(['grc_success']));
 
     }

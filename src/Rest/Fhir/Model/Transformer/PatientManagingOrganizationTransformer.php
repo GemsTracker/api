@@ -60,6 +60,7 @@ class PatientManagingOrganizationTransformer extends \MUtil_Model_ModelTransform
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
         foreach ($data as $key => $item) {
+            $data[$key]['managingOrganization']['id'] = $item['gr2o_id_organization'];
             $data[$key]['managingOrganization']['reference'] = $this->getOrganizationEndpoint() . $item['gr2o_id_organization'];
         }
 
