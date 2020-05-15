@@ -180,8 +180,7 @@ class TreatmentModel extends \MUtil_Model_SelectModel
 
                 ]
             )
-            ->where('pt1.ptr_id_treatment IS NOT NULL')
-            ->orWhere('pt2.ptr_id_treatment IS NOT NULL')
+            ->where('pt1.ptr_id_treatment IS NOT NULL OR pt2.ptr_id_treatment IS NOT NULL')
             ->order(
                 [
                     new \Zend_Db_Expr('treatment_code IS NULL DESC'),
