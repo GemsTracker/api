@@ -24,7 +24,7 @@ class EpisodeOfCarePatientTransformer extends \MUtil_Model_ModelTransformerAbstr
             unset($filter['patient']);
             if (count($value) === 2) {
                 $filter['gr2o_patient_nr'] = $value[0];
-                $filter['gr2o_id_organization'] = $value[0];
+                $filter['gr2o_id_organization'] = $value[1];
             }
         }
         if (isset($filter['patient.email'])) {

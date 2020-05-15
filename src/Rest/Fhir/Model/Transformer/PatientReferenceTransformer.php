@@ -33,7 +33,7 @@ class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
             unset($filter['patient']);
             if (count($value) === 2) {
                 $filter['gr2o_patient_nr'] = $value[0];
-                $filter['gr2o_id_organization'] = $value[0];
+                $filter['gr2o_id_organization'] = $value[1];
             }
         }
         if ($this->fieldName !== 'patient' && isset($filter[$this->fieldName])) {
@@ -41,7 +41,7 @@ class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
             unset($filter[$this->fieldName]);
             if (count($value) === 2) {
                 $filter['gr2o_patient_nr'] = $value[0];
-                $filter['gr2o_id_organization'] = $value[0];
+                $filter['gr2o_id_organization'] = $value[1];
             }
         }
 
