@@ -85,6 +85,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'created',
                     'status',
                 ],
+                'idField' => 'id',
+                'idFieldRegex' => '[A-Za-z0-9]+',
             ],
             'fhir/episode-of-care' => [
                 'model' => EpisodeOfCareModel::class,
