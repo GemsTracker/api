@@ -5,10 +5,13 @@ namespace Pulse\Api\Action;
 
 
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
+use Zend\Expressive\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
+use Zalt\Loader\ProjectOverloader;
 
 class EmmaRespondentTokensController extends ModelRestController
 {
@@ -26,6 +29,11 @@ class EmmaRespondentTokensController extends ModelRestController
         'gto_valid_until' => 'valid_until',
         'grc_success' => 'status_ok',
     ];
+
+    /**
+     * @var \Gems_User_User
+     */
+    protected $currentUser;
 
     protected $defaultFilter = [
         'gsu_code' => [
@@ -48,6 +56,24 @@ class EmmaRespondentTokensController extends ModelRestController
         ]
     ];
 
+    protected $orgSpecificFilter = [
+        'heuvelrug' => [
+            'gsu_code' => [
+                'anesthesie',
+                'intake OHK',
+            ],
+            'gor_code' => [
+                'heuvelrug',
+            ],
+        ],
+    ];
+
+    public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, $LegacyCurrentUser)
+    {
+        $this->currentUser = $LegacyCurrentUser;
+        parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
+    }
+
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $id = $this->getId($request);
@@ -55,8 +81,14 @@ class EmmaRespondentTokensController extends ModelRestController
         if ($id !== null) {
             $idField = $this->getIdField();
             if ($idField) {
+                $baseOrganizationCode = $this->currentUser->getBaseOrganization()->getCode();
+                $defaultFilter = $this->defaultFilter;
+                if (isset($this->orgSpecificFilter[$baseOrganizationCode])) {
+                    $defaultFilter = $this->orgSpecificFilter[$baseOrganizationCode];
+                }
+
                 $filter = $this->getIdFilter($id, $idField);
-                $filter = array_merge($filter, $this->defaultFilter);
+                $filter = array_merge($filter, $defaultFilter);
 
                 $rows = $this->model->load($filter);
                 if (is_array($rows)) {
@@ -69,7 +101,7 @@ class EmmaRespondentTokensController extends ModelRestController
                     return new JsonResponse($translatedRows);
                 }
             }
-            return new EmptyResponse(404);
+            return new EmptyResponse(200);
         }
 
         return new JsonResponse(['error' => 'missing_data', 'message' => 'patient nr required'],400);
