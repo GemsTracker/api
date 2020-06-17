@@ -184,10 +184,12 @@ class RespondentBulkRestController extends ModelRestController
         }
 
 
-        //$this->logger->debug('Starting import of bulk respondent', ['PatientNr' => $patientNr]);
-        $this->logger->debug('Starting import of bulk respondent', $respondentRow);
+        $currentUserName = $request->getAttribute('user_name');
 
-        $translator = new RespondentImportTranslator($this->respondentRepository, $this->logger, $this->emmaRespondentErrorLogger);
+        //$this->logger->debug('Starting import of bulk respondent', ['PatientNr' => $patientNr]);
+        $this->logger->debug('Starting import of bulk respondent by ' . $currentUserName, $respondentRow);
+
+        $translator = new RespondentImportTranslator($this->respondentRepository, $this->logger, $this->emmaRespondentErrorLogger, $currentUserName);
         $row = $translator->translateRowOnce($respondentRow, true);
 
         $organizations = $this->organizationRepository->getOrganizationTranslations($row['organizations']);
@@ -221,9 +223,9 @@ class RespondentBulkRestController extends ModelRestController
             }
 
             if ($new) {
-                $this->logger->debug('Respondent is new');
+                $this->logger->debug(sprintf('Respondent \'%s\' is new', $patientNr));
             } else {
-                $this->logger->debug('Respondent exists');
+                $this->logger->debug(sprintf('Respondent \'%s\' exists', $patientNr));
             }
 
             $this->model->applyEditSettings($new);

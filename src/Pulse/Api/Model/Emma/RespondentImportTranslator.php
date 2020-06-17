@@ -15,6 +15,11 @@ use Zend\Db\Sql\Sql;
 class RespondentImportTranslator extends ApiModelTranslator
 {
     /**
+     * @var string
+     */
+    protected $currentUserName;
+
+    /**
      * @var LoggerInterface
      */
     protected $logger;
@@ -52,8 +57,9 @@ class RespondentImportTranslator extends ApiModelTranslator
         "gr2o_epd_id" => "id",
     ];
 
-    public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger, LoggerInterface $respondentErrorLogger)
+    public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger, LoggerInterface $respondentErrorLogger, $currentUserName = null)
     {
+        $this->currentUserName = $currentUserName;
         $this->logger = $logger;
         $this->respondentErrorLogger = $respondentErrorLogger;
         $this->respondentRepository = $respondentRepository;
@@ -101,7 +107,7 @@ class RespondentImportTranslator extends ApiModelTranslator
                                     ];
 
                                     $this->logger->debug($message, $context);
-                                    $this->respondentErrorLogger->error($message, $context);
+                                    $this->respondentErrorLogger->error($message . ' by ' . $this->currentUserName, $context);
 
                                     exit;
 
