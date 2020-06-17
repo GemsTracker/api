@@ -124,8 +124,8 @@ class InsertTrackTokenController extends RestControllerAbstract
             $select->from('gems__rounds')
                 ->columns(['maxRoundOrder' => new Expression('MAX(gro_id_order)')])
                 ->join('gems__respondent2track', 'gr2t_id_track = gro_id_track', [])
-                ->where('gr2t_id_respondent_track', $tokenData['gto_id_respondent_track'])
-                ->where('gro_round_description', $tokenData['gto_round_description']);
+                ->where(['gr2t_id_respondent_track' => $tokenData['gto_id_respondent_track']])
+                ->where(['gro_round_description' => $tokenData['gto_round_description']]);
 
             $statement = $sql->prepareStatementForSqlObject($select);
             $result = $statement->execute();
