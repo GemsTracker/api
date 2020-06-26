@@ -5,6 +5,7 @@ namespace Pulse\Api\Action;
 
 use Gems\Model\EpisodeOfCareModel;
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Log\Formatter\SimpleMulti;
 use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
 use Gems\Rest\Model\ModelTranslateException;
@@ -27,6 +28,9 @@ use Zend\Db\Sql\Sql;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Expressive\Helper\UrlHelper;
+use Zend\Log\Writer\Stream;
+use Zend\Log\PsrLoggerAdapter;
+use Zend\Stdlib\SplPriorityQueue;
 
 class RespondentBulkRestController extends ModelRestController
 {
@@ -118,6 +122,33 @@ class RespondentBulkRestController extends ModelRestController
         parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
+    protected function checkLoggers(ServerRequestInterface $request)
+    {
+        $currentUserName = $request->getAttribute('user_name');
+
+        if (strpos(strtolower($currentUserName), 'heuvelrug') !== false) {
+
+            $importWriter = new Stream(GEMS_LOG_DIR . '/heuvelrug-import.log');
+            $importWriter->setFormatter(new SimpleMulti());
+
+            $importWriterQueue = new SplPriorityQueue();
+            $importWriterQueue->insert($importWriter, 1);
+
+            $importLogger = $this->logger->getLogger();
+            $importLogger->setWriters($importWriterQueue);
+            $this->logger = new PsrLoggerAdapter($importLogger);
+
+            $respondentErrorWriter = new Stream(GEMS_LOG_DIR . '/heuvelrug-respondent-error.log');
+            $respondentErrorWriter->setFormatter(new SimpleMulti());
+
+            $respondentErrorWriterQueue = new SplPriorityQueue();
+            $respondentErrorWriterQueue->insert($respondentErrorWriter, 1);
+            $emmaImportLogger = $this->emmaRespondentErrorLogger->getLogger();
+            $emmaImportLogger->setWriters($respondentErrorWriterQueue);
+            $this->emmaRespondentErrorLogger = new PsrLoggerAdapter($emmaImportLogger);
+        }
+    }
+
     protected function createModel()
     {
         $model =  parent::createModel();
@@ -182,6 +213,8 @@ class RespondentBulkRestController extends ModelRestController
         } elseif (isset($respondentRow['gr2o_patient_nr'])) {
             $patientNr = $respondentRow['gr2o_patient_nr'];
         }
+
+        $this->checkLoggers($request);
 
 
         $currentUserName = $request->getAttribute('user_name');
