@@ -326,6 +326,19 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
+                'name' => 'status',
+                'path' => '/status',
+                'middleware' => [
+                    LocaleMiddleware::class,
+                    //AuthorizeGemsAndOauthMiddleware::class,
+                    //ApiOrganizationGateMiddleware::class,
+                    AccessLogMiddleware::class,
+                    SecurityHeadersMiddleware::class,
+                    PingController::class,
+                ],
+                'allowed_methods' => ['GET'],
+            ],
+            [
                 'name' => 'gems-session-test',
                 'path' => '/gems-session-test',
                 'middleware' => GemsSessionTestController::class,
