@@ -26,6 +26,7 @@ class AppointmentImportTranslator extends ApiModelTranslator
     public $translations = [
         'gap_id_in_source' => 'id',
         'gap_admission_time' => 'admission_time',
+        'gap_discharge_time' => 'discharge_time',
         'gap_status' => 'status',
         'gap_diagnosis_code' => 'diagnosis_code',
         //'gap_id_episode' => 'episode_id',
