@@ -248,6 +248,8 @@ class RespondentBulkRestController extends ModelRestController
             } catch(ModelTranslateException $e) {
                 $this->logger->error($e->getMessage());
                 return new JsonResponse(['error' => 'model_translation_error', 'message' => $e->getMessage()], 400);
+            } catch(ModelException $e) {
+                return new EmptyResponse(200);
             }
 
             $new = true;

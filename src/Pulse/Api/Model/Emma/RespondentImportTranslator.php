@@ -15,11 +15,6 @@ use Zend\Db\Sql\Sql;
 class RespondentImportTranslator extends ApiModelTranslator
 {
     /**
-     * @var string
-     */
-    protected $currentUserName;
-
-    /**
      * @var LoggerInterface
      */
     protected $logger;
@@ -57,9 +52,8 @@ class RespondentImportTranslator extends ApiModelTranslator
         "gr2o_epd_id" => "id",
     ];
 
-    public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger, LoggerInterface $respondentErrorLogger, $currentUserName = null)
+    public function __construct(RespondentRepository $respondentRepository, LoggerInterface $logger, LoggerInterface $respondentErrorLogger)
     {
-        $this->currentUserName = $currentUserName;
         $this->logger = $logger;
         $this->respondentErrorLogger = $respondentErrorLogger;
         $this->respondentRepository = $respondentRepository;
@@ -83,14 +77,17 @@ class RespondentImportTranslator extends ApiModelTranslator
                             if ($patient['gr2o_patient_nr'] != $row['gr2o_patient_nr']) {
                                 // A patient already exists under a different patient nr. We will overwrite this patient!
                                 $copyId = $model->getKeyCopyName('gr2o_patient_nr');
-                                $row[$copyId] = $patient['gr2o_patient_nr'];
+                                if ($copyId) {
+                                    $row[$copyId] = $patient['gr2o_patient_nr'];
+                                }
 
                                 // We also need to check if the patient already exists as the current organization, if so we might need to merge!
                                 $altPatient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
                                 if ($altPatient) {
                                     // new patientnumber and organization combo also already exists.. we might have to merge!
+                                    // CASE 5
 
-                                    $message = 'Respondent exists as two respondents in Pulse';
+                                    $message = 'Patient exists as two respondents in this organization in Pulse. One with the ssn, the other with the patient number';
                                     $context = [
                                         'patient1' => [
                                             'patientNr'     => $patient['gr2o_patient_nr'],
@@ -107,19 +104,46 @@ class RespondentImportTranslator extends ApiModelTranslator
                                     ];
 
                                     $this->logger->debug($message, $context);
-                                    $this->respondentErrorLogger->error($message . ' by ' . $this->currentUserName, $context);
+                                    $this->respondentErrorLogger->error($message, $context);
 
-                                    exit;
+                                    throw new ModelTranslateException(
+                                        sprintf(
+                                            "Patient nr %s already exists in organization %s but without SSN. SSN %s is already known in patient nr %s",
+                                            $row['gr2o_patient_nr'], $row['gr2o_id_organization'],
+                                            $row['grs_ssn'], $patient['gr2o_patient_nr']
+                                        )
+                                    );
 
                                     // For now remove ssn and merge into new, but we're going to have to merge the patient completely
-                                    $row['grs_id_user'] = $row['gr2o_id_user'] = $altPatient['gr2o_id_user'];
+                                    /*$row['grs_id_user'] = $row['gr2o_id_user'] = $altPatient['gr2o_id_user'];
                                     unset($row['grs_ssn']);
                                     $row['new_respondent'] = false;
 
-                                    return $row;
+                                    return $row;*/
 
                                 }
+
+                                //Patient is known with this ssn but not with this patient nr.
+                                //Overwrite the current patient number, but log the instance
+                                //CASE 4
+
+                                $message = 'New patient imported, overwriting an existing Patient nr';
+                                $context = [
+                                    'existingPatient' => [
+                                        'patientNr'     => $patient['gr2o_patient_nr'],
+                                        'organization'  => $patient['gr2o_id_organization'],
+                                        'respondentId'  => $patient['gr2o_id_user'],
+                                        'ssn'           => $patient['grs_ssn'],
+                                    ],
+                                    'newPatient' => [
+                                        'patientNr'     => $row['gr2o_patient_nr'],
+                                    ],
+                                ];
+                                $this->logger->debug($message, $context);
+                                $this->respondentErrorLogger->notice($message, $context);
                             }
+
+                            // Patient is known with this ssn and patient nr. Just edit the patient
 
                             $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['gr2o_id_user'];
                             $row['new_respondent'] = false;
@@ -128,13 +152,40 @@ class RespondentImportTranslator extends ApiModelTranslator
                         }
                     }
 
+                    // SSN is not known to this Patient in this organisation, but does exist
                     $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['gr2o_id_user'];
                     $altPatient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
                     if ($altPatient) {
+                        // Patient with this patient nr already exists!
+                        // CASE 6
                         $row['grs_id_user'] = $row['gr2o_id_user'] = $altPatient['gr2o_id_user'];
+
+                        $message = 'Patient 2 already exists without ssn, but ssn is already in use with patient 1. SSN will be removed.';
+                        $context = [
+                            'patient1' => [
+                                'patientNr'     => $patient['gr2o_patient_nr'],
+                                'organization'  => $patient['gr2o_id_organization'],
+                                'respondentId'  => $patient['gr2o_id_user'],
+                                'ssn'           => $patient['grs_ssn'],
+                            ],
+                            'patient2' => [
+                                'patientNr'     => $altPatient['gr2o_patient_nr'],
+                                'organization'  => $altPatient['gr2o_id_organization'],
+                                'respondentId'  => $altPatient['gr2o_id_user'],
+                                'ssn'           => $altPatient['grs_ssn'],
+                            ],
+                        ];
+
+                        $this->logger->debug($message, $context);
+                        $this->respondentErrorLogger->error($message, $context);
+
                         unset($row['grs_ssn']);
+
+                        $row['new_respondent'] = false;
+                        return $row;
                     }
 
+                    // Patient is new in this organisation. We can safely merge
                     $row['new_respondent'] = true;
                     return $row;
                 }
@@ -142,12 +193,19 @@ class RespondentImportTranslator extends ApiModelTranslator
                 $patient = $this->respondentRepository->getPatient($row['gr2o_patient_nr'], $row['gr2o_id_organization']);
 
                 if (is_array($patient) && array_key_exists('grs_ssn', $patient) && $patient['grs_ssn'] !== null) {
+                    // SSN doesn't exist but the patient number does in this organization! Save the new SSN
+
+                    $row['grs_id_user'] = $row['gr2o_id_user'] = $patient['gr2o_id_user'];
+                    $row['new_respondent'] = false;
+
+                    return $row;
+
                     // SSN doesn't exist, but the patient number does in this organization! Something weird is going on here!
-                    throw new ModelTranslateException(
+                    /*throw new ModelTranslateException(
                         sprintf(
                             "SSN %s doesn't exist, but the patient ID %s does exist in organization %s. Patient has not been saved!",
                             $row['grs_ssn'], $row['gr2o_patient_nr'], $row['gr2o_id_organization']));
-                    return false;
+                    return false;*/
                 }
                 /*if ($ssnPatNr && ($ssnPatNr != $row['gr2o_patient_nr'])) {
                     unset($row['grs_ssn']);
