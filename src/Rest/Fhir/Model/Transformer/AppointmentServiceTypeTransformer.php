@@ -23,11 +23,36 @@ class AppointmentServiceTypeTransformer extends \MUtil_Model_ModelTransformerAbs
 
             unset($filter['service-type']);
         }
+        if (isset($filter['serviceType'])) {
+            $value = (int) $filter['serviceType'];
+            $filter['gap_id_activity'] = $value;
+
+            unset($filter['serviceType']);
+        }
         if (isset($filter['service-type.display'])) {
             $value = $filter['service-type.display'];
             $filter[] = "gaa_name LIKE '%".$value."'%";
 
             unset($filter['service-type.display']);
+        }
+        if (isset($filter['serviceType.display'])) {
+            $value = $filter['serviceType.display'];
+            $filter[] = "gaa_name LIKE '%".$value."'%";
+
+            unset($filter['serviceType.display']);
+        }
+
+        if (($key = array_search('service-type IS NULL', $filter)) !== false) {
+            $filter[$key] = 'gaa_id_activity IS NULL';
+        }
+        if (($key = array_search('serviceType IS NULL', $filter)) !== false) {
+            $filter[$key] = 'gaa_id_activity IS NULL';
+        }
+        if (($key = array_search('service-type IS NOT NULL', $filter)) !== false) {
+            $filter[$key] = 'gaa_id_activity IS NOT NULL';
+        }
+        if (($key = array_search('serviceType IS NOT NULL', $filter)) !== false) {
+            $filter[$key] = 'gaa_id_activity IS NOT NULL';
         }
 
         return $filter;
