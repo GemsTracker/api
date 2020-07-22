@@ -28,8 +28,16 @@ class AppointmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
     {
         $reversedStatusTranslations = array_flip(self::$statusTranslation);
 
-        if (isset($filter[$this->statusField], $reversedStatusTranslations[$filter[$this->statusField]])) {
-            $filter[$this->statusField] = $reversedStatusTranslations[$filter[$this->statusField]];
+        if (isset($filter[$this->statusField])) {
+            if (is_array($filter[$this->statusField])) {
+                foreach ($filter[$this->statusField] as $key => $status) {
+                    if (isset($reversedStatusTranslations[$status])) {
+                        $filter[$this->statusField][$key] = $reversedStatusTranslations[$status];
+                    }
+                }
+            } elseif (isset($reversedStatusTranslations[$filter[$this->statusField]])) {
+                $filter[$this->statusField] = $reversedStatusTranslations[$filter[$this->statusField]];
+            }
         }
 
         return $filter;
