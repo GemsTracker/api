@@ -21,6 +21,9 @@ class EpisodeOfCareModel extends \Gems_Model_JoinModel
     {
         parent::__construct('episodesofcare', 'gems__episodes_of_care', 'gec');
 
+        $this->addColumn(new \Zend_Db_Expr('\'EpisodeOfCare\''), 'resourceType');
+
+        $this->set('resourceType', 'label', 'resourceType');
         //$this->addColumn(new \Zend_Db_Expr('CONCAT(gr2o_patient_nr, "@", gr2o_id_organization)'), 'identifier');
         //$this->addColumn('grc_success', 'active');
         //$this->addColumn(new \Zend_Db_Expr("CASE grs_gender WHEN 'M' THEN 'male' WHEN 'F' THEN 'female' ELSE 'unknown' END"), 'gender');

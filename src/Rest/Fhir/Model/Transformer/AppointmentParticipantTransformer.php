@@ -82,6 +82,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
 
                 $participant = [
                     'actor' => [
+                        'type' => 'Patient',
                         'id' => $patientFormatter->getIdentifier(),
                         'reference' => $patientFormatter->getReference(),
                         'display' => $patientFormatter->getDisplayName(),
@@ -92,6 +93,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
             if (isset($item['gap_id_attended_by'])) {
                 $participant = [
                     'actor' => [
+                        'type' => 'Practitioner',
                         'id' => $item['gap_id_attended_by'],
                         'reference' => $this->getPractitionerEndpoint() . $item['gap_id_attended_by'],
                         'display' => $item['gas_name'],
@@ -102,6 +104,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
             if (isset($item['gap_id_location'])) {
                 $participant = [
                     'actor' => [
+                        'Location',
                         'id' => $item['gap_id_location'],
                         'reference' => $this->getLocationEndpoint() . $item['gap_id_location'],
                         'display' => $item['glo_name'],

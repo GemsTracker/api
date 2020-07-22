@@ -20,6 +20,10 @@ class PatientModel extends \Gems_Model_RespondentModel
         //$this->addColumn('grc_success', 'active');
         $this->addColumn(new \Zend_Db_Expr("CASE grs_gender WHEN 'M' THEN 'male' WHEN 'F' THEN 'female' ELSE 'unknown' END"), 'gender');
 
+        $this->addColumn(new \Zend_Db_Expr('\'Patient\''), 'resourceType');
+
+        $this->set('resourceType', 'label', 'resourceType');
+
         $this->set('id', 'label', $this->_('id'));
         $this->set('grc_success', 'label', $this->_('active'), 'apiName', 'active');
         $this->set('gender', 'label', $this->_('gender'));

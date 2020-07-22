@@ -15,6 +15,10 @@ class LocationModel extends \Gems_Model_JoinModel
     {
         parent::__construct('location', 'gems__locations', 'glo', true);
 
+        $this->addColumn(new \Zend_Db_Expr('\'Location\''), 'resourceType');
+
+        $this->set('resourceType', 'label', 'resourceType');
+
         $this->set('glo_id_location', 'label', $this->_('id'), 'apiName', 'id');
 
         $this->set('glo_active', 'label', $this->_('status'), 'apiName', 'status');

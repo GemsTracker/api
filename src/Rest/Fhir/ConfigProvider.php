@@ -44,6 +44,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => PatientModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
+                    'resourceType',
                     'id',
                     'active',
                     'gender',
@@ -61,6 +62,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => AppointmentModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
+                    'resourceType',
                     'id',
                     'status',
                     'start',
@@ -79,6 +81,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => TreatmentModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
+                    'resourceType',
                     'id',
                     'subject',
                     'title',
@@ -92,6 +95,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => EpisodeOfCareModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
+                    'resourceType',
                     'id',
                     'status',
                     'start',
@@ -108,6 +112,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => LocationModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
+                    'resourceType',
                     'id',
                     'status',
                     'name',
@@ -119,6 +124,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => PractitionerModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
+                    'resourceType',
                     'id',
                     'active',
                     'name',
@@ -130,6 +136,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => OrganizationModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
+                    'resourceType',
                     'id',
                     'active',
                     'name',

@@ -25,6 +25,9 @@ class AppointmentModel extends \Gems_Model_AppointmentModel
         $this->addLeftTable('gems__locations', ['gap_id_location' =>  'glo_id_location'], 'glo');
 
         $this->addColumn('gap_admission_time', 'admission_date');
+        $this->addColumn(new \Zend_Db_Expr('\'Appointment\''), 'resourceType');
+
+        $this->set('resourceType', 'label', 'resourceType');
 
         $this->set('gap_id_appointment', 'label', $this->_('id'), 'apiName', 'id');
         $this->set('gap_status', 'label', $this->_('active'), 'apiName', 'status');

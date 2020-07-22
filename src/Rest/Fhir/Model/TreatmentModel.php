@@ -28,6 +28,8 @@ class TreatmentModel extends \MUtil_Model_SelectModel
         $select = $this->getTreatmentSelect();
         parent::__construct($select, self::NAME);
 
+        $this->set('resourceType', 'label', 'resourceType');
+
         $this->set('id', 'label', $this->_('id'), 'apiName', 'id');
         $this->set('treatment_name', 'label', $this->_('title'), 'apiName', 'title');
         $this->set('treatment_start_date', 'label', $this->_('created'), 'apiName', 'created');
@@ -106,6 +108,7 @@ class TreatmentModel extends \MUtil_Model_SelectModel
             )
             ->columns(
                 [
+                    'resourceType' => new \Zend_Db_Expr('\'Treatment\''),
                     'id' => new \Zend_Db_Expr('
                     CASE 
                         WHEN pt2.ptr_id_treatment IS NOT NULL THEN CONCAT(\'A\', ap2.gap_id_appointment)
