@@ -13,6 +13,12 @@ class AppointmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
         'CO' => 'fulfilled',
     ];
 
+    public static $reverseStatusTranslation = [
+        'booked' => 'AC',
+        'cancelled' => ['AB', 'CA'],
+        'fulfilled' => 'CO',
+    ];
+
     public $statusField = 'gap_status';
 
     /**
@@ -26,14 +32,24 @@ class AppointmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
      */
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
-        $reversedStatusTranslations = array_flip(self::$statusTranslation);
+        $reversedStatusTranslations = self::$reverseStatusTranslation;
 
         if (isset($filter[$this->statusField])) {
             if (is_array($filter[$this->statusField])) {
+                $translatedStatus = [];
                 foreach ($filter[$this->statusField] as $key => $status) {
                     if (isset($reversedStatusTranslations[$status])) {
-                        $filter[$this->statusField][$key] = $reversedStatusTranslations[$status];
+                        if (is_array($reversedStatusTranslations[$status])) {
+                            $translatedStatus += $reversedStatusTranslations[$status];
+                        } else {
+                            $translatedStatus[] = $reversedStatusTranslations[$status];
+                        }
                     }
+                }
+                if (count($translatedStatus)) {
+                    $filter[$this->statusField] = $translatedStatus;
+                } else {
+                    unset($filter[$this->statusField]);
                 }
             } elseif (isset($reversedStatusTranslations[$filter[$this->statusField]])) {
                 $filter[$this->statusField] = $reversedStatusTranslations[$filter[$this->statusField]];

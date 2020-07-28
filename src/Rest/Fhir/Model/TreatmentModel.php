@@ -6,6 +6,7 @@ namespace Gems\Rest\Fhir\Model;
 
 use Gems\Rest\Fhir\Model\Transformer\PatientReferenceTransformer;
 use Gems\Rest\Fhir\Model\Transformer\TreatmentIdTransformer;
+use Gems\Rest\Fhir\Model\Transformer\TreatmentStatusTransformer;
 use MUtil\Translate\TranslateableTrait;
 
 class TreatmentModel extends \MUtil_Model_SelectModel
@@ -32,7 +33,7 @@ class TreatmentModel extends \MUtil_Model_SelectModel
 
         $this->set('id', 'label', $this->_('id'), 'apiName', 'id');
         $this->set('treatment_name', 'label', $this->_('title'), 'apiName', 'title');
-        $this->set('treatment_start_date', 'label', $this->_('created'), 'apiName', 'created');
+        $this->set('treatment_start_datetime', 'label', $this->_('created'), 'apiName', 'created');
         $this->set('subject', 'label', $this->_('subject'));
         $this->set('status', 'label', $this->_('status'));
 
@@ -42,6 +43,7 @@ class TreatmentModel extends \MUtil_Model_SelectModel
 
         $this->addTransformer(new PatientReferenceTransformer('subject'));
         $this->addTransformer(new TreatmentIdTransformer());
+        $this->addTransformer(new TreatmentStatusTransformer());
 
     }
 
