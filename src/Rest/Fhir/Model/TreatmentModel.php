@@ -33,7 +33,13 @@ class TreatmentModel extends \MUtil_Model_SelectModel
 
         $this->set('id', 'label', $this->_('id'), 'apiName', 'id');
         $this->set('treatment_name', 'label', $this->_('title'), 'apiName', 'title');
-        $this->set('treatment_start_datetime', 'label', $this->_('created'), 'apiName', 'created');
+        $this->set('treatment_start_datetime', [
+                'label' => $this->_('created'),
+                'apiName' =>'created',
+                'type' => \MUtil_Model::TYPE_DATETIME,
+                'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
+            ]
+        );
         $this->set('subject', 'label', $this->_('subject'));
         $this->set('status', 'label', $this->_('status'));
 
@@ -44,6 +50,9 @@ class TreatmentModel extends \MUtil_Model_SelectModel
         $this->addTransformer(new PatientReferenceTransformer('subject'));
         $this->addTransformer(new TreatmentIdTransformer());
         $this->addTransformer(new TreatmentStatusTransformer());
+
+        $this->setOnSave('treatment_start_datetime', [$this, 'formatSaveDate']);
+        $this->setOnLoad('treatment_start_datetime', [$this, 'formatLoadDate']);
 
     }
 
