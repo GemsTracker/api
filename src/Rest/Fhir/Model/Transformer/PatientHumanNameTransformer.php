@@ -70,6 +70,10 @@ class PatientHumanNameTransformer extends \MUtil_Model_ModelTransformerAbstract
                 $givenName = $item['grs_initials_name'];
             }
 
+            if (empty(trim($givenName))) {
+                $givenName = null;
+            }
+
             $data[$key]['name'][] = [
                 'family' => $familyName,
                 'given' => $givenName,
