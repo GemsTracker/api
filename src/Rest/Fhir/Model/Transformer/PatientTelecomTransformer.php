@@ -24,7 +24,11 @@ class PatientTelecomTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         if (isset($filter['phone'])) {
-            $filter['grs_phone_1'] = $filter['phone'];
+            $filter[] = sprintf('grs_phone_1 = %s OR grs_phone_2 = %s grs_phone_3 = %s',
+                $filter['phone'],
+                $filter['phone'],
+                $filter['phone']
+            );
 
             unset($filter['phone']);
         }
@@ -51,7 +55,25 @@ class PatientTelecomTransformer extends \MUtil_Model_ModelTransformerAbstract
             }
 
             if (isset($item['grs_phone_1'])) {
-                $elements[] = ['system' => 'phone', 'value' => $item['grs_phone_1']];
+                $elements[] = [
+                    'system' => 'phone',
+                    'value' => $item['grs_phone_1'],
+                    'use' => 'home',
+                ];
+            }
+            if (isset($item['grs_phone_2'])) {
+                $elements[] = [
+                    'system' => 'phone',
+                    'value' => $item['grs_phone_2'],
+                    'use' => 'work',
+                ];
+            }
+            if (isset($item['grs_phone_3'])) {
+                $elements[] = [
+                    'system' => 'phone',
+                    'value' => $item['grs_phone_3'],
+                    'use' => 'mobile',
+                ];
             }
 
             $data[$key]['telecom'] = $elements;
