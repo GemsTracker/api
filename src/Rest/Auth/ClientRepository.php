@@ -6,13 +6,13 @@ namespace Gems\Rest\Auth;
 use Gems\Rest\Model\EntityRepositoryAbstract;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\HydratingResultSet;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Driver\ResultInterface;
+use Laminas\Db\ResultSet\HydratingResultSet;
+use Laminas\Db\Sql\Sql;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Hydrator\NamingStrategy\UnderscoreNamingStrategy;
-use Zend\Hydrator\Reflection;
+use Laminas\Hydrator\NamingStrategy\UnderscoreNamingStrategy;
+use Laminas\Hydrator\Reflection;
 use Exception;
 
 class ClientRepository extends EntityRepositoryAbstract implements ClientRepositoryInterface

@@ -5,8 +5,8 @@ namespace Gems\Rest\Action;
 use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Container\ContainerInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\ServiceManager\Factory\FactoryInterface;
-use Zend\Expressive\Helper\UrlHelper;
+use Laminas\ServiceManager\Factory\FactoryInterface;
+use Mezzio\Helper\UrlHelper;
 
 class RestControllerFactory implements FactoryInterface
 {

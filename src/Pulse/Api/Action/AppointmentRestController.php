@@ -8,10 +8,10 @@ use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Repository\AccesslogRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Expressive\Helper\UrlHelper;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Diactoros\Response\JsonResponse;
+use Mezzio\Helper\UrlHelper;
 
 class AppointmentRestController extends ModelRestController
 {

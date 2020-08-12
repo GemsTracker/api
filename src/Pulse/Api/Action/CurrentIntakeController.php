@@ -9,8 +9,8 @@ use Gems\Rest\Exception\RestException;
 use Pulse\Api\Repository\IntakeAnesthesiaCheckRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class CurrentIntakeController extends RestControllerAbstract
 {

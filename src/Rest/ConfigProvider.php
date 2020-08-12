@@ -57,7 +57,7 @@ use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
 use Pulse\Api\Action\TokenController;
-use Zend\Permissions\Acl\Acl;
+use Laminas\Permissions\Acl\Acl;
 
 
 /**
@@ -113,13 +113,13 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 SecurityHeadersMiddleware::class => Factory\ReflectionFactory::class,
 
-                // Default test 
+                // Default test
                 Action\HomePageAction::class => Action\HomePageFactory::class,
                 Action\TestModelAction::class => Factory\ReflectionFactory::class,
-                
-                // Model Rest 
+
+                // Model Rest
                 Action\ModelRestController::class => Factory\ReflectionFactory::class,
-                
+
                 // Current User
                 CurrentUserRepository::class => ReflectionFactory::class,
 
@@ -323,6 +323,19 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'name' => 'ping',
                 'path' => '/ping',
                 'middleware' => $this->getCustomActionMiddleware(PingController::class),
+                'allowed_methods' => ['GET'],
+            ],
+            [
+                'name' => 'status',
+                'path' => '/status',
+                'middleware' => [
+                    LocaleMiddleware::class,
+                    //AuthorizeGemsAndOauthMiddleware::class,
+                    //ApiOrganizationGateMiddleware::class,
+                    AccessLogMiddleware::class,
+                    SecurityHeadersMiddleware::class,
+                    PingController::class,
+                ],
                 'allowed_methods' => ['GET'],
             ],
             [

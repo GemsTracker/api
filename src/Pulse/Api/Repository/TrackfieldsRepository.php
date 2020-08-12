@@ -5,9 +5,9 @@ namespace Pulse\Api\Repository;
 
 
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\Sql\Sql;
 
 class TrackfieldsRepository
 {

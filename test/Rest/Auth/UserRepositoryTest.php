@@ -14,7 +14,7 @@ use PHPUnit\DbUnit\DataSet\DefaultDataSet;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use Prophecy\Argument;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Authentication\Result;
+use Laminas\Authentication\Result;
 
 class UserRepositoryTest extends ZendDbTestCase
 {

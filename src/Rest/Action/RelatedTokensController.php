@@ -9,12 +9,12 @@ use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Expressive\Helper\UrlHelper;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Mezzio\Helper\UrlHelper;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class RelatedTokensController extends ModelRestController
 {

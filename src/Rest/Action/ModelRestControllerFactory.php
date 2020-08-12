@@ -3,8 +3,8 @@
 namespace Gems\Rest\Action;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
-use Zend\Expressive\Helper\UrlHelper;
+use Laminas\ServiceManager\Factory\FactoryInterface;
+use Mezzio\Helper\UrlHelper;
 
 class RestControllerFactory implements FactoryInterface
 {

@@ -5,8 +5,8 @@ namespace Pulse\Api\Repository;
 
 
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Select;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Select;
 
 class SelectTranslator
 {

@@ -7,7 +7,7 @@ use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
-use Zend\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Zend_Db;
 
 
@@ -55,7 +55,7 @@ abstract class RestControllerAbstract implements MiddlewareInterface
         $method = strtolower($request->getMethod());
         $path = $request->getUri()->getPath();
 
-        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
         $route = $routeResult->getMatchedRoute();
         $this->routeOptions = $route->getOptions();
 

@@ -1,8 +1,8 @@
 <?php
 
-use Zend\ConfigAggregator\ArrayProvider;
-use Zend\ConfigAggregator\ConfigAggregator;
-use Zend\ConfigAggregator\PhpFileProvider;
+use Laminas\ConfigAggregator\ArrayProvider;
+use Laminas\ConfigAggregator\ConfigAggregator;
+use Laminas\ConfigAggregator\PhpFileProvider;
 
 // To enable or disable caching, set the `ConfigAggregator::ENABLE_CACHE` boolean in
 // `config/autoload/local.php`.
@@ -11,18 +11,18 @@ $cacheConfig = [
 ];
 
 $aggregator = new ConfigAggregator([
-    Zend\Expressive\ConfigProvider::class,
-    Zend\Expressive\Router\ConfigProvider::class,
+    \Mezzio\ConfigProvider::class,
+    \Mezzio\Router\ConfigProvider::class,
     // Enable for default Zend Db Config
-    //\Zend\Db\ConfigProvider::class,
-    //\Zend\I18n\ConfigProvider::class,
+    //\Laminas\Db\ConfigProvider::class,
+    //\laminas\I18n\ConfigProvider::class,
     // Include cache configuration
     new ArrayProvider($cacheConfig),
 
     // Default App module config
     Gems\Rest\ConfigProvider::class,
-    Prediction\ConfigProvider::class,
-    Pulse\Api\ConfigProvider::class,
+    //Prediction\ConfigProvider::class,
+    //Pulse\Api\ConfigProvider::class,
 
     // Load application config in a pre-defined order in such a way that local settings
     // overwrite global settings. (Loaded as first to last):

@@ -8,7 +8,7 @@ use Gems\Rest\Action\RestControllerAbstract;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class TreatmentsWithNormsController extends RestControllerAbstract
 {

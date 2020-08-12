@@ -5,8 +5,8 @@ namespace Gems\Rest\Repository;
 
 
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
 
 class RespondentRepository
 {

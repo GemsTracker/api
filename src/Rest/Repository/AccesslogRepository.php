@@ -5,9 +5,9 @@ namespace Gems\Rest\Repository;
 
 
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\Sql\Sql;
 
 class AccesslogRepository
 {
@@ -136,7 +136,7 @@ class AccesslogRepository
      */
     public function getApiAction(ServerRequestInterface $request)
     {
-        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
         $route = $routeResult->getMatchedRoute();
         $action = str_replace(['.get', '.fixed'], '', $route->getName());
         if (strpos($action, 'api.') !== 0) {

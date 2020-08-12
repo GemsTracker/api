@@ -1,14 +1,19 @@
 <?php
 
-use Zend\Expressive\Template\TemplateRendererInterface;
-use Zend\Expressive\Twig\TwigEnvironmentFactory;
-use Zend\Expressive\Twig\TwigRendererFactory;
+
+use Mezzio\Template\TemplateRendererInterface;
+use Mezzio\Twig\TwigEnvironmentFactory;
+use Mezzio\Twig\TwigRendererFactory;
+use Twig\Environment;
 
 return [
     'dependencies' => [
         'factories' => [
-            Twig_Environment::class => TwigEnvironmentFactory::class,
+            Environment::class => TwigEnvironmentFactory::class,
             TemplateRendererInterface::class => TwigRendererFactory::class,
+        ],
+        'aliases' => [
+            Twig_Environment::class => Environment::class,
         ],
     ],
 

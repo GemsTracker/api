@@ -4,7 +4,7 @@
 namespace Gems\Rest\Log\Formatter;
 
 
-use Zend\Log\Formatter\Simple;
+use Laminas\Log\Formatter\Simple;
 
 /**
  * Fixes the way multidimensional arrays are written to JSON in the log

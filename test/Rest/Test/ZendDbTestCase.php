@@ -3,8 +3,8 @@
 namespace GemsTest\Rest\Test;
 
 use PHPUnit\DbUnit\TestCase;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Adapter\Driver\Pdo\Pdo;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Driver\Pdo\Pdo;
 
 abstract class ZendDbTestCase extends TestCase
 {

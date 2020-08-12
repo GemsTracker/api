@@ -10,7 +10,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Sql\Sql;
 
 class ScopeRepositoryTest extends ZendDbTestCase
 {

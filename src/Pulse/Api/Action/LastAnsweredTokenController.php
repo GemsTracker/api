@@ -10,8 +10,8 @@ use Gems\Rest\Model\RouteOptionsModelFilter;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Pulse\Api\Repository\TokenRepository;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class LastAnsweredTokenController extends RestControllerAbstract
 {

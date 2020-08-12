@@ -8,7 +8,7 @@ use GemsTest\Rest\Test\RequestTestUtils;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Gems\Rest\Repository\SurveyQuestionsRepository;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class EmmaSurveyQuestionsRestControllerTest extends TestCase
 {

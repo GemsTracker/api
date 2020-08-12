@@ -1,7 +1,7 @@
 <?php
 
-use Zend\ServiceManager\Config;
-//use Zend\ServiceManager\ServiceManager;
+use Laminas\ServiceManager\Config;
+//use Laminas\ServiceManager\ServiceManager;
 use Zalt\Loader\ProjectOverloader;
 use Gems\Rest\Legacy\ProjectOverloaderSourceContainer;
 
@@ -37,13 +37,13 @@ $loader = new ProjectOverloaderSourceContainer([
     'MUtil',
 ]);
 
-
-
 $loader->legacyClasses = true;
 $loader->legacyPrefix = 'Legacy';
 
 $container = $loader->createServiceManager();
 (new Config($config['dependencies']))->configureServiceManager($container);
+
+
 
 // Inject config
 $container->setService('config', $config);

@@ -9,9 +9,9 @@ use GemsTest\Rest\Test\RequestTestUtils;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Expressive\Helper\UrlHelper;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
+use Mezzio\Helper\UrlHelper;
 
 class EmmaRespondentTokensControllerTest extends TestCase
 {

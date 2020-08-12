@@ -8,8 +8,8 @@ use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface as ServerMiddlewareInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Diactoros\Response\HtmlResponse;
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ServerRequestInterface;
 
 class TestModelAction implements MiddlewareInterface

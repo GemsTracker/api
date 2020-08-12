@@ -7,11 +7,11 @@ namespace Pulse\Api\Action;
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
-use Zend\Expressive\Helper\UrlHelper;
+use Mezzio\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
 use Zalt\Loader\ProjectOverloader;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class EmmaRespondentTokensController extends ModelRestController
 {

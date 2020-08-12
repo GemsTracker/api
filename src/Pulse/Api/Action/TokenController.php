@@ -7,7 +7,7 @@ namespace Pulse\Api\Action;
 use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Repository\AccesslogRepository;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Expressive\Helper\UrlHelper;
+use Mezzio\Helper\UrlHelper;
 
 class TokenController extends ModelRestController
 {

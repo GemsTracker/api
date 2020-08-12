@@ -12,11 +12,11 @@ use MUtil\Model\Type\JsonData;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 use Exception;
-use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Router\RouteResult;
+use Mezzio\Helper\UrlHelper;
+use Mezzio\Router\RouteResult;
 
 abstract class ModelRestControllerAbstract extends RestControllerAbstract
 {
@@ -496,7 +496,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             if (isset($translations[$key])) {
                 $colName = $translations[$key];
             }
-            
+
             if (isset($itemNames[$colName])) {
                 if (is_string($value) || is_numeric($value)) {
                     if (strpos($value, '[') === 0 && strpos($value, ']') === strlen($value) - 1) {
@@ -561,7 +561,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 $sort = false;
                 $name = $orderParam = trim($orderParam);
 
-                if (strpos($orderParam, '-') === 0) {                    
+                if (strpos($orderParam, '-') === 0) {
                     $name = substr($orderParam, 1);
                     $sort = SORT_DESC;
                 }
@@ -689,7 +689,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 ->withFragment('')
                 ->__toString();
 
-            $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+            $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
             $routeName   = $routeResult->getMatchedRouteName();
 
             $links = [];

@@ -5,7 +5,7 @@ namespace Gems\Rest\Auth;
 
 use Interop\Container\ContainerInterface;
 use League\OAuth2\Server\Grant\ImplicitGrant;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class ImplicitGrantFactory implements FactoryInterface
 {

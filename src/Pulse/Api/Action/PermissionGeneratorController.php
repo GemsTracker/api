@@ -8,10 +8,10 @@ use Gems\Rest\Acl\AclRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
-use Zend\Diactoros\Response\HtmlResponse;
-use Zend\Permissions\Acl\Acl;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
+use Laminas\Diactoros\Response\HtmlResponse;
+use Laminas\Permissions\Acl\Acl;
 
 class PermissionGeneratorController implements MiddlewareInterface
 {

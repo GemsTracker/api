@@ -9,7 +9,7 @@ use Gems\Rest\Exception\RestException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Pulse\Api\Repository\TokenAnswerRepository;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class TokenAnswersRestController extends RestControllerAbstract
 {

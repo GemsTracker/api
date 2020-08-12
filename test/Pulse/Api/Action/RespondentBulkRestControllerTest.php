@@ -18,11 +18,11 @@ use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Sql\Sql;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
-use Zend\Expressive\Helper\UrlHelper;
-use Zend\ServiceManager\ServiceManager;
+use Laminas\Db\Sql\Sql;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
+use Mezzio\Helper\UrlHelper;
+use Laminas\ServiceManager\ServiceManager;
 
 class RespondentBulkRestControllerTest extends ZendDbTestCase
 {

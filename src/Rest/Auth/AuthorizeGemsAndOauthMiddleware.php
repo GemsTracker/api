@@ -12,8 +12,8 @@ use League\OAuth2\Server\ResourceServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class AuthorizeGemsAndOauthMiddleware implements MiddlewareInterface
 {

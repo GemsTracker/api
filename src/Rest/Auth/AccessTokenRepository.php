@@ -9,7 +9,7 @@ use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
-use Zend\Db\Sql\Where;
+use Laminas\Db\Sql\Where;
 
 class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTokenRepositoryInterface
 {

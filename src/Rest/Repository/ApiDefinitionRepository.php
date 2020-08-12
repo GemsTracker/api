@@ -9,8 +9,8 @@ use Gems\Rest\Model\ModelStructureRepository;
 use Gems\Rest\Model\RouteOptionsModelFilter;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
 
 class ApiDefinitionRepository
 {

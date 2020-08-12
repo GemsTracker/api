@@ -9,7 +9,7 @@ use Gems\Rest\Exception\RestException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Gems\Rest\Repository\SurveyQuestionsRepository;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class SurveyQuestionsRestController extends RestControllerAbstract
 {

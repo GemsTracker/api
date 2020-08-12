@@ -5,7 +5,7 @@ namespace Gems\Rest\Legacy;
 use Interop\Container\ContainerInterface;
 use Gems\Rest\Legacy\LegacyCacheFactoryWrapper;
 use Zalt\Loader\ProjectOverloader;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 use Gems_Loader as Loader;
 use Gems_Project_ProjectSettings as ProjectSettings;

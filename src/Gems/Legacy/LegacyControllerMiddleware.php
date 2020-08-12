@@ -11,9 +11,9 @@ use MUtil\Controller\Request\ExpressiveRequestWrapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Diactoros\Response\HtmlResponse;
-use Zend\Expressive\Helper\UrlHelper;
-use Zend\Expressive\Template\TemplateRendererInterface;
+use Laminas\Diactoros\Response\HtmlResponse;
+use Mezzio\Helper\UrlHelper;
+use Mezzio\Template\TemplateRendererInterface;
 
 class LegacyControllerMiddleware implements MiddlewareInterface
 {
@@ -74,7 +74,7 @@ class LegacyControllerMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
-        $routeResult = $request->getAttribute('Zend\Expressive\Router\RouteResult');
+        $routeResult = $request->getAttribute('Mezzio\Router\RouteResult');
 
         $route  = $routeResult->getMatchedRoute();
         if ($route) {
@@ -116,8 +116,8 @@ class LegacyControllerMiddleware implements MiddlewareInterface
                     $req  = new \Zend_Controller_Request_Http();
                     $req->setControllerName($controller);
                     $req->setActionName($action);
-                    $req->setParams($requestWrapper->getParams()); 
-                    
+                    $req->setParams($requestWrapper->getParams());
+
                     Front::setLegacyRequest($req);
 
                     $bootstrap = \MUtil_Bootstrap::bootstrap(array('fontawesome' => true));
@@ -166,11 +166,11 @@ class LegacyControllerMiddleware implements MiddlewareInterface
 
 
             $content = $controllerObject->html->render($this->view);
-            
+
             $data = [
                 'content' => $content,
             ];
-            
+
             // TODO naar layout rendering middleware zetten zodat deze niet te groot wordt
             /** @var \Gems_Menu $menu */
             if ($this->menu->isVisible()) {

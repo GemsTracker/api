@@ -2,8 +2,8 @@
 
 use Gems\Rest\Legacy\LegacyZendDatabaseFactory;
 use Zend_Db as Db;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Adapter\AdapterServiceFactory;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\AdapterServiceFactory;
 
 return [
     'db' => [

@@ -8,9 +8,9 @@ use Interop\Http\ServerMiddleware\DelegateInterface;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
-use Zend\Diactoros\Uri;
-use Zend\Expressive\Router\Route;
-use Zend\Expressive\Router\RouteResult;
+use Laminas\Diactoros\Uri;
+use Mezzio\Router\Route;
+use Mezzio\Router\RouteResult;
 
 trait RequestTestUtils
 {
@@ -62,7 +62,7 @@ trait RequestTestUtils
         $routeResultProphecy->getMatchedRoute()->willReturn($route);
         $routeResult = $routeResultProphecy->reveal();
 
-        $requestProphesy->getAttribute('Zend\Expressive\Router\RouteResult')->willReturn($routeResult);
+        $requestProphesy->getAttribute('Mezzio\Router\RouteResult')->willReturn($routeResult);
 
         foreach($attributes as $attributeName=>$returnValue) {
             $requestProphesy->getAttribute($attributeName)->willReturn($returnValue);

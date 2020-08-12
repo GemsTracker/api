@@ -5,8 +5,8 @@ namespace Pulse\Api\Model\Emma;
 
 
 use Pulse\Api\Model\ApiModelTranslator;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Sql;
 
 class AppointmentImportTranslator extends ApiModelTranslator
 {

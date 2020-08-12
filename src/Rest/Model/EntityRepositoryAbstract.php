@@ -4,15 +4,15 @@ namespace Gems\Rest\Model;
 
 use Exception;
 use Zalt\Loader\ProjectOverloader;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\Metadata\Object\AbstractTableObject;
-use Zend\Db\Metadata\Source\Factory as MetadataFactory;
-use Zend\Db\ResultSet\HydratingResultSet;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Driver\ResultInterface;
+use Laminas\Db\Metadata\Object\AbstractTableObject;
+use Laminas\Db\Metadata\Source\Factory as MetadataFactory;
+use Laminas\Db\ResultSet\HydratingResultSet;
 
-use Zend\Db\Sql\Sql;
-use Zend\Hydrator\NamingStrategy\UnderscoreNamingStrategy;
-use Zend\Hydrator\Reflection;
+use Laminas\Db\Sql\Sql;
+use Laminas\Hydrator\NamingStrategy\UnderscoreNamingStrategy;
+use Laminas\Hydrator\Reflection;
 
 
 class EntityRepositoryAbstract

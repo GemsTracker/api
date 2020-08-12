@@ -3,9 +3,9 @@
 
 namespace Pulse\Api\Model\Emma;
 
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\Sql\Sql;
 
 class OrganizationRepository
 {

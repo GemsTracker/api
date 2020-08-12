@@ -4,13 +4,14 @@
 namespace Pulse\Api\Model\Emma;
 
 
+use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelTranslateException;
 use Psr\Log\LoggerInterface;
 use Pulse\Api\Model\ApiModelTranslator;
 use Pulse\Validate\SimplePhpEmail;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Predicate\Predicate;
-use Zend\Db\Sql\Sql;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Predicate\Predicate;
+use Laminas\Db\Sql\Sql;
 
 class RespondentImportTranslator extends ApiModelTranslator
 {
@@ -250,6 +251,10 @@ class RespondentImportTranslator extends ApiModelTranslator
                 $this->logger->notice(sprintf('Email removed. Not a valid Email address'), ['patientNr' => $row['gr2o_patient_nr'], 'email' => $row['gr2o_email']]);
                 $row['gr2o_email'] = null;
             }
+        }
+
+        if (!array_key_exists('grs_surname_prefix', $row)) {
+            $row['grs_surname_prefix'] = null;
         }
 
         return $row;

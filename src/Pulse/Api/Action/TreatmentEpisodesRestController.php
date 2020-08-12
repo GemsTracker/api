@@ -9,7 +9,7 @@ use Gems\Rest\Repository\RespondentRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class TreatmentEpisodesRestController extends RestControllerAbstract
 {

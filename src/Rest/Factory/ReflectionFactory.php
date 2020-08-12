@@ -4,7 +4,7 @@
 namespace Gems\Rest\Factory;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 use Exception;
 use ReflectionClass;
 use ReflectionParameter;

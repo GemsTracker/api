@@ -9,8 +9,8 @@ use Gems\Rest\Exception\RestException;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Pulse\Api\Repository\TokenAnswerRepository;
-use Zend\Diactoros\Response\EmptyResponse;
-use Zend\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 
 class EmmaTokenAnswersRestController extends RestControllerAbstract
 {
