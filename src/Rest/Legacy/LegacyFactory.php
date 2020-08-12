@@ -76,9 +76,11 @@ class LegacyFactory implements FactoryInterface
             case \Gems_Model::class:
             case \Gems_Menu::class:
             case \Gems_User_UserLoader::class:
-            case EventDispatcher::class:
                 $requestedName = $this->stripOverloader($requestedName);
                 return $this->loader->create($requestedName, $this->loader, []);
+                break;
+            case EventDispatcher::class:
+                return new EventDispatcher();
                 break;
 
             case ProjectSettings::class:
