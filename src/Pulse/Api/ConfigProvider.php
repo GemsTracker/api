@@ -22,6 +22,7 @@ use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\LastAnsweredTokenController;
 use Pulse\Api\Action\PatientNumberPerOrganizationController;
 use Pulse\Api\Action\PermissionGeneratorController;
+use Pulse\Api\Action\RefreshIntramedController;
 use Pulse\Api\Action\RespondentBulkRestController;
 use Pulse\Api\Action\RespondentRestController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
@@ -140,7 +141,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 InsertTrackTokenController::class => ReflectionFactory::class,
                 CorrectTokenController::class => ReflectionFactory::class,
 
+                RefreshIntramedController::class => ReflectionFactory::class,
+
                 PermissionGeneratorController::class => ReflectionFactory::class,
+
             ]
         ];
     }
@@ -581,6 +585,11 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'path' => '/match-activities',
                 'middleware' => $this->getCustomActionMiddleware(ActivityMatcher::class),
                 'allowed_methods' => ['POST'],
+            ],
+            [
+                'name' => 'refresh-intramed',
+                'path' => '/refresh-intramed',
+                'middleware' => $this->getCustomActionMiddleware(RefreshIntramedController::class),
             ],
             [
                 'name' => 'env-test',
