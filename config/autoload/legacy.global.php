@@ -2,6 +2,7 @@
 
 use Gems\Rest\Legacy\LegacyFactory;
 use Gems\Rest\Factory\ReflectionFactory;
+use Gems\Event\EventDispatcher;
 
 return [
     'dependencies' => [
@@ -15,6 +16,7 @@ return [
             Gems_Util_BasePath::class => LegacyFactory::class,
             Gems_AccessLog::class => LegacyFactory::class,
             Gems_Agenda::class => LegacyFactory::class,
+            EventDispatcher::class => LegacyFactory::class,
             Gems_Model::class => LegacyFactory::class,
             'LegacyCurrentUser' => LegacyFactory::class,
             Zend_Acl::class => LegacyFactory::class,
@@ -36,6 +38,7 @@ return [
             'LegacyAcl' => Zend_Acl::class,
             'LegacyAgenda' => Gems_Agenda::class,
             'LegacyBasepath' => Gems_Util_BasePath::class,
+            'LegacyEvent' => EventDispatcher::class,
             'LegacyLocale' => Zend_Locale::class,
             'LegacyLogger' => Gems_Log::class,
             'LegacyModel' => Gems_Model::class,

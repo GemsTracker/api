@@ -2,6 +2,7 @@
 
 namespace Gems\Rest\Legacy;
 
+use Gems\Event\EventDispatcher;
 use Interop\Container\ContainerInterface;
 use Gems\Rest\Legacy\LegacyCacheFactoryWrapper;
 use Zalt\Loader\ProjectOverloader;
@@ -75,6 +76,7 @@ class LegacyFactory implements FactoryInterface
             case \Gems_Model::class:
             case \Gems_Menu::class:
             case \Gems_User_UserLoader::class:
+            case EventDispatcher::class:
                 $requestedName = $this->stripOverloader($requestedName);
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
