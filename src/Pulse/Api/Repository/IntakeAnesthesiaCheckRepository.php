@@ -39,6 +39,9 @@ class IntakeAnesthesiaCheckRepository
             'gr2o_patient_nr' => $patientNr,
             'gr2o_id_organization' => $organizationId,
             'gap_status' => 'AC',
+            'gap_id_location IS NOT NULL',
+            'gap_id_attended_by IS NOT NULL',
+            'gap_id_activity IS NOT NULL',
             'gto_reception_code' => ['OK', 'checked', 'rejected'],
         ];
 
