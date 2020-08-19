@@ -20,11 +20,25 @@ class EpisodeOfCarePatientTransformer extends \MUtil_Model_ModelTransformerAbstr
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         if (isset($filter['patient'])) {
-            $value = explode('@', str_replace($this->getPatientEndpoint(), '', $filter['patient']));
-            unset($filter['patient']);
-            if (count($value) === 2) {
-                $filter['gr2o_patient_nr'] = $value[0];
-                $filter['gr2o_id_organization'] = $value[1];
+            if (isset($filter['patient'])) {
+                $patientFormatter = new PatientInformationFormatter($filter);
+                if (!is_array($filter['patient'])) {
+                    $filter['patient'] = [$filter['patient']];
+                }
+
+                $patientSearchParts = [];
+                foreach($filter['patient'] as $patient) {
+                    $value = explode('@', str_replace($patientFormatter->getPatientEndpoint(), '', $patient));
+
+                    if (count($value) === 2) {
+                        $patientSearchParts[] = '(gr2o_patient_nr = ' . $value[0] . ' AND gr2o_id_organization = ' . $value[1] . ')';
+                    }
+                }
+                if (count($patientSearchParts)) {
+                    $filter[] = '(' . join(' OR ', $patientSearchParts) . ')';
+                }
+
+                unset($filter['patient']);
             }
         }
         if (isset($filter['patient.email'])) {
