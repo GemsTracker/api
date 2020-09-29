@@ -12,6 +12,7 @@ use Gems\Rest\Fhir\Model\PatientModel;
 use Gems\Rest\Fhir\Model\PractitionerModel;
 use Gems\Rest\Fhir\Model\QuestionnaireModel;
 use Gems\Rest\Fhir\Model\QuestionnaireTaskModel;
+use Gems\Rest\Fhir\Model\RelatedPersonModel;
 use Gems\Rest\Fhir\Model\ServiceTypeModel;
 use Gems\Rest\Fhir\Model\TreatmentModel;
 use Gems\Rest\RestModelConfigProviderAbstract;
@@ -122,18 +123,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'address',
                 ],
             ],
-            'fhir/practitioner' => [
-                'model' => PractitionerModel::class,
-                'methods' => ['GET'],
-                'allowed_fields' => [
-                    'resourceType',
-                    'id',
-                    'active',
-                    'name',
-                    'gender',
-                    'telecom',
-                ],
-            ],
             'fhir/organization' => [
                 'model' => OrganizationModel::class,
                 'methods' => ['GET'],
@@ -147,6 +136,33 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'contact',
                 ],
             ],
+            'fhir/practitioner' => [
+                'model' => PractitionerModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'resourceType',
+                    'id',
+                    'active',
+                    'name',
+                    'gender',
+                    'telecom',
+                ],
+            ],
+            'fhir/related-person' => [
+                'model' => RelatedPersonModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'resourceType',
+                    'id',
+                    'active',
+                    'relationship',
+                    'name',
+                    'gender',
+                    'telecom',
+                    'birthdate',
+                ],
+            ],
+
             'fhir/questionnaire' => [
                 'model' => QuestionnaireModel::class,
                 'methods' => ['GET'],
