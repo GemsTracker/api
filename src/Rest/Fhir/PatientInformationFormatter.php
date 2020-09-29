@@ -52,6 +52,6 @@ class PatientInformationFormatter
 
     public function getPatientEndpoint()
     {
-        return 'fhir/patient/';
+        return Endpoints::PATIENT;
     }
 }

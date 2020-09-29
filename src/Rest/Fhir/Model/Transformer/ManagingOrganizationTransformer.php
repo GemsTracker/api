@@ -4,6 +4,8 @@
 namespace Gems\Rest\Fhir\Model\Transformer;
 
 
+use Gems\Rest\Fhir\Endpoints;
+
 class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     /**
@@ -38,31 +40,31 @@ class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstr
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         if (isset($filter['managingOrganization'])) {
-            $value = (int)str_replace($this->getOrganizationEndpoint(), '', $filter['managingOrganization']);
+            $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter['managingOrganization']);
             $filter[$this->organizationIdField] = $value;
 
             unset($filter['managingOrganization']);
         }
         if (isset($filter['organization'])) {
-            $value = (int)str_replace($this->getOrganizationEndpoint(), '', $filter['organization']);
+            $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter['organization']);
             $filter[$this->organizationIdField] = $value;
 
             unset($filter['organization']);
         }
 
         if ($this->organizationJoined) {
-            if (isset($filter['organization_name'])) {
-                $value = $filter['organization_name'];
+            if (isset($filter['organization.name'])) {
+                $value = $filter['organization.name'];
                 $filter[] = "gor_name LIKE '%" . $value . "%'";
 
-                unset($filter['organization_name']);
+                unset($filter['organization.name']);
             }
 
-            if (isset($filter['organization_code'])) {
-                $value = $filter['organization_code'];
+            if (isset($filter['organization.code'])) {
+                $value = $filter['organization.code'];
                 $filter['gor_code'] = $value;
 
-                unset($filter['organization_code']);
+                unset($filter['organization.code']);
             }
         }
 
@@ -83,14 +85,12 @@ class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstr
     {
         foreach ($data as $key => $item) {
             $data[$key]['managingOrganization']['id'] = $item[$this->organizationIdField];
-            $data[$key]['managingOrganization']['reference'] = $this->getOrganizationEndpoint() . $item[$this->organizationIdField];
+            $data[$key]['managingOrganization']['reference'] = Endpoints::ORGANIZATION . $item[$this->organizationIdField];
+            if ($this->organizationJoined) {
+                $data[$key]['managingOrganization']['display'] = $item['gor_name'];
+            }
         }
 
         return $data;
-    }
-
-    protected function getOrganizationEndpoint()
-    {
-        return 'fhir/organization/';
     }
 }

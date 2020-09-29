@@ -28,7 +28,7 @@ class EpisodeOfCarePatientTransformer extends \MUtil_Model_ModelTransformerAbstr
 
                 $patientSearchParts = [];
                 foreach($filter['patient'] as $patient) {
-                    $value = explode('@', str_replace($patientFormatter->getPatientEndpoint(), '', $patient));
+                    $value = explode('@', str_replace(['Patient/', $patientFormatter->getPatientEndpoint()], '', $patient));
 
                     if (count($value) === 2) {
                         $patientSearchParts[] = '(gr2o_patient_nr = ' . $value[0] . ' AND gr2o_id_organization = ' . $value[1] . ')';
@@ -73,10 +73,5 @@ class EpisodeOfCarePatientTransformer extends \MUtil_Model_ModelTransformerAbstr
         }
 
         return $data;
-    }
-
-    public function getPatientEndpoint()
-    {
-        return 'fhir/patient/';
     }
 }

@@ -10,6 +10,8 @@ use Gems\Rest\Fhir\Model\LocationModel;
 use Gems\Rest\Fhir\Model\OrganizationModel;
 use Gems\Rest\Fhir\Model\PatientModel;
 use Gems\Rest\Fhir\Model\PractitionerModel;
+use Gems\Rest\Fhir\Model\QuestionnaireModel;
+use Gems\Rest\Fhir\Model\QuestionnaireTaskModel;
 use Gems\Rest\Fhir\Model\ServiceTypeModel;
 use Gems\Rest\Fhir\Model\TreatmentModel;
 use Gems\Rest\RestModelConfigProviderAbstract;
@@ -143,6 +145,38 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'code',
                     'telecom',
                     'contact',
+                ],
+            ],
+            'fhir/questionnaire' => [
+                'model' => QuestionnaireModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'resourceType',
+                    'id',
+                    'status',
+                    'name',
+                    'date',
+                    'description',
+                ],
+            ],
+            'fhir/questionnaire-task' => [
+                'model' => QuestionnaireTaskModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'resourceType',
+                    'id',
+                    'status',
+                    'completedAt',
+                    'priority',
+                    'intent',
+                    'owner',
+                    'for',
+                    'authoredOn',
+                    'lastModified',
+                    'executionPeriod',
+                    'managingOrganization',
+                    'focus',
+                    'info',
                 ],
             ],
             'fhir/codesystem/service-type' => [

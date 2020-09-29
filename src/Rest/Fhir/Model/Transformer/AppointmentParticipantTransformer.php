@@ -4,13 +4,14 @@
 namespace Gems\Rest\Fhir\Model\Transformer;
 
 
+use Gems\Rest\Fhir\Endpoints;
 use Gems\Rest\Fhir\PatientInformationFormatter;
 
 class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     /**
      * This transform function checks the filter for
-     * a) retreiving filters to be applied to the transforming data,
+     * a) retrieving filters to be applied to the transforming data,
      * b) adding filters that are needed
      *
      * @param \MUtil_Model_ModelAbstract $model
@@ -27,7 +28,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
 
             $patientSearchParts = [];
             foreach($filter['patient'] as $patient) {
-                $value = explode('@', str_replace($patientFormatter->getPatientEndpoint(), '', $patient));
+                $value = explode('@', str_replace(['Patient/', $patientFormatter->getPatientEndpoint()], '', $patient));
 
                 if (count($value) === 2) {
                     $patientSearchParts[] = '(gr2o_patient_nr = ' . $value[0] . ' AND gr2o_id_organization = ' . $value[1] . ')';
@@ -47,7 +48,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
         }
 
         if (isset($filter['practitioner'])) {
-            $value = (int)str_replace($this->getPractitionerEndpoint(), '', $filter['practitioner']);
+            $value = (int)str_replace(['Practitioner/', Endpoints::PRACTITIONER], '', $filter['practitioner']);
             $filter['gap_id_attended_by'] = $value;
 
             unset($filter['practitioner']);
@@ -60,7 +61,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
         }
 
         if (isset($filter['location'])) {
-            $value = (int)str_replace($this->getLocationEndpoint(), '', $filter['location']);
+            $value = (int)str_replace(['Location/', Endpoints::LOCATION], '', $filter['location']);
             $filter['gap_id_location'] = $value;
 
             unset($filter['location']);
@@ -106,7 +107,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
                     'actor' => [
                         'type' => 'Practitioner',
                         'id' => $item['gap_id_attended_by'],
-                        'reference' => $this->getPractitionerEndpoint() . $item['gap_id_attended_by'],
+                        'reference' => Endpoints::PRACTITIONER . $item['gap_id_attended_by'],
                         'display' => $item['gas_name'],
                     ],
                 ];
@@ -117,7 +118,7 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
                     'actor' => [
                         'type' => 'Location',
                         'id' => $item['gap_id_location'],
-                        'reference' => $this->getLocationEndpoint() . $item['gap_id_location'],
+                        'reference' => Endpoints::LOCATION . $item['gap_id_location'],
                         'display' => $item['glo_name'],
                     ],
                 ];
@@ -127,15 +128,5 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
 
 
         return $data;
-    }
-
-    protected function getLocationEndpoint()
-    {
-        return 'fhir/location/';
-    }
-
-    protected function getPractitionerEndpoint()
-    {
-        return 'fhir/practitioner/';
     }
 }

@@ -4,6 +4,7 @@
 namespace Gems\Rest\Fhir\Model\Transformer;
 
 
+use Gems\Rest\Fhir\Endpoints;
 use Gems\Rest\Fhir\PatientInformationFormatter;
 
 class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
@@ -29,29 +30,27 @@ class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         if (isset($filter['patient'])) {
-            if (isset($filter['patient'])) {
-                $patientFormatter = new PatientInformationFormatter($filter);
-                if (!is_array($filter['patient'])) {
-                    $filter['patient'] = [$filter['patient']];
-                }
-
-                $patientSearchParts = [];
-                foreach($filter['patient'] as $patient) {
-                    $value = explode('@', str_replace($patientFormatter->getPatientEndpoint(), '', $patient));
-
-                    if (count($value) === 2) {
-                        $patientSearchParts[] = '(gr2o_patient_nr = ' . $value[0] . ' AND gr2o_id_organization = ' . $value[1] . ')';
-                    }
-                }
-                if (count($patientSearchParts)) {
-                    $filter[] = '(' . join(' OR ', $patientSearchParts) . ')';
-                }
-
-                unset($filter['patient']);
+            $patientFormatter = new PatientInformationFormatter($filter);
+            if (!is_array($filter['patient'])) {
+                $filter['patient'] = [$filter['patient']];
             }
+
+            $patientSearchParts = [];
+            foreach($filter['patient'] as $patient) {
+                $value = explode('@', str_replace(['Patient/', $patientFormatter->getPatientEndpoint()], '', $patient));
+
+                if (count($value) === 2) {
+                    $patientSearchParts[] = '(gr2o_patient_nr = ' . $value[0] . ' AND gr2o_id_organization = ' . $value[1] . ')';
+                }
+            }
+            if (count($patientSearchParts)) {
+                $filter[] = '(' . join(' OR ', $patientSearchParts) . ')';
+            }
+
+            unset($filter['patient']);
         }
         if ($this->fieldName !== 'patient' && isset($filter[$this->fieldName])) {
-            $value = explode('@', str_replace($this->getPatientEndpoint(), '', $filter[$this->fieldName]));
+            $value = explode('@', str_replace(['Patient/', Endpoints::PATIENT], '', $filter[$this->fieldName]));
             unset($filter[$this->fieldName]);
             if (count($value) === 2) {
                 $filter['gr2o_patient_nr'] = $value[0];
@@ -91,10 +90,5 @@ class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         return $data;
-    }
-
-    public function getPatientEndpoint()
-    {
-        return 'fhir/patient/';
     }
 }

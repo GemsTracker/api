@@ -4,6 +4,8 @@
 namespace Gems\Rest\Fhir\Model\Transformer;
 
 
+use Gems\Rest\Fhir\Endpoints;
+
 class PatientManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     /**
@@ -18,13 +20,13 @@ class PatientManagingOrganizationTransformer extends \MUtil_Model_ModelTransform
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         if (isset($filter['managingOrganization'])) {
-            $value = (int)str_replace($this->getOrganizationEndpoint(), '', $filter['managingOrganization']);
+            $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter['managingOrganization']);
             $filter['gr2o_id_organization'] = $value;
 
             unset($filter['managingOrganization']);
         }
         if (isset($filter['organization'])) {
-            $value = (int)str_replace($this->getOrganizationEndpoint(), '', $filter['organization']);
+            $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter['organization']);
             $filter['gr2o_id_organization'] = $value;
 
             unset($filter['organization']);
@@ -61,14 +63,9 @@ class PatientManagingOrganizationTransformer extends \MUtil_Model_ModelTransform
     {
         foreach ($data as $key => $item) {
             $data[$key]['managingOrganization']['id'] = $item['gr2o_id_organization'];
-            $data[$key]['managingOrganization']['reference'] = $this->getOrganizationEndpoint() . $item['gr2o_id_organization'];
+            $data[$key]['managingOrganization']['reference'] = Endpoints::ORGANIZATION . $item['gr2o_id_organization'];
         }
 
         return $data;
-    }
-
-    protected function getOrganizationEndpoint()
-    {
-        return 'fhir/organization/';
     }
 }
