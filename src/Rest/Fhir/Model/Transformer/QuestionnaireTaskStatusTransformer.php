@@ -24,7 +24,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 $validUntil = new \MUtil_Date($row['gto_valid_until']);
             }
 
-            if ($now->isLaterOrEqual($validFrom) && $now->isEarlier($validUntil) && $row['grc_success'] == 1) {
+            if ($validFrom && $validUntil && $now->isLaterOrEqual($validFrom) && $now->isEarlier($validUntil) && $row['grc_success'] == 1) {
                 $data[$key]['status'] = 'requested';
                 continue;
             }
@@ -34,7 +34,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 continue;
             }
 
-            if ($row['gto_completion_time'] === null && $row['grc_success'] == 1 && $now->isLater($validUntil)) {
+            if ($validUntil && $row['gto_completion_time'] === null && $row['grc_success'] == 1 && $now->isLater($validUntil)) {
                 $data[$key]['status'] = 'rejected';
                 continue;
             }

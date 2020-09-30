@@ -44,6 +44,9 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->set('managingOrganization', 'label', 'managingOrganization');
         $this->set('info', 'label', 'info');
 
+        $this->set('patient', 'label', 'patient');
+        $this->set('for', 'label', 'for');
+
 
         $this->addTransformer(new QuestionnaireTaskStatusTransformer());
         $this->addTransformer(new QuestionnaireTaskExecutionPeriodTransformer());
