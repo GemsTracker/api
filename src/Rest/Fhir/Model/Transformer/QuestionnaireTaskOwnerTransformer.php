@@ -12,11 +12,11 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
 
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
-        if (isset($filter['owner.name'])) {
-            $name = $filter['owner.name'];
+        if (isset($filter['owner_name'])) {
+            $name = $filter['owner_name'];
 
-            if (isset($filter['owner.type'])) {
-                switch(strtolower($filter['owner.type'])) {
+            if (isset($filter['owner_type'])) {
+                switch(strtolower($filter['owner_type'])) {
                     case 'patient':
                         $filter[] = "(grs_first_name = '".$name."')
                          OR (grs_initials_name = '".$name."')
@@ -49,15 +49,15 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
                 ";
             }
 
-            unset($filter['owner.name']);
+            unset($filter['owner_name']);
         }
 
         if (isset($filter['owner'])) {
             $id = $filter['owner'];
 
             $ownerType = null;
-            if (isset($filter['owner.type'])) {
-                $ownerType = strtolower($filter['owner.type']);
+            if (isset($filter['owner_type'])) {
+                $ownerType = strtolower($filter['owner_type']);
             }
 
             if (strpos($id,'Patient/') === 0 || strpos($id,Endpoints::PATIENT) === 0 || $ownerType == 'patient') {
@@ -65,25 +65,25 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
                 $filter['gr2o_patient_nr'] = $patientNr;
                 $filter['gr2o_id_organization'] = $organizationId;
 
-                $filter['owner.type'] = 'patient';
+                $filter['owner_type'] = 'patient';
 
             } elseif (strpos($id,'RelatedPerson/') === 0 || strpos($id,Endpoints::RELATED_PERSON) === 0 || $ownerType == 'relatedperson') {
                 $id = str_replace(['RelatedPerson/', Endpoints::RELATED_PERSON], '', $id);
                 $filter['grr_id_relation'] = $id;
 
-                $filter['owner.type'] = 'relatedperson';
+                $filter['owner_type'] = 'relatedperson';
 
             } elseif (strpos($id,'Organization/') === 0 || strpos($id,Endpoints::ORGANIZATION) === 0 || $ownerType == 'organization') {
                 $id = str_replace(['Organization/', Endpoints::ORGANIZATION], '', $id);
                 $filter['gto_id_organization'] = $id;
 
-                $filter['owner.type'] = 'organization';
+                $filter['owner_type'] = 'organization';
 
             } elseif (strpos($id,'Practitioner/') === 0 || strpos($id,Endpoints::PRACTITIONER) === 0 || $ownerType == 'practitioner') {
                 $id = str_replace(['Practitioner/', Endpoints::PRACTITIONER], '', $id);
                 $filter['gas_id_user'] = $id;
 
-                $filter['owner.type'] = 'practitioner';
+                $filter['owner_type'] = 'practitioner';
 
             } elseif (strpos($id, '@') !== false) {
                 // Assume patient if delimiter is used
@@ -91,12 +91,12 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
                 $filter['gr2o_patient_nr'] = $patientNr;
                 $filter['gr2o_id_organization'] = $organizationId;
 
-                $filter['owner.type'] = 'patient';
+                $filter['owner_type'] = 'patient';
             }
         }
 
-        if (isset($filter['owner.type'])) {
-            switch(strtolower($filter['owner.type'])) {
+        if (isset($filter['owner_type'])) {
+            switch(strtolower($filter['owner_type'])) {
                 case 'patient':
                     $filter['ggp_respondent_members'] = 1;
                     $filter[] = 'gto_id_relation IS NULL';
@@ -116,7 +116,7 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
                     $filter[] = 'gas_id_user IS NOT NULL';
                     break;
             }
-            unset($filter['owner.type']);
+            unset($filter['owner_type']);
         }
 
 

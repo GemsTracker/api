@@ -46,6 +46,10 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
 
         $this->set('patient', 'label', 'patient');
         $this->set('for', 'label', 'for');
+        $this->set('owner.name', 'label', 'owner.name');
+        $this->set('owner_name', 'label', 'owner_name');
+        $this->set('owner.type', 'label', 'owner.type');
+        $this->set('owner_type', 'label', 'owner_type');
 
 
         $this->addTransformer(new QuestionnaireTaskStatusTransformer());
