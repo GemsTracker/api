@@ -361,6 +361,7 @@ class RespondentBulkRestController extends ModelRestController
 
             $appointmentData['gap_id_organization'] = $organizationId;
             $appointmentData['gap_id_user']         = $usersPerOrganization[$organizationId];
+            $appointmentData['location']            = $this->organizationRepository->getLocationFromOrganizationName($appointment['organization']);
 
             $appointmentData = $translator->translateRow($appointmentData, true);
 
