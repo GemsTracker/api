@@ -30,32 +30,10 @@ class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         if (isset($filter['patient'])) {
-            $patientFormatter = new PatientInformationFormatter($filter);
-            if (!is_array($filter['patient'])) {
-                $filter['patient'] = [$filter['patient']];
-            }
-
-            $patientSearchParts = [];
-            foreach($filter['patient'] as $patient) {
-                $value = explode('@', str_replace(['Patient/', $patientFormatter->getPatientEndpoint()], '', $patient));
-
-                if (count($value) === 2) {
-                    $patientSearchParts[] = '(gr2o_patient_nr = ' . $value[0] . ' AND gr2o_id_organization = ' . $value[1] . ')';
-                }
-            }
-            if (count($patientSearchParts)) {
-                $filter[] = '(' . join(' OR ', $patientSearchParts) . ')';
-            }
-
-            unset($filter['patient']);
+            $filter = $this->transformPatientFilter($filter, 'patient');
         }
         if ($this->fieldName !== 'patient' && isset($filter[$this->fieldName])) {
-            $value = explode('@', str_replace(['Patient/', Endpoints::PATIENT], '', $filter[$this->fieldName]));
-            unset($filter[$this->fieldName]);
-            if (count($value) === 2) {
-                $filter['gr2o_patient_nr'] = $value[0];
-                $filter['gr2o_id_organization'] = $value[1];
-            }
+            $filter = $this->transformPatientFilter($filter, $this->fieldName);
         }
 
         if (isset($filter['patient.email'])) {
@@ -90,5 +68,36 @@ class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         return $data;
+    }
+
+    /**
+     * transform a patient field to the correct query
+     *
+     * @param $filter
+     * @param $patientField
+     * @return array
+     */
+    protected function transformPatientFilter(array $filter, $patientField)
+    {
+        $patientFormatter = new PatientInformationFormatter($filter);
+        if (!is_array($filter[$patientField])) {
+            $filter[$patientField] = [$filter[$patientField]];
+        }
+
+        $patientSearchParts = [];
+        foreach($filter[$patientField] as $patient) {
+            $value = explode('@', str_replace(['Patient/', $patientFormatter->getPatientEndpoint()], '', $patient));
+
+            if (count($value) === 2) {
+                $patientSearchParts[] = '(gr2o_patient_nr = ' . $value[0] . ' AND gr2o_id_organization = ' . $value[1] . ')';
+            }
+        }
+        if (count($patientSearchParts)) {
+            $filter[] = '(' . join(' OR ', $patientSearchParts) . ')';
+        }
+
+        unset($filter[$patientField]);
+
+        return $filter;
     }
 }
