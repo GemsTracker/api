@@ -11,10 +11,12 @@ class QuestionnaireTaskFocusTransformer extends \MUtil_Model_ModelTransformerAbs
     {
         if (isset($filter['survey'])) {
             $filter['gto_id_survey'] = $filter['survey'];
+            unset($filter['survey']);
         }
 
-        if (isset($filter['survey.name'])) {
-            $filter[] = 'gsu_survey_name LIKE %' . $filter['survey.name'] . '%';
+        if (isset($filter['survey_name'])) {
+            $filter[] = 'gsu_survey_name LIKE %' . $filter['survey_name'] . '%';
+            unset($filter['survey_name']);
         }
 
         return $filter;

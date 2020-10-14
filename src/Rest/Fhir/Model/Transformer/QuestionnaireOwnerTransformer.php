@@ -6,17 +6,22 @@ namespace Gems\Rest\Fhir\Model\Transformer;
 use Gems\Rest\Fhir\Endpoints;
 use Gems\Rest\Fhir\PatientInformationFormatter;
 
-class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbstract
+class QuestionnaireOwnerTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     protected $fieldName = 'owner';
 
+    public function __construct($fieldName = 'owner')
+    {
+        $this->fieldName = $fieldName;
+    }
+
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
-        if (isset($filter['owner_name'])) {
-            $name = $filter['owner_name'];
+        if (isset($filter[$this->fieldName . '_name'])) {
+            $name = $filter[$this->fieldName . '_name'];
 
-            if (isset($filter['owner_type'])) {
-                switch(strtolower($filter['owner_type'])) {
+            if (isset($filter[$this->fieldName . '_type'])) {
+                switch(strtolower($filter[$this->fieldName . '_type'])) {
                     case 'patient':
                         $filter[] = "(grs_first_name = '".$name."')
                          OR (grs_initials_name = '".$name."')
@@ -49,15 +54,15 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
                 ";
             }
 
-            unset($filter['owner_name']);
+            unset($filter[$this->fieldName . '_name']);
         }
 
-        if (isset($filter['owner'])) {
-            $id = $filter['owner'];
+        if (isset($filter[$this->fieldName])) {
+            $id = $filter[$this->fieldName];
 
             $ownerType = null;
-            if (isset($filter['owner_type'])) {
-                $ownerType = strtolower($filter['owner_type']);
+            if (isset($filter[$this->fieldName . '_type'])) {
+                $ownerType = strtolower($filter[$this->fieldName . '_type']);
             }
 
             if (strpos($id,'Patient/') === 0 || strpos($id,Endpoints::PATIENT) === 0 || $ownerType == 'patient') {
@@ -65,25 +70,25 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
                 $filter['gr2o_patient_nr'] = $patientNr;
                 $filter['gr2o_id_organization'] = $organizationId;
 
-                $filter['owner_type'] = 'patient';
+                $filter[$this->fieldName . '_type'] = 'patient';
 
             } elseif (strpos($id,'RelatedPerson/') === 0 || strpos($id,Endpoints::RELATED_PERSON) === 0 || $ownerType == 'relatedperson') {
                 $id = str_replace(['RelatedPerson/', Endpoints::RELATED_PERSON], '', $id);
                 $filter['grr_id_relation'] = $id;
 
-                $filter['owner_type'] = 'relatedperson';
+                $filter[$this->fieldName . '_type'] = 'relatedperson';
 
             } elseif (strpos($id,'Organization/') === 0 || strpos($id,Endpoints::ORGANIZATION) === 0 || $ownerType == 'organization') {
                 $id = str_replace(['Organization/', Endpoints::ORGANIZATION], '', $id);
                 $filter['gto_id_organization'] = $id;
 
-                $filter['owner_type'] = 'organization';
+                $filter[$this->fieldName . '_type'] = 'organization';
 
             } elseif (strpos($id,'Practitioner/') === 0 || strpos($id,Endpoints::PRACTITIONER) === 0 || $ownerType == 'practitioner') {
                 $id = str_replace(['Practitioner/', Endpoints::PRACTITIONER], '', $id);
                 $filter['gas_id_user'] = $id;
 
-                $filter['owner_type'] = 'practitioner';
+                $filter[$this->fieldName . '_type'] = 'practitioner';
 
             } elseif (strpos($id, '@') !== false) {
                 // Assume patient if delimiter is used
@@ -91,7 +96,7 @@ class QuestionnaireTaskOwnerTransformer extends \MUtil_Model_ModelTransformerAbs
                 $filter['gr2o_patient_nr'] = $patientNr;
                 $filter['gr2o_id_organization'] = $organizationId;
 
-                $filter['owner_type'] = 'patient';
+                $filter[$this->fieldName . '_type'] = 'patient';
             }
         }
 

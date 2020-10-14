@@ -13,7 +13,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
             case 'rejected':
                 return '(gto_completion_time IS NULL AND gto_valid_until < NOW())';
             case 'draft':
-                return '(gto_valid_from IS NULL OR gto_valid_from > NOW())';
+                return '((gto_valid_from IS NULL OR gto_valid_from > NOW()) AND gto_start_time IS NULL)';
             case 'requested':
                 return '(gto_valid_from < NOW() AND (gto_valid_until > NOW() OR gto_valid_until IS NULL)  AND grc_success = 1)';
             case 'in-progress':
@@ -65,13 +65,13 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 $validUntil = new \MUtil_Date($row['gto_valid_until']);
             }
 
-            if ($validFrom && $now->isLaterOrEqual($validFrom) && ($validUntil === null || $now->isEarlier($validUntil)) && $row['grc_success'] == 1) {
-                $data[$key]['status'] = 'requested';
+            if ($row['gto_completion_time'] !== null && $row['grc_success'] == 1) {
+                $data[$key]['status'] = 'completed';
                 continue;
             }
 
-            if ($row['gto_completion_time'] !== null && $row['grc_success'] == 1) {
-                $data[$key]['status'] = 'completed';
+            if ($validFrom && $now->isLaterOrEqual($validFrom) && ($validUntil === null || $now->isEarlier($validUntil)) && $row['grc_success'] == 1) {
+                $data[$key]['status'] = 'requested';
                 continue;
             }
 

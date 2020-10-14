@@ -8,7 +8,7 @@ use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskExecutionPeriodTransformer
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskFocusTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskForTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskInfoTransformer;
-use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskOwnerTransformer;
+use Gems\Rest\Fhir\Model\Transformer\QuestionnaireOwnerTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskStatusTransformer;
 
 class QuestionnaireTaskModel extends \Gems_Model_JoinModel
@@ -50,11 +50,14 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->set('owner_name', 'label', 'owner_name');
         $this->set('owner.type', 'label', 'owner.type');
         $this->set('owner_type', 'label', 'owner_type');
+        $this->set('survey', 'label', 'survey');
+        $this->set('survey_name', 'label', 'survey_name');
+        $this->set('gto_round_order', 'label', 'roundOrder', 'apiName', 'roundOrder');
 
 
         $this->addTransformer(new QuestionnaireTaskStatusTransformer());
         $this->addTransformer(new QuestionnaireTaskExecutionPeriodTransformer());
-        $this->addTransformer(new QuestionnaireTaskOwnerTransformer());
+        $this->addTransformer(new QuestionnaireOwnerTransformer());
         $this->addTransformer(new QuestionnaireTaskForTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gto_id_organization', true));
         $this->addTransformer(new QuestionnaireTaskInfoTransformer());

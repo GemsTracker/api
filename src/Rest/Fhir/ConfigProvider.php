@@ -11,6 +11,7 @@ use Gems\Rest\Fhir\Model\OrganizationModel;
 use Gems\Rest\Fhir\Model\PatientModel;
 use Gems\Rest\Fhir\Model\PractitionerModel;
 use Gems\Rest\Fhir\Model\QuestionnaireModel;
+use Gems\Rest\Fhir\Model\QuestionnaireResponseModel;
 use Gems\Rest\Fhir\Model\QuestionnaireTaskModel;
 use Gems\Rest\Fhir\Model\RelatedPersonModel;
 use Gems\Rest\Fhir\Model\ServiceTypeModel;
@@ -194,6 +195,22 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'managingOrganization',
                     'focus',
                     'info',
+                ],
+            ],
+            'fhir/questionnaire-response' => [
+                'model' => QuestionnaireResponseModel::class,
+                'methods' => ['GET'],
+                'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
+                'allowed_fields' => [
+                    'resourceType',
+                    'id',
+                    'status',
+                    'authored',
+                    'status',
+                    'subject',
+                    'source',
+                    'author',
+                    'item',
                 ],
             ],
             'fhir/codesystem/service-type' => [

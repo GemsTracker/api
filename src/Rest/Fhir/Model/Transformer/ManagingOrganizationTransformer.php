@@ -8,6 +8,8 @@ use Gems\Rest\Fhir\Endpoints;
 
 class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
+    protected $fieldName = 'managingOrganization';
+
     /**
      * Field in model pointing to organization ID
      *
@@ -22,10 +24,11 @@ class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstr
      */
     protected $organizationJoined;
 
-    public function __construct($organizationIdField, $organizationJoined=true)
+    public function __construct($organizationIdField, $organizationJoined=true, $fieldName = 'managingOrganization')
     {
         $this->organizationIdField = $organizationIdField;
         $this->organizationJoined = $organizationJoined;
+        $this->fieldName = $fieldName;
     }
 
     /**
@@ -39,11 +42,11 @@ class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstr
      */
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
-        if (isset($filter['managingOrganization'])) {
-            $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter['managingOrganization']);
+        if (isset($filter[$this->fieldName])) {
+            $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter[$this->fieldName]);
             $filter[$this->organizationIdField] = $value;
 
-            unset($filter['managingOrganization']);
+            unset($filter[$this->fieldName]);
         }
         if (isset($filter['organization'])) {
             $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter['organization']);
@@ -84,10 +87,10 @@ class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstr
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
         foreach ($data as $key => $item) {
-            $data[$key]['managingOrganization']['id'] = $item[$this->organizationIdField];
-            $data[$key]['managingOrganization']['reference'] = Endpoints::ORGANIZATION . $item[$this->organizationIdField];
+            $data[$key][$this->fieldName]['id'] = $item[$this->organizationIdField];
+            $data[$key][$this->fieldName]['reference'] = Endpoints::ORGANIZATION . $item[$this->organizationIdField];
             if ($this->organizationJoined) {
-                $data[$key]['managingOrganization']['display'] = $item['gor_name'];
+                $data[$key][$this->fieldName]['display'] = $item['gor_name'];
             }
         }
 
