@@ -243,7 +243,7 @@ class LegacyFactory implements FactoryInterface
                 break;
             case 'redis':
 
-                $redisDsn = $this->getResource('project')->getRedisDsn();
+                $redisDsn = $project->getRedisDsn();
 
                 if ($redisDsn !== false) {
                     $redisClient = \Symfony\Component\Cache\Adapter\RedisAdapter::createConnection(
