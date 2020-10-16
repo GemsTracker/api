@@ -17,7 +17,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
             case 'requested':
                 return '(gto_valid_from < NOW() AND (gto_valid_until > NOW() OR gto_valid_until IS NULL)  AND grc_success = 1)';
             case 'in-progress':
-                return '(gto_completion_time IS NULL AND grc_success = 1 AND gto_start_time IS NOT NULL)';
+                return '(gto_completion_time IS NULL AND grc_success = 1 AND gto_start_time IS NOT NULL AND gto_valid_until > NOW())';
         }
         return null;
     }
@@ -55,7 +55,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 $validFrom = new \MUtil_Date($row['gto_valid_from']);
             }
 
-            if ($validFrom === null || $now->isEarlier($validFrom)) {
+            if (($validFrom === null || $now->isEarlier($validFrom)) && $row['gto_start_time'] === null) {
                 $data[$key]['status'] = 'draft';
                 continue;
             }
