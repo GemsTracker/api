@@ -25,6 +25,13 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
                 ];
             }
 
+            if (isset($row['gto_round_order'])) {
+                $info[] = [
+                    'type' => 'roundOrder',
+                    'value' => $row['gto_round_order'],
+                ];
+            }
+
             $loginUrl = $this->getLoginUrl($row);
             $info[] = [
                 'type' => 'url',
