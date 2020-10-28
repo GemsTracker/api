@@ -5,7 +5,7 @@ namespace Gems\Rest\Fhir\Model;
 
 use Gems\Rest\Fhir\Model\Transformer\ManagingOrganizationTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskExecutionPeriodTransformer;
-use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskFocusTransformer;
+use Gems\Rest\Fhir\Model\Transformer\QuestionnaireReferenceTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskForTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskInfoTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireOwnerTransformer;
@@ -61,7 +61,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->addTransformer(new QuestionnaireTaskForTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gto_id_organization', true));
         $this->addTransformer(new QuestionnaireTaskInfoTransformer());
-        $this->addTransformer(new QuestionnaireTaskFocusTransformer());
+        $this->addTransformer(new QuestionnaireReferenceTransformer('focus'));
 
         // Add token URL
 
