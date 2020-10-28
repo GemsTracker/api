@@ -62,6 +62,7 @@ class QuestionnaireItemsTransformer extends \MUtil_Model_ModelTransformerAbstrac
                             } else {
                                 $answerItem['answer']['valueInteger'] = (float)$answer;
                             }
+                            break;
                         default:
                             $answerItem['answer']['valueString'] = $answer;
                     }
