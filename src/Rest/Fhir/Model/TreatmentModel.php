@@ -9,7 +9,7 @@ use Gems\Rest\Fhir\Model\Transformer\TreatmentIdTransformer;
 use Gems\Rest\Fhir\Model\Transformer\TreatmentStatusTransformer;
 use MUtil\Translate\TranslateableTrait;
 
-class TreatmentModel extends \MUtil_Model_SelectModel
+class TreatmentModel extends \MUtil_Model_UnionModel
 {
     const NAME = 'treatment';
 
@@ -22,16 +22,18 @@ class TreatmentModel extends \MUtil_Model_SelectModel
 
     public function __construct()
     {
+        parent::__construct(self::NAME);
+
+        $appointmentTreatmentModel = $this->getAppointmentTreatmentModel();
+        $respondentTrackTreatmentModel = $this->getRespondentTrackTreatmentModel();
+
+        $this->addUnionModel($respondentTrackTreatmentModel);
+        $this->addUnionModel($appointmentTreatmentModel);
     }
 
     public function afterRegistry()
     {
-        $select = $this->getTreatmentSelect();
-        parent::__construct($select, self::NAME);
-
         $this->set('resourceType', 'label', 'resourceType');
-
-        $this->set('id', 'label', $this->_('id'), 'apiName', 'id');
         $this->set('treatment_name', 'label', $this->_('title'), 'apiName', 'title');
         $this->set('treatment_start_datetime', [
                 'label' => $this->_('created'),
@@ -40,169 +42,134 @@ class TreatmentModel extends \MUtil_Model_SelectModel
                 'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
             ]
         );
+
         $this->set('subject', 'label', $this->_('subject'));
         $this->set('status', 'label', $this->_('status'));
 
         // Search options
         $this->set('patient', 'label', $this->_('patient'));
         $this->set('patient.email', 'label', $this->_('patient.email'));
-
-        $this->addTransformer(new PatientReferenceTransformer('subject'));
-        $this->addTransformer(new TreatmentIdTransformer());
-        $this->addTransformer(new TreatmentStatusTransformer());
-
-        $this->setOnSave('treatment_start_datetime', [$this, 'formatSaveDate']);
-        $this->setOnLoad('treatment_start_datetime', [$this, 'formatLoadDate']);
-
     }
 
-    protected function getTreatmentSelect()
+    protected function getAppointmentTreatmentModel()
     {
-        $select = $this->db->select();
+        $model = new \Gems_Model_JoinModel('appointmentTreatments', 'gems__respondent2org', 'gr2o', false);
+        $model->addTable('gems__respondents', ['gr2o_id_user' => 'grs_id_user'], 'grs', false);
+        $model->addTable('gems__appointments', ['gap_id_user' => 'gr2o_id_user', 'gap_id_organization' => 'gr2o_id_organization'], 'gap', false);
+        $model->addTable('gems__agenda_activities', ['gap_id_activity' => 'gaa_id_activity'], 'gaa', false);
+        $model->addTable('pulse__activity2treatment', ['pa2t_activity' => 'gaa_name'], 'pa2t', false);
+        $model->addTable('pulse__treatments', ['pa2t_id_treatment' => 'ptr_id_treatment', 'ptr_name != \'- algemeen -\''], 'ptr', false);
 
-        $select->from(['gr2o' => 'gems__respondent2org'], [])
-            ->join(['grs' => 'gems__respondents'], 'gr2o_id_user = grs_id_user', [])
-            ->joinLeft(
-                ['r2t' => 'gems__respondent2track'],
-                'gr2t_id_user = gr2o_id_user AND gr2t_id_organization = gr2o_id_organization',
-                []
-            )
-            ->joinLeft(
-                ['rc' => 'gems__reception_codes'],
-                'gr2t_reception_code = grc_id_reception_code',
-                []
-            )
-            ->joinLeft(
-                ['gtap' => 'gems__track_appointments'],
-                'gtap_id_track = gr2t_id_track AND gtap_field_code = \'treatmentAppointment\'',
-                []
-            )
-            ->joinLeft(
-                ['gr2t2a' => 'gems__respondent2track2appointment'],
-                'gr2t2a_id_app_field = gtap_id_app_field',
-                []
-            )
-            ->joinLeft(
-                ['ap1' => 'gems__appointments'],
-                'gr2t2a_id_appointment = ap1.gap_id_appointment',
-                []
-            )
-            ->joinLeft(
-                ['r2t2t' => 'pulse__respondent2track2treatment'],
-                'pr2t2t_id_respondent_track = gr2t_id_respondent_track',
-                []
-            )
-            ->joinLeft(
-                ['pt1' => 'pulse__treatments'],
-                'pr2t2t_id_treatment = pt1.ptr_id_treatment AND pt1.ptr_name != \'- algemeen -\'',
-                []
-            )
-            ->joinLeft(
-                ['ap2' => 'gems__appointments'],
-                'ap2.gap_id_user = gr2o_id_user AND ap2.gap_id_organization = gr2o_id_organization',
-                []
-            )
-            ->joinLeft(
-                ['aa' => 'gems__agenda_activities'],
-                'ap2.gap_id_activity = gaa_id_activity',
-                []
-            )
-            ->joinLeft(
-                ['a2t' => 'pulse__activity2treatment'],
-                'pa2t_activity = gaa_name AND pa2t_active = 1',
-                []
-            )
-            ->joinLeft(
-                ['pt2' => 'pulse__treatments'],
-                'pa2t_id_treatment = pt2.ptr_id_treatment AND pt2.ptr_name != \'- algemeen -\'',
-                []
-            )
-            ->columns(
-                [
-                    'resourceType' => new \Zend_Db_Expr('\'Treatment\''),
-                    'id' => new \Zend_Db_Expr('
-                    CASE 
-                        WHEN pt2.ptr_id_treatment IS NOT NULL THEN CONCAT(\'A\', ap2.gap_id_appointment)
-                        WHEN pt1.ptr_id_treatment IS NOT NULL THEN CONCAT(\'RT\', gr2t_id_respondent_track)
-                    END'),
 
-                    'gr2o.gr2o_patient_nr',
-                    'gr2o.gr2o_id_organization',
-                    'grs.grs_first_name',
-                    'grs.grs_initials_name',
-                    'grs.grs_surname_prefix',
-                    'grs.grs_last_name',
+        $model->addColumn(new \Zend_Db_Expr('\'Treatment\''), 'resourceType');
+        $model->addColumn(new \Zend_Db_Expr('CONCAT(\'A\',gap_id_appointment)'), 'id');
+        $model->addColumn(new \Zend_Db_Expr('ptr_name'), 'treatment_name');
+        $model->addColumn('gap_admission_time', 'treatment_start_date');
+        $model->addColumn(new \Zend_Db_Expr('DATE(gap_admission_time)'), 'treatment_start_date');
 
-                    'treatment_name' => new \Zend_Db_Expr('
-                    CASE 
-                        WHEN pt2.ptr_id_treatment IS NOT NULL THEN pt2.ptr_name
-                        WHEN pt1.ptr_id_treatment IS NOT NULL THEN pt1.ptr_name
-                    END'),
-                    'treatment_start_datetime' => new \Zend_Db_Expr('
-                    CASE 
-                        WHEN pt2.ptr_id_treatment IS NOT NULL THEN ap2.gap_admission_time
-                        WHEN pt1.ptr_id_treatment IS NOT NULL THEN 
-                            CASE
-                                WHEN ap1.gap_id_appointment THEN ap1.gap_admission_time
-                                ELSE DATE_ADD(gr2t_start_date, INTERVAL 14 DAY)
-                            END
-                    END'),
+        $model->addColumn(new \Zend_Db_Expr('
+CASE 
+    WHEN gap_status = \'AC\' THEN \'active\' 
+    WHEN gap_status = \'CO\' THEN \'completed\' 
+    WHEN gap_status = \'CA\' THEN \'revoked\'
+        
+    WHEN gap_status = \'AB\' THEN \'revoked\' 
+    ELSE \'unknown\' 
+END'), 'status');
+        $model->addColumn(new \Zend_Db_Expr('ptr_code'), 'treatment_code');
 
-                    'treatment_start_date' => new \Zend_Db_Expr('
-                    DATE(CASE 
-                        WHEN pt2.ptr_id_treatment IS NOT NULL THEN ap2.gap_admission_time
-                        WHEN pt1.ptr_id_treatment IS NOT NULL THEN 
-                            CASE
-                                WHEN ap1.gap_id_appointment THEN ap1.gap_admission_time
-                                ELSE DATE_ADD(gr2t_start_date, INTERVAL 14 DAY)
-                            END
-                    END)'),
-                    'status' => new \Zend_Db_Expr('
-                    CASE
-                        WHEN pt2.ptr_id_treatment THEN
-                            CASE
-                                WHEN ap2.gap_status = \'AC\' THEN \'active\'
-                                WHEN ap2.gap_status = \'CO\' THEN \'completed\'
-                                WHEN ap2.gap_status = \'CA\' THEN \'revoked\'
-                                WHEN ap2.gap_status = \'AB\' THEN \'revoked\'
-                                ELSE \'unknown\'
-                            END
-                        WHEN pt1.ptr_id_treatment THEN
-                            CASE
-                                WHEN gr2t_completed >= gr2t_count THEN \'completed\'
-                                WHEN gr2t_end_date >= NOW() THEN \'completed\'
-                                WHEN gr2t_reception_code = \'OK\' THEN \'active\'
+        $model->addTransformer(new PatientReferenceTransformer('subject'));
+        $model->addTransformer(new TreatmentIdTransformer());
+        $model->addTransformer(new TreatmentStatusTransformer());
 
-                                WHEN gr2t_reception_code = \'retract\' THEN \'revoked\'
-                                WHEN gr2t_reception_code = \'stop\' THEN \'revoked\'
-                                WHEN gr2t_reception_code = \'refused\' THEN \'revoked\'
-                                WHEN gr2t_reception_code = \'misdiag\' THEN \'revoked\'
-                                WHEN gr2t_reception_code = \'diagchange\' THEN \'revoked\'
-                                WHEN gr2t_reception_code = \'agenda_cancelled\' THEN \'revoked\'
-                                WHEN gr2t_reception_code = \'incap\' THEN \'revoked\'
+        $model->set('treatment_start_datetime', [
+                'type' => \MUtil_Model::TYPE_DATETIME,
+                'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
+            ]
+        );
 
-                                WHEN gr2t_reception_code = \'mistake\' THEN \'entered-in-error\'
-                                ELSE \'unknown\'
-                            END
-                           ELSE \'unknown\'
-                    END'),
-                    'treatment_code' => new \Zend_Db_Expr('
-                    CASE 
-                        WHEN pt2.ptr_id_treatment IS NOT NULL THEN pt2.ptr_code
-                        WHEN pt1.ptr_id_treatment IS NOT NULL THEN pt1.ptr_code
-                    END'),
+        $model->setOnSave('treatment_start_datetime', [$model, 'formatSaveDate']);
+        $model->setOnLoad('treatment_start_datetime', [$model, 'formatLoadDate']);
 
-                ]
-            )
-            ->where('pt1.ptr_id_treatment IS NOT NULL OR pt2.ptr_id_treatment IS NOT NULL')
-            ->order(
-                [
-                    new \Zend_Db_Expr('treatment_code IS NULL DESC'),
-                    'treatment_code DESC',
-                    'treatment_start_datetime',
-                ]
-            );
+        return $model;
+    }
 
-        return $select;
+    /**
+     * Calculates the total number of items in a model result with certain filters
+     *
+     * @param array $filter Filter array, num keys contain fixed expresions, text keys are equal or one of filters
+     * @param array $sort Sort array field name => sort type
+     * @return integer number of total items in model result
+     * @throws \Zend_Db_Select_Exception
+     */
+    public function getItemCount($filter = true, $sort = true)
+    {
+        $count = 0;
+        foreach ($this->_getFilterModels($filter) as $name => $model) {
+            if (method_exists($model, 'getItemCount')) {
+                $count += $model->getItemCount($filter);
+            }
+        }
+
+        return $count;
+    }
+
+    protected function getRespondentTrackTreatmentModel()
+    {
+        $model = new \Gems_Model_JoinModel('respondentTrackTreatments', 'gems__respondent2org', 'gr2o', false);
+        $model->addTable('gems__respondents', ['gr2o_id_user' => 'grs_id_user'], 'grs', false);
+        $model->addTable('gems__respondent2track', ['gr2t_id_user' => 'gr2o_id_user', 'gr2t_id_organization' => 'gr2o_id_organization'], 'gr2t', false);
+        $model->addTable('gems__reception_codes', ['gr2t_reception_code' => 'grc_id_reception_code'], 'rc', false);
+        $model->addTable('pulse__respondent2track2treatment', ['pr2t2t_id_respondent_track' => 'gr2t_id_respondent_track'], 'pr2t2t', false);
+        $model->addTable('pulse__treatments', ['pr2t2t_id_treatment' => 'ptr_id_treatment', 'ptr_name != \'- algemeen -\''], 'ptr', false);
+        $model->addLeftTable('gems__track_appointments', ['gtap_id_track' => 'gr2t_id_track', 'gtap_field_code' => new \Zend_Db_Expr('\'treatmentAppointment\'')], 'gtap', false);
+        $model->addLeftTable('gems__respondent2track2appointment', ['gr2t2a_id_app_field' => 'gtap_id_app_field', 'gr2t2a_id_respondent_track' => 'gr2t_id_respondent_track'], 'gr2t2a', false);
+        $model->addLeftTable('gems__appointments', ['gr2t2a_id_appointment' => 'gap_id_appointment'], 'gap', false);
+
+        $model->addColumn(new \Zend_Db_Expr('\'Treatment\''), 'resourceType');
+        $model->addColumn(new \Zend_Db_Expr('CONCAT(\'RT\',gr2t_id_respondent_track)'), 'id');
+        $model->addColumn(new \Zend_Db_Expr('ptr_name'), 'treatment_name');
+        $model->addColumn(new \Zend_Db_Expr('
+CASE 
+    WHEN gap_id_appointment THEN gap_admission_time 
+    ELSE DATE_ADD(gr2t_start_date,INTERVAL 14 DAY) 
+END'), 'treatment_start_datetime');
+        $model->addColumn(new \Zend_Db_Expr('
+DATE(CASE 
+    WHEN gap_id_appointment THEN gap_admission_time 
+    ELSE DATE_ADD(gr2t_start_date,INTERVAL 14 DAY) 
+END)'), 'treatment_start_date');
+
+        $model->addColumn(new \Zend_Db_Expr('
+CASE 
+    WHEN gr2t_completed >= gr2t_count THEN \'completed\' 
+    WHEN gr2t_end_date >= NOW() THEN \'completed\' 
+    WHEN gr2t_reception_code = \'OK\' THEN \'active\' 
+    WHEN gr2t_reception_code = \'retract\' THEN \'revoked\' 
+    WHEN gr2t_reception_code = \'stop\' THEN \'revoked\' 
+    WHEN gr2t_reception_code = \'refused\' THEN \'revoked\' 
+    WHEN gr2t_reception_code = \'misdiag\' THEN \'revoked\' 
+    WHEN gr2t_reception_code = \'diagchange\' THEN \'revoked\' 
+    WHEN gr2t_reception_code = \'agenda_cancelled\' THEN \'revoked\' 
+    WHEN gr2t_reception_code = \'incap\' THEN \'revoked\' 
+    WHEN gr2t_reception_code = \'mistake\' THEN \'entered-in-error\' 
+    ELSE \'unknown\' 
+END'), 'status');
+        $model->addColumn(new \Zend_Db_Expr('ptr_code'),'treatment_code');
+
+        $model->addTransformer(new PatientReferenceTransformer('subject'));
+        $model->addTransformer(new TreatmentIdTransformer());
+        $model->addTransformer(new TreatmentStatusTransformer());
+
+        $model->set('treatment_start_datetime', [
+                'type' => \MUtil_Model::TYPE_DATETIME,
+                'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
+            ]
+        );
+
+        $model->setOnSave('treatment_start_datetime', [$model, 'formatSaveDate']);
+        $model->setOnLoad('treatment_start_datetime', [$model, 'formatLoadDate']);
+
+        return $model;
     }
 }
