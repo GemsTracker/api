@@ -13,6 +13,9 @@ class TreatmentModel extends \MUtil_Model_UnionModel
 {
     const NAME = 'treatment';
 
+    const APPOINTMENTMODEL = 'appointmentTreatments';
+    const RESPONDENTTRACKMODEL = 'respondentTrackTreatments';
+
     use TranslateableTrait;
 
     /**
@@ -53,7 +56,7 @@ class TreatmentModel extends \MUtil_Model_UnionModel
 
     protected function getAppointmentTreatmentModel()
     {
-        $model = new \Gems_Model_JoinModel('appointmentTreatments', 'gems__respondent2org', 'gr2o', false);
+        $model = new \Gems_Model_JoinModel(self::APPOINTMENTMODEL, 'gems__respondent2org', 'gr2o', false);
         $model->addTable('gems__respondents', ['gr2o_id_user' => 'grs_id_user'], 'grs', false);
         $model->addTable('gems__appointments', ['gap_id_user' => 'gr2o_id_user', 'gap_id_organization' => 'gr2o_id_organization'], 'gap', false);
         $model->addTable('gems__agenda_activities', ['gap_id_activity' => 'gaa_id_activity'], 'gaa', false);
@@ -80,7 +83,7 @@ END'), 'status');
 
         $model->addTransformer(new PatientReferenceTransformer('subject'));
         $model->addTransformer(new TreatmentIdTransformer());
-        $model->addTransformer(new TreatmentStatusTransformer());
+        $model->addTransformer(new TreatmentStatusTransformer(self::APPOINTMENTMODEL));
 
         $model->set('treatment_start_datetime', [
                 'type' => \MUtil_Model::TYPE_DATETIME,
@@ -116,7 +119,7 @@ END'), 'status');
 
     protected function getRespondentTrackTreatmentModel()
     {
-        $model = new \Gems_Model_JoinModel('respondentTrackTreatments', 'gems__respondent2org', 'gr2o', false);
+        $model = new \Gems_Model_JoinModel(self::RESPONDENTTRACKMODEL, 'gems__respondent2org', 'gr2o', false);
         $model->addTable('gems__respondents', ['gr2o_id_user' => 'grs_id_user'], 'grs', false);
         $model->addTable('gems__respondent2track', ['gr2t_id_user' => 'gr2o_id_user', 'gr2t_id_organization' => 'gr2o_id_organization'], 'gr2t', false);
         $model->addTable('gems__reception_codes', ['gr2t_reception_code' => 'grc_id_reception_code'], 'rc', false);
@@ -159,7 +162,7 @@ END'), 'status');
 
         $model->addTransformer(new PatientReferenceTransformer('subject'));
         $model->addTransformer(new TreatmentIdTransformer());
-        $model->addTransformer(new TreatmentStatusTransformer());
+        $model->addTransformer(new TreatmentStatusTransformer(self::RESPONDENTTRACKMODEL));
 
         $model->set('treatment_start_datetime', [
                 'type' => \MUtil_Model::TYPE_DATETIME,

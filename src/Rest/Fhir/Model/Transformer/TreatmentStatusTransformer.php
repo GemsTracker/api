@@ -4,6 +4,8 @@
 namespace Gems\Rest\Fhir\Model\Transformer;
 
 
+use Gems\Rest\Fhir\Model\TreatmentModel;
+
 class TreatmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     public static $reverseAppointmentStatusTranslation = [
@@ -32,6 +34,16 @@ class TreatmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
     public $statusField = 'status';
 
     /**
+     * @var string|null
+     */
+    protected $modelType;
+
+    public function __construct($modelType = null)
+    {
+        $this->modelType = $modelType;
+    }
+
+    /**
      * This transform function checks the filter for
      * a) retreiving filters to be applied to the transforming data,
      * b) adding filters that are needed
@@ -43,56 +55,60 @@ class TreatmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         if (isset($filter[$this->statusField])) {
-            $reversedAppointmentStatusTranslations = self::$reverseAppointmentStatusTranslation;
+            if ($this->modelType === TreatmentModel::APPOINTMENTMODEL) {
+                $appointmentStatus = $this->translateStatusField($filter[$this->statusField], self::$reverseAppointmentStatusTranslation);
 
-            $appointmentStatus = $this->translateStatusField($filter[$this->statusField], $reversedAppointmentStatusTranslations);
-
-            $trackStatus = $this->translateStatusField($filter[$this->statusField], self::$reverseTrackStatusTranslation);
-
-            $trackStatementCompleted = null;
-            if ($filter[$this->statusField] == 'completed' ||
-                (is_array($filter[$this->statusField]) && in_array('completed', $filter[$this->statusField]))) {
-                $trackStatementCompleted = 'gr2t_completed >= gr2t_count OR gr2t_end_date >= NOW()';
-            }
-
-            $appointmentStatement = null;
-            if ($appointmentStatus !== null) {
-                $appointmentStatement = 'ap2.gap_status ';
-                if (count($appointmentStatus) > 1) {
-                    $appointmentStatement .= ' IN (\'' . join('\', \'', $appointmentStatus) . '\')';
-                } else {
-                    $firstStatus = reset($appointmentStatus);
-                    $appointmentStatement .= ' = \'' . $firstStatus . '\'';
+                $appointmentStatement = null;
+                if ($appointmentStatus !== null) {
+                    $appointmentStatement = 'gap_status ';
+                    if (count($appointmentStatus) > 1) {
+                        $appointmentStatement .= ' IN (\'' . join('\', \'', $appointmentStatus) . '\')';
+                    } else {
+                        $firstStatus = reset($appointmentStatus);
+                        $appointmentStatement .= ' = \'' . $firstStatus . '\'';
+                    }
                 }
-            }
-
-            $trackStatement = null;
-            if ($trackStatus !== null) {
-                $trackStatement = 'gr2t_reception_code ';
-                if (count($trackStatus) > 1) {
-                    $trackStatement .= ' IN (\'' . join('\', \'', $trackStatus) . '\')';
-                } else {
-                    $firstStatus = reset($trackStatus);
-                    $trackStatement .= ' = \'' . $firstStatus . '\'';
+                if ($appointmentStatement !== null) {
+                    $filter[] = $appointmentStatement;
                 }
-            }
-            if ($trackStatementCompleted !== null) {
-                if ($trackStatement === null) {
-                    $trackStatement = $trackStatementCompleted;
-                } else {
-                    $trackStatement = '('. $trackStatement . ' OR ' .  $trackStatementCompleted . ')';
+            } elseif ($this->modelType === TreatmentModel::RESPONDENTTRACKMODEL) {
+                if (!is_array($filter[$this->statusField])) {
+                    $filter[$this->statusField] = [$filter[$this->statusField]];
                 }
-            }
 
-            if ($appointmentStatement !== null && $trackStatement !== null) {
-                $filter[] = new \Zend_Db_Expr('CASE
-                    WHEN pt2.ptr_id_treatment THEN '.$appointmentStatement.'
-                    WHEN pt1.ptr_id_treatment THEN '.$trackStatement.'
-                END');
-            } elseif ($appointmentStatement !== null) {
-                $filter[] = $appointmentStatement;
-            } elseif ($trackStatement !== null) {
-                $filter[] = $trackStatement;
+                $trackStatements = [];
+
+                foreach($filter[$this->statusField] as $status) {
+                    switch($status) {
+                        case 'active':
+                            $trackStatements[] = '(gr2t_reception_code = \'OK\' AND gr2t_completed < gr2t_count AND (gr2t_end_date IS NULL OR gr2t_end_date < NOW()))';
+                            break;
+                        case 'completed':
+                            $trackStatements[] = '(gr2t_reception_code = \'OK\' AND (gr2t_completed >= gr2t_count OR gr2t_end_date >= NOW()))';
+                            break;
+                        case 'entered-in-error':
+                            $trackStatements[] = '(gr2t_reception_code = \'mistake\')';
+                            break;
+                        case 'revoked':
+
+                            $trackStatus = [
+                                'retract',
+                                'stop',
+                                'refused',
+                                'misdiag',
+                                'diagchange',
+                                'agenda_cancelled',
+                                'incap',
+                            ];
+
+                            $trackStatements[] = '(gr2t_reception_code IN (\'' . join('\', \'', $trackStatus) . '\'))';
+                            break;
+                    }
+                }
+
+                if (count($trackStatements)) {
+                    $filter[] = '(' . join(' OR ', $trackStatements) . ')';
+                }
             }
 
             unset($filter[$this->statusField]);
