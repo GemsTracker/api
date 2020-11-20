@@ -29,7 +29,7 @@ class QuestionnaireResponseStatusTransformer extends \MUtil_Model_ModelTransform
                     $filterParts[] = $this->getFilterPartFromStatus($status);
                 }
                 if (count($filterParts)) {
-                    $filter[] = '(' . join(' OR ', $filterParts) . ')';
+                    $filter[] = $filterParts;
                 }
             } else {
                 $filterPart = $this->getFilterPartFromStatus($filter['status']);

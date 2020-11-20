@@ -35,7 +35,7 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
             $loginUrl = $this->getLoginUrl($row);
             $info[] = [
                 'type' => 'url',
-                'value' => $loginUrl . '/ask/forward/id/' . $row['gto_id_token'],
+                'value' => $loginUrl . '/ask/to-survey/id/' . $row['gto_id_token'],
             ];
 
             $data[$key]['info'] = $info;

@@ -35,12 +35,22 @@ class QuestionnaireReferenceTransformer extends \MUtil_Model_ModelTransformerAbs
         }
 
         if (isset($filter['survey_name'])) {
-            $filter[] = 'gsu_survey_name LIKE %' . $filter['survey_name'] . '%';
+            $value = $filter['survey_name'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
+            $filter[] = 'gsu_survey_name LIKE %' . $value . '%';
             unset($filter['survey_name']);
         }
 
         if (isset($filter['questionnaire_name'])) {
-            $filter[] = 'gsu_survey_name LIKE %' . $filter['questionnaire_name'] . '%';
+            $value = $filter['questionnaire_name'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
+            $filter[] = 'gsu_survey_name LIKE %' . $value . '%';
             unset($filter['questionnaire_name']);
         }
 

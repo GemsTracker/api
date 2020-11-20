@@ -19,11 +19,12 @@ class LocationAddressTransformer extends \MUtil_Model_ModelTransformerAbstract
     {
         if (isset($filter['address'])) {
             $value = $filter['address'];
-            $filter[] = "(glo_address_1 = '".$value."')
-             OR (glo_city = '".$value."')
-             OR (glo_iso_country = '".$value."')
-             OR (glo_zipcode = '".$value."')
-            ";
+            $filter[] = [
+                'glo_address_1' => $value,
+                'glo_city' => $value,
+                'glo_iso_country' => $value,
+                'glo_zipcode' => $value,
+            ];
 
             unset($filter['address']);
         }

@@ -31,12 +31,20 @@ class AppointmentServiceTypeTransformer extends \MUtil_Model_ModelTransformerAbs
         }
         if (isset($filter['service-type.display'])) {
             $value = $filter['service-type.display'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
             $filter[] = "gaa_name LIKE '%".$value."'%";
 
             unset($filter['service-type.display']);
         }
         if (isset($filter['serviceType.display'])) {
             $value = $filter['serviceType.display'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
             $filter[] = "gaa_name LIKE '%".$value."'%";
 
             unset($filter['serviceType.display']);

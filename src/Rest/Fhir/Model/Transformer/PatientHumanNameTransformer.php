@@ -18,17 +18,22 @@ class PatientHumanNameTransformer extends \MUtil_Model_ModelTransformerAbstract
     {
         if (isset($filter['name'])) {
             $value = $filter['name'];
-            $filter[] = "(grs_first_name = '".$value."')
-             OR (grs_initials_name = '".$value."')
-             OR (grs_last_name = '".$value."')
-             OR (grs_surname_prefix = '".$value."')
-            ";
+            $filter[] = [
+                'grs_first_name' => $value,
+                'grs_initials_name' => $value,
+                'grs_last_name' => $value,
+                'grs_surname_prefix' => $value,
+            ];
 
             unset($filter['name']);
         }
 
         if (isset($filter['family'])) {
             $value = $filter['family'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
             $filter[] = new \Zend_Db_Expr("CONCAT_WS(' ', grs_surname_prefix, grs_last_name) LIKE '%".$value."%'");
 
             unset($filter['family']);
@@ -36,6 +41,10 @@ class PatientHumanNameTransformer extends \MUtil_Model_ModelTransformerAbstract
 
         if (isset($filter['given'])) {
             $value = $filter['given'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
             $filter[] = "(grs_first_name LIKE '%".$value."%')
              OR (grs_initials_name LIKE '%".$value."%')
             ";

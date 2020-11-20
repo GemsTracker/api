@@ -23,35 +23,39 @@ class QuestionnaireOwnerTransformer extends \MUtil_Model_ModelTransformerAbstrac
             if (isset($filter[$this->fieldName . '_type'])) {
                 switch(strtolower($filter[$this->fieldName . '_type'])) {
                     case 'patient':
-                        $filter[] = "(grs_first_name = '".$name."')
-                         OR (grs_initials_name = '".$name."')
-                         OR (grs_last_name = '".$name."')
-                         OR (grs_surname_prefix = '".$name."')
-                        ";
+                        $filter[] = [
+                            'grs_first_name' => $name,
+                            'grs_initials_name' => $name,
+                            'grs_last_name' => $name,
+                            'grs_surname_prefix' => $name,
+                        ];
                         break;
                     case 'relatedperson':
-                        $filter[] = "(grr_first_name = '".$name."')
-                         OR (grr_last_name = '".$name."')
-                        ";
+                        $filter[] = [
+                            'grr_first_name' => $name,
+                            'grr_last_name' => $name,
+                        ];
                         break;
                     case 'organization':
-                        $filter[] = "(gor_name = '".$name."')";
+                        $filter['gor_name'] = $name;
                         break;
                     case 'practitioner':
-                        $filter[] = "(gas_name = '".$name."')
-                         OR (gsf_first_name = '".$name."')
-                         OR (gsf_last_name = '".$name."')
-                         OR (gsf_surname_prefix = '".$name."')
-                        ";
+                        $filter[] = [
+                            'gas_name' => $name,
+                            'gsf_first_name' => $name,
+                            'gsf_last_name' => $name,
+                            'gsf_surname_prefix' => $name,
+                        ];
                         break;
                 }
             } else {
                 // Assume search for patient name
-                $filter[] = "(grs_first_name = '".$name."')
-                 OR (grs_initials_name = '".$name."')
-                 OR (grs_last_name = '".$name."')
-                 OR (grs_surname_prefix = '".$name."')
-                ";
+                $filter[] = [
+                    'grs_first_name' => $name,
+                    'grs_initials_name' => $name,
+                    'grs_last_name' => $name,
+                    'grs_surname_prefix' => $name,
+                ];
             }
 
             unset($filter[$this->fieldName . '_name']);

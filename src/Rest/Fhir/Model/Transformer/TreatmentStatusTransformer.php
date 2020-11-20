@@ -107,7 +107,7 @@ class TreatmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
                 }
 
                 if (count($trackStatements)) {
-                    $filter[] = '(' . join(' OR ', $trackStatements) . ')';
+                    $filter[] = $trackStatements;
                 }
             }
 

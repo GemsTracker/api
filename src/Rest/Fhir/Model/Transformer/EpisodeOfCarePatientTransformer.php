@@ -31,7 +31,10 @@ class EpisodeOfCarePatientTransformer extends \MUtil_Model_ModelTransformerAbstr
                     $value = explode('@', str_replace(['Patient/', $patientFormatter->getPatientEndpoint()], '', $patient));
 
                     if (count($value) === 2) {
-                        $patientSearchParts[] = '(gr2o_patient_nr = \'' . $value[0] . '\' AND gr2o_id_organization = ' . $value[1] . ')';
+                        $patientSearchParts[] = [
+                            'gr2o_patient_nr' => $value[0],
+                            'gr2o_id_organization' => $value[1],
+                        ];
                     }
                 }
                 if (count($patientSearchParts)) {

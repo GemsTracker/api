@@ -34,6 +34,10 @@ class PatientManagingOrganizationTransformer extends \MUtil_Model_ModelTransform
 
         if (isset($filter['organization_name'])) {
             $value = $filter['organization_name'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
             $filter[] = "gor_name LIKE '%".$value."%'";
 
             unset($filter['organization_name']);

@@ -24,11 +24,11 @@ class PatientTelecomTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         if (isset($filter['phone'])) {
-            $filter[] = sprintf('grs_phone_1 = %s OR grs_phone_2 = %s grs_phone_3 = %s',
-                $filter['phone'],
-                $filter['phone'],
-                $filter['phone']
-            );
+            $filter[] = [
+                'grs_phone_1' => $filter['phone'],
+                'grs_phone_2' => $filter['phone'],
+                'grs_phone_3' => $filter['phone'],
+            ];
 
             unset($filter['phone']);
         }
