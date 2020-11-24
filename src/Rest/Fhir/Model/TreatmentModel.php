@@ -38,6 +38,7 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addColumn(new \Zend_Db_Expr('\'Treatment\''), 'resourceType');
         $this->addColumn(new \Zend_Db_Expr('CONCAT(\'RT\',gr2t_id_respondent_track)'), 'id');
         $this->addColumn(new \Zend_Db_Expr('ptr_name'), 'treatment_name');
+        $this->addColumn(new \Zend_Db_Expr('ptr_id_treatment'), 'treatment_id');
         $this->addColumn(new \Zend_Db_Expr('
 CASE 
     WHEN gap_id_appointment THEN gap_admission_time 
@@ -84,6 +85,7 @@ END'), 'status');
     {
         $this->set('resourceType', 'label', 'resourceType');
         $this->set('treatment_name', 'label', $this->_('title'), 'apiName', 'title');
+        $this->set('treatment_id', 'label', $this->_('code'), 'apiName', 'code');
         $this->set('treatment_start_datetime', [
                 'label' => $this->_('created'),
                 'apiName' =>'created',
