@@ -88,6 +88,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'resourceType',
                     'id',
                     'subject',
+                    'code',
                     'title',
                     'created',
                     'status',
