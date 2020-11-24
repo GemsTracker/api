@@ -20,6 +20,7 @@ class AppointmentModel extends \Gems_Model_AppointmentModel
         //$this->addColumn(new \Zend_Db_Expr("CASE grs_gender WHEN 'M' THEN 'male' WHEN 'F' THEN 'female' ELSE 'unknown' END"), 'gender');
 
         $this->addTable('gems__respondents', ['grs_id_user' =>  'gap_id_user'], 'grs');
+        $this->addTable('gems__organizations', ['gap_id_organization' => 'gor_id_organization'],'gor');
         $this->addLeftTable('gems__agenda_activities', ['gap_id_activity' =>  'gaa_id_activity'], 'gaa');
         $this->addLeftTable('gems__agenda_staff', ['gap_id_attended_by' =>  'gas_id_staff'], 'gas');
         $this->addLeftTable('gems__locations', ['gap_id_location' =>  'glo_id_location'], 'glo');

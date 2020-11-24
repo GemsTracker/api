@@ -81,6 +81,31 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
             unset($filter['location.name']);
         }
 
+        if (isset($filter['organization'])) {
+            $value = (int)str_replace(['Organization/', Endpoints::ORGANIZATION], '', $filter['organization']);
+            $filter['gap_id_organization'] = $value;
+
+            unset($filter['organization']);
+        }
+        if (isset($filter['organization.name'])) {
+            $value = $filter['organization.name'];
+            if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
+                $adapter = $model->getAdapter();
+                $value = $adapter->quote($value);
+            }
+            $filter[] = "gor_name LIKE '%" . $value . "%'";
+
+            unset($filter['organization.name']);
+        }
+
+        if (isset($filter['organization.code'])) {
+            $value = $filter['organization.code'];
+            $filter['gor_code'] = $value;
+
+            unset($filter['organization.code']);
+        }
+
+
         return $filter;
     }
 
@@ -129,6 +154,17 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
                         'reference' => Endpoints::LOCATION . $item['gap_id_location'],
                         'display' => $item['glo_name'],
                     ],
+                ];
+                $data[$key]['participant'][] = $participant;
+            }
+            if (isset($item['gap_id_organization'])) {
+                $participant = [
+                    'actor' => [
+                        'type' => 'Organization',
+                        'id' => $item['gap_id_organization'],
+                        'reference' => Endpoints::ORGANIZATION . $item['gap_id_organization'],
+                        'display' => $item['gor_name'],
+                    ]
                 ];
                 $data[$key]['participant'][] = $participant;
             }
