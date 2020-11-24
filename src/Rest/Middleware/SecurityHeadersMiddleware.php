@@ -24,6 +24,7 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
         $response = $delegate->process($request);
 
         return $response
+            ->withHeader('Strict-Transport-Security', 'frame-ancestors \'none\'')
             ->withHeader('X-Content-Type-Options', 'nosniff')
             ->withHeader('X-Frame-Options', 'deny');
     }
