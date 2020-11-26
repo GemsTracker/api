@@ -13,6 +13,7 @@ class TreatmentModel extends \Gems_Model_JoinModel
 {
     const NAME = 'treatment';
 
+    const APPOINTMENTMODEL = 'appointmentTreatments';
     const RESPONDENTTRACKMODEL = 'respondentTrackTreatments';
 
     use TranslateableTrait;
