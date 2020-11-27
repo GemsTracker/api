@@ -17,7 +17,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
             case 'requested':
                 return '(gto_completion_time IS NULL AND gto_start_time IS NULL AND gto_valid_from IS NOT NULL AND gto_valid_from < NOW() AND (gto_valid_until > NOW() OR gto_valid_until IS NULL)  AND grc_success = 1)';
             case 'in-progress':
-                return '(gto_completion_time IS NULL AND grc_success = 1 AND gto_start_time IS NOT NULL AND gto_valid_until > NOW())';
+                return '(gto_completion_time IS NULL AND gto_start_time IS NOT NULL AND gto_valid_from IS NOT NULL AND gto_valid_from < NOW() AND (gto_valid_until > NOW() OR gto_valid_until IS NULL)  AND grc_success = 1)';
         }
         return null;
     }
@@ -70,7 +70,11 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 continue;
             }
 
-            if ($validFrom && $now->isLaterOrEqual($validFrom) && ($validUntil === null || $now->isEarlier($validUntil)) && $row['grc_success'] == 1) {
+            if ($validFrom && $now->isLaterOrEqual($validFrom) && ($validUntil === null || $now->isEarlier($validUntil)) && $row['grc_success'] == 1 && $row['gto_completion_time'] === null) {
+                if ($row['gto_start_time'] !== null) {
+                    $data[$key]['status'] = 'in-progress';
+                    continue;
+                }
                 $data[$key]['status'] = 'requested';
                 continue;
             }
@@ -80,10 +84,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 continue;
             }
 
-            if ($row['gto_completion_time'] === null && $row['grc_success'] == 1 && $row['gto_start_time'] !== null) {
-                $data[$key]['status'] = 'in-progress';
-                continue;
-            }
+
 
             $data[$key]['status'] = 'unknown';
         }
