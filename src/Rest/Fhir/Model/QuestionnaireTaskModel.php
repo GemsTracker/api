@@ -13,6 +13,11 @@ use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskStatusTransformer;
 
 class QuestionnaireTaskModel extends \Gems_Model_JoinModel
 {
+    /**
+     * @var \Gems_Util
+     */
+    public $util;
+
     public function __construct()
     {
         parent::__construct('questionairetasks', 'gems__tokens', 'gto', true);
@@ -55,18 +60,20 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->set('gto_round_order', 'label', 'roundOrder', 'apiName', 'roundOrder');
 
 
+
+        // Add token URL
+    }
+
+    public function afterRegistry()
+    {
+        $currentUri = $this->util->getCurrentURI();
+
         $this->addTransformer(new QuestionnaireTaskStatusTransformer());
         $this->addTransformer(new QuestionnaireTaskExecutionPeriodTransformer());
         $this->addTransformer(new QuestionnaireOwnerTransformer());
         $this->addTransformer(new QuestionnaireTaskForTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gto_id_organization', true));
-        $this->addTransformer(new QuestionnaireTaskInfoTransformer());
+        $this->addTransformer(new QuestionnaireTaskInfoTransformer($currentUri));
         $this->addTransformer(new QuestionnaireReferenceTransformer('focus'));
-
-        // Add token URL
-
-
-
-
     }
 }

@@ -5,6 +5,16 @@ namespace Gems\Rest\Fhir\Model\Transformer;
 
 class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
+    /**
+     * @var null
+     */
+    protected $currentUri;
+
+    public function __construct($currentUri = null)
+    {
+        $this->currentUri = $currentUri;
+    }
+
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         if (isset($filter['roundDescription'])) {
@@ -48,8 +58,11 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
     {
         if (array_key_exists('gor_url_base', $row) && $baseUrls = explode(' ', $row['gor_url_base'])) {
             $baseUrl = reset($baseUrls);
-            return $baseUrl;
+            if (!empty($baseUrl)) {
+                return $baseUrl;
+            }
         }
-        return 'https://pulse.equipezorgbedrijven.nl';
+
+        return $this->currentUri;
     }
 }
