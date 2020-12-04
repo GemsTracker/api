@@ -48,11 +48,11 @@ class EmmaRespondentTokensController extends ModelRestController
             'intake orth',
         ],
         'gor_code' => [
-            'xpert',
-            'helder',
+            'xc-hand-en-polszorg',
+            'xc-proctologie',
             'velthuis',
             'eva',
-            'xpert-ortho',
+            'xc-orthopedie',
         ]
     ];
 
