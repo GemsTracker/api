@@ -524,7 +524,7 @@ class RespondentBulkRestController extends ModelRestController
             // Check PP
             $respondent = $this->legacyLoader->getRespondent($OkRespondents['gr2o_patient_nr'], $OkRespondents['gr2o_id_organization']);
             if ($respondent instanceof \Pulse_Tracker_Respondent) {
-                $respondent->checkPp();
+                $respondent->checkPp(false);
             }
             // Check Anesthesia
             $this->modelLoader->checkAnaesthesiaLink($OkRespondents['gr2o_id_user'], $OkRespondents['gr2o_id_organization']);
