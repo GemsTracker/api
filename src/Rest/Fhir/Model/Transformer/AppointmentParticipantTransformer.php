@@ -57,13 +57,12 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
             unset($filter['practitioner']);
         }
         if (isset($filter['practitioner.name'])) {
-            $value = $filter['practitioner.name'];
+            $value = '%'.$filter['practitioner.name'].'%';
             if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
                 $adapter = $model->getAdapter();
                 $value = $adapter->quote($value);
+                $filter[] = "gas_name LIKE ".$value;
             }
-
-            $filter[] = "gas_name LIKE '%".$value."'%";
 
             unset($filter['practitioner.name']);
         }
@@ -88,12 +87,12 @@ class AppointmentParticipantTransformer extends \MUtil_Model_ModelTransformerAbs
             unset($filter['organization']);
         }
         if (isset($filter['organization.name'])) {
-            $value = $filter['organization.name'];
+            $value = '%'.$filter['organization.name'].'%';
             if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
                 $adapter = $model->getAdapter();
                 $value = $adapter->quote($value);
+                $filter[] = "gor_name LIKE ".$value;
             }
-            $filter[] = "gor_name LIKE '%" . $value . "%'";
 
             unset($filter['organization.name']);
         }

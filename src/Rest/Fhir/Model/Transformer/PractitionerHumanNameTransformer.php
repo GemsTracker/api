@@ -29,23 +29,23 @@ class PractitionerHumanNameTransformer extends \MUtil_Model_ModelTransformerAbst
         }
 
         if (isset($filter['family'])) {
-            $value = $filter['family'];
+            $value = '%'.$filter['family'].'%';
             if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
                 $adapter = $model->getAdapter();
                 $value = $adapter->quote($value);
+                $filter[] = new \Zend_Db_Expr("CONCAT_WS(' ', gsf_surname_prefix, gsf_last_name) LIKE ".$value);
             }
-            $filter[] = new \Zend_Db_Expr("CONCAT_WS(' ', gsf_surname_prefix, gsf_last_name) LIKE '%".$value."%'");
 
             unset($filter['family']);
         }
 
         if (isset($filter['given'])) {
-            $value = $filter['given'];
+            $value = '%'.$filter['given'].'%';
             if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
                 $adapter = $model->getAdapter();
                 $value = $adapter->quote($value);
+                $filter[] = "gsf_first_name LIKE ".$value;
             }
-            $filter[] = "gsf_first_name LIKE '%".$value."%'";
 
             unset($filter['given']);
         }

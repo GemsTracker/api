@@ -57,12 +57,12 @@ class ManagingOrganizationTransformer extends \MUtil_Model_ModelTransformerAbstr
 
         if ($this->organizationJoined) {
             if (isset($filter['organization.name'])) {
-                $value = $filter['organization.name'];
+                $value = '%'.$filter['organization.name'].'%';
                 if ($model instanceof \MUtil_Model_DatabaseModelAbstract) {
                     $adapter = $model->getAdapter();
                     $value = $adapter->quote($value);
+                    $filter[] = "gor_name LIKE " . $value;
                 }
-                $filter[] = "gor_name LIKE '%" . $value . "%'";
 
                 unset($filter['organization.name']);
             }
