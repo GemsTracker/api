@@ -103,6 +103,13 @@ class AppointmentImportTranslator extends ApiModelTranslator
             $row['gap_id_episode']     = $this->findEpisodeOfCare($episodeId, $source, $row['gap_id_organization']);
         }
 
+        if (array_key_exists('present_time', $row)) {
+            $info = [
+                'present_time' => $row['present_time'],
+            ];
+            $row['gap_info'] = json_encode($info);
+        }
+
         $row['gap_source']          = $source;
         $row['gap_code']            = 'A';
         $row['gap_id_procedure']    = null;
