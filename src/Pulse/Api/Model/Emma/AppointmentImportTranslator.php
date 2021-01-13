@@ -104,8 +104,9 @@ class AppointmentImportTranslator extends ApiModelTranslator
         }
 
         if (array_key_exists('present_time', $row)) {
+            $presentTimeFixed = str_replace('Z', '+00:00', $row['present_time']);
             $info = [
-                'present_time' => $row['present_time'],
+                'present_time' => $presentTimeFixed,
             ];
             $row['gap_info'] = json_encode($info);
         }
