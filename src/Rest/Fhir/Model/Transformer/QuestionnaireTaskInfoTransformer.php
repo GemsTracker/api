@@ -19,6 +19,22 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
     {
         if (isset($filter['roundDescription'])) {
             $filter['gto_round_description'] = $filter['roundDescription'];
+            unset($filter['roundDescription']);
+        }
+
+        if (isset($filter['track'])) {
+            $filter['gto_id_track'] = $filter['track'];
+            unset($filter['track']);
+        }
+
+        if (isset($filter['track_name'])) {
+            $filter['gtr_track_name'] = $filter['trackName'];
+            unset($filter['trackName']);
+        }
+
+        if (isset($filter['track_code'])) {
+            $filter['gtr_code'] = $filter['track_code'];
+            unset($filter['track_code']);
         }
 
         return $filter;
@@ -47,6 +63,13 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
                 'type' => 'url',
                 'value' => $loginUrl . '/ask/to-survey/id/' . $row['gto_id_token'],
             ];
+
+            if (isset($row['gto_id_track'])) {
+                $info[] = [
+                    'type' => 'track',
+                    'value' => $row['gtr_track_name'],
+                ];
+            }
 
             $data[$key]['info'] = $info;
         }

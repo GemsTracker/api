@@ -56,6 +56,15 @@ class QuestionnaireReferenceTransformer extends \MUtil_Model_ModelTransformerAbs
             unset($filter['questionnaire_name']);
         }
 
+        if (isset($filter['survey_code'])) {
+            $filter['gsu_code'] = $filter['survey_code'];
+            unset($filter['survey_code']);
+        }
+        if (isset($filter['questionnaire_code'])) {
+            $filter['gsu_code'] = $filter['questionnaire_code'];
+            unset($filter['questionnaire_code']);
+        }
+
         return $filter;
     }
 

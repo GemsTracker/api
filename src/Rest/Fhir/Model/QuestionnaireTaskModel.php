@@ -24,6 +24,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->addTable('gems__respondent2org', ['gr2o_id_user' => 'gto_id_respondent', 'gr2o_id_organization' => 'gto_id_organization']);
         $this->addTable('gems__reception_codes', ['gto_reception_code' => 'grc_id_reception_code']);
         $this->addTable('gems__surveys', ['gto_id_survey' => 'gsu_id_survey']);
+        $this->addTable('gems__tracks', ['gto_id_track' => 'gtr_id_track']);
         $this->addTable('gems__groups', ['gsu_id_primary_group' => 'ggp_id_group']);
         $this->addTable('gems__organizations', ['gto_id_organization' => 'gor_id_organization']);
         $this->addLeftTable('gems__staff', ['gto_by' => 'gsf_id_user']);
@@ -57,6 +58,16 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->set('owner_type', 'label', 'owner_type');
         $this->set('survey', 'label', 'survey');
         $this->set('survey_name', 'label', 'survey_name');
+        $this->set('survey_code', 'label', 'survey_code');
+        $this->set('questionnaire', 'label', 'questionnaire');
+        $this->set('questionnaire_name', 'label', 'questionnaire_name');
+        $this->set('questionnaire_code', 'label', 'questionnaire_code');
+
+        $this->set('roundDescription', 'label', 'roundDescription');
+        $this->set('track', 'label', 'track');
+        $this->set('track_name', 'label', 'track_name');
+        $this->set('track_code', 'label', 'track_code');
+
         $this->set('gto_round_order', 'label', 'roundOrder', 'apiName', 'roundOrder');
 
 
