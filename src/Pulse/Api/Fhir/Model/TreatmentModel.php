@@ -1,12 +1,13 @@
 <?php
 
 
-namespace Gems\Rest\Fhir\Model;
+namespace Pulse\Api\Fhir\Model;
 
 
 use Gems\Rest\Fhir\Model\Transformer\PatientReferenceTransformer;
-use Gems\Rest\Fhir\Model\Transformer\TreatmentIdTransformer;
-use Gems\Rest\Fhir\Model\Transformer\TreatmentStatusTransformer;
+use Pulse\Api\Fhir\Model\Transformer\TreatmentIdTransformer;
+use Pulse\Api\Fhir\Model\Transformer\TreatmentInfoTransformer;
+use Pulse\Api\Fhir\Model\Transformer\TreatmentStatusTransformer;
 use MUtil\Translate\TranslateableTrait;
 
 class TreatmentModel extends \Gems_Model_JoinModel
@@ -35,6 +36,14 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addLeftTable('gems__track_appointments', ['gtap_id_track' => 'gr2t_id_track', 'gtap_field_code' => new \Zend_Db_Expr('\'treatmentAppointment\'')], 'gtap', false);
         $this->addLeftTable('gems__respondent2track2appointment', ['gr2t2a_id_app_field' => 'gtap_id_app_field', 'gr2t2a_id_respondent_track' => 'gr2t_id_respondent_track'], 'gr2t2a', false);
         $this->addLeftTable('gems__appointments', ['gr2t2a_id_appointment' => 'gap_id_appointment'], 'gap', false);
+
+        $this->addLeftTable(['treatmentSedationField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentSedationField.gtf_id_track', 'treatmentSedationField.gtf_field_type' => new \Zend_Db_Expr('\'sedation\'')], 'gr2t2f', false);
+        $this->addLeftTable(['treatmentSedationTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentSedationTrackField.gr2t2f_id_respondent_track', 'treatmentSedationTrackField.gr2t2f_id_field' => 'treatmentSedationField.gtf_id_field'], 'gr2t2f', false);
+        $this->addLeftTable('pulse__sedations', ['treatmentSedationTrackField.gr2t2f_value' => 'pse_id_sedation'], 'pse', false);
+
+        //$this->addLeftTable(['treatmentSedationTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentSedationTrackField.gr2t2f_id_respondent_track'], 'gr2t2f', false);
+        //$this->addLeftTable(['treatmentSedationField' => 'gems__track_fields'], ['treatmentSedationTrackField.gr2t2f_id_field' => 'treatmentSedationField.gtf_id_field', 'treatmentSedationField.gtf_field_type' => new \Zend_Db_Expr('\'sedation\'')], 'gr2t2f', false);
+        //$this->addLeftTable('pulse__sedations', ['treatmentSedationTrackField.gr2t2f_value' => 'pse_id_sedation'], 'pse', false);
 
         $this->addColumn(new \Zend_Db_Expr('\'Treatment\''), 'resourceType');
         $this->addColumn(new \Zend_Db_Expr('CONCAT(\'RT\',gr2t_id_respondent_track)'), 'id');
@@ -71,6 +80,7 @@ END'), 'status');
         $this->addTransformer(new PatientReferenceTransformer('subject'));
         $this->addTransformer(new TreatmentIdTransformer());
         $this->addTransformer(new TreatmentStatusTransformer(self::RESPONDENTTRACKMODEL));
+        $this->addTransformer(new TreatmentInfoTransformer());
 
         $this->set('treatment_start_datetime', [
                 'type' => \MUtil_Model::TYPE_DATETIME,

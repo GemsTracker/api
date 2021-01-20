@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Gems\Rest\Fhir\Model\Transformer;
+namespace Pulse\Api\Fhir\Model\Transformer;
 
 
 class TreatmentIdTransformer extends \MUtil_Model_ModelTransformerAbstract

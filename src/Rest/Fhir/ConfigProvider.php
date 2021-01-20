@@ -81,21 +81,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
                 'idField' => 'id',
             ],
-            'fhir/treatment' => [
-                'model' => TreatmentModel::class,
-                'methods' => ['GET'],
-                'allowed_fields' => [
-                    'resourceType',
-                    'id',
-                    'subject',
-                    'code',
-                    'title',
-                    'created',
-                    'status',
-                ],
-                'idField' => 'id',
-                'idFieldRegex' => '[A-Za-z0-9]+',
-            ],
             'fhir/episode-of-care' => [
                 'model' => EpisodeOfCareModel::class,
                 'methods' => ['GET'],

@@ -1,6 +1,6 @@
 <?php
 
-namespace Pulse\Api\Fhir\Transformer;
+namespace Pulse\Api\Fhir\Model\Transformer;
 
 
 class AppointmentInfoTransformer extends \MUtil_Model_ModelTransformerAbstract

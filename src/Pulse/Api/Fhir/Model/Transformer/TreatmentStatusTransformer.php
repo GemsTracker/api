@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Gems\Rest\Fhir\Model\Transformer;
+namespace Pulse\Api\Fhir\Model\Transformer;
 
 
 use Gems\Rest\Fhir\Model\TreatmentModel;

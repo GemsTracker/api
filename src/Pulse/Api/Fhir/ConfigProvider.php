@@ -3,6 +3,9 @@
 namespace Pulse\Api\Fhir;
 
 
+use Pulse\Api\Fhir\Model\TreatmentModel;
+use Pulse\Api\Model\Fhir\AppointmentModel;
+
 class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
 {
     public function getRestModels()
@@ -28,6 +31,23 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
                 'info',
             ],
             'idField' => 'id',
+        ];
+
+        $restModels['fhir/treatment'] =[
+            'model' => TreatmentModel::class,
+            'methods' => ['GET'],
+            'allowed_fields' => [
+                'resourceType',
+                'id',
+                'subject',
+                'code',
+                'title',
+                'created',
+                'status',
+                'info',
+            ],
+            'idField' => 'id',
+            'idFieldRegex' => '[A-Za-z0-9]+',
         ];
 
         return $restModels;

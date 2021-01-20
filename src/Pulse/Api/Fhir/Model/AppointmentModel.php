@@ -1,9 +1,9 @@
 <?php
 
-namespace Pulse\Api\Fhir;
+namespace Pulse\Api\Model\Fhir;
 
 
-use Pulse\Api\Fhir\Transformer\AppointmentInfoTransformer;
+use Pulse\Api\Fhir\Model\Transformer\AppointmentInfoTransformer;
 
 class AppointmentModel extends \Gems\Rest\Fhir\Model\AppointmentModel
 {
