@@ -17,7 +17,7 @@ class AppointmentInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
                 $info['definitiveDate'] = false;
                 if ($row['gap_admission_time']) {
                     $definitiveTime = $admissionTime->sub(new \DateInterval('P3D'));
-                    if ($definitiveTime >= new \DateTimeImmutable()) {
+                    if ($definitiveTime <= new \DateTimeImmutable()) {
                         $info['definitiveDate'] = true;
                     }
                 }
