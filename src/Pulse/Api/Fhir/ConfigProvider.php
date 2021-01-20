@@ -4,7 +4,7 @@ namespace Pulse\Api\Fhir;
 
 
 use Pulse\Api\Fhir\Model\TreatmentModel;
-use Pulse\Api\Model\Fhir\AppointmentModel;
+use Pulse\Api\Fhir\Model\AppointmentModel;
 
 class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
 {

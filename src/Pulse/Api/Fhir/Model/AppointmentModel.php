@@ -1,6 +1,6 @@
 <?php
 
-namespace Pulse\Api\Model\Fhir;
+namespace Pulse\Api\Fhir\Model;
 
 
 use Pulse\Api\Fhir\Model\Transformer\AppointmentInfoTransformer;
