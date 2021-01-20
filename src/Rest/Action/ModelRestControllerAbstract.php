@@ -1129,6 +1129,10 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 $value = $value->toString(\MUtil_Date::ISO_8601);
             }
 
+            if ($value instanceof \DateTime) {
+                $value = $value->format(\DateTime::ATOM);
+            }
+
             if (isset($translations[$colName])) {
                 $translatedRow[$translations[$colName]] = $value;
             } else {
