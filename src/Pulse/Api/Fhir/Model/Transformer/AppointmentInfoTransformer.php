@@ -14,27 +14,35 @@ class AppointmentInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
 
             // Add definitiveDate if OK appointment
             if ($row['gaa_name'] !== null && strpos($row['gaa_name'], 'OK ') === 0) {
-                $info['definitiveDate'] = false;
+                $definitiveInfo = [
+                    'type' => 'definitiveDate',
+                    'value' => false,
+                ];
                 if ($row['gap_admission_time']) {
                     $definitiveTime = $admissionTime->sub(new \DateInterval('P3D'));
                     if ($definitiveTime <= new \DateTimeImmutable()) {
-                        $info['definitiveDate'] = true;
+                        $definitiveInfo['value'] = true;
                     }
                 }
+                $info[] = $definitiveInfo;
             }
 
             // Add present time if set in info, otherwise fall back to admission time
-            $info['presentTime'] = $admissionTime->format(\DateTime::ATOM);
+            $presentTimeInfo = [
+                'type' => 'presentTime',
+                'value' => $admissionTime->format(\DateTime::ATOM),
+            ];
             if (isset($row['gap_info'])) {
                 $appointmentInfo = json_decode($row['gap_info'], true);
                 if ($appointmentInfo && isset($appointmentInfo['present_time'])) {
                     try {
                         $presentTime = new \DateTimeImmutable($appointmentInfo['present_time']);
-                        $info['presentTime'] = $presentTime->format(\DateTime::ATOM);
+                        $presentTimeInfo['value'] = $presentTime->format(\DateTime::ATOM);
                     } catch (\Exception $e) {
                     }
                 }
             }
+            $info[] = $presentTimeInfo;
 
             if (count($info)) {
                 $data[$key]['info'] = $info;
