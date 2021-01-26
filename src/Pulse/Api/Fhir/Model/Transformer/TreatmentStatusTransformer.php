@@ -4,7 +4,7 @@
 namespace Pulse\Api\Fhir\Model\Transformer;
 
 
-use Gems\Rest\Fhir\Model\TreatmentModel;
+use Pulse\Api\Fhir\Model\TreatmentModel;
 
 class TreatmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
