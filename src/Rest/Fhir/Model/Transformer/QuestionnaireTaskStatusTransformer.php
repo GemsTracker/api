@@ -55,14 +55,14 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 $validFrom = new \MUtil_Date($row['gto_valid_from']);
             }
 
-            if (($validFrom === null || $now->isEarlier($validFrom)) && $row['gto_start_time'] === null) {
-                $data[$key]['status'] = 'draft';
-                continue;
-            }
-
             $validUntil = null;
             if ($row['gto_valid_until'] && !($row['gto_valid_until'] instanceof \MUtil_Date)) {
                 $validUntil = new \MUtil_Date($row['gto_valid_until']);
+            }
+
+            if (($validFrom === null || $now->isEarlier($validFrom)) && $row['gto_start_time'] === null && $now->isEarlier($validUntil)) {
+                $data[$key]['status'] = 'draft';
+                continue;
             }
 
             if ($row['gto_completion_time'] !== null && $row['grc_success'] == 1) {
