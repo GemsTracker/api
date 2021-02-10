@@ -60,7 +60,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 $validUntil = new \MUtil_Date($row['gto_valid_until']);
             }
 
-            if (($validFrom === null || $now->isEarlier($validFrom)) && $row['gto_start_time'] === null && $now->isEarlier($validUntil)) {
+            if (($validFrom === null || $now->isEarlier($validFrom)) && $row['gto_start_time'] === null && ($validUntil === null || $now->isEarlier($validUntil))) {
                 $data[$key]['status'] = 'draft';
                 continue;
             }
