@@ -12,6 +12,8 @@ class TemporaryAppointmentInfoTransformer extends \MUtil_Model_ModelTransformerA
 
             $admissionTime = new \DateTimeImmutable($row['gap_admission_time']);
 
+            $showDateOnly = false;
+
             // Add definitiveDate if OK appointment
             if ($row['gaa_name'] !== null && strpos($row['gaa_name'], 'OK ') === 0) {
                 $definitiveInfo = [
@@ -22,6 +24,7 @@ class TemporaryAppointmentInfoTransformer extends \MUtil_Model_ModelTransformerA
                     $definitiveTime = $admissionTime->sub(new \DateInterval('P3D'));
                     if ($definitiveTime <= new \DateTimeImmutable()) {
                         $definitiveInfo['value'] = true;
+                        $showDateOnly = true;
                     }
                 }
                 $info[] = $definitiveInfo;
@@ -51,7 +54,7 @@ class TemporaryAppointmentInfoTransformer extends \MUtil_Model_ModelTransformerA
             }
 
             // TEMPORARY CAST ADMISSION TIME WITH OR WITHOUT TIME. REMOVE MODEL POST PROCESSING
-            if (isset($definitiveInfo, $definitiveInfo['value']) && $definitiveInfo['value'] === false) {
+            if ($showDateOnly) {
                 $data[$key]['gap_admission_time'] = $admissionTime->format('Y-m-d');
                 $model->remove('gap_admission_time', $model::LOAD_TRANSFORMER);
             } else {
