@@ -162,7 +162,14 @@ class LegacyFactory implements FactoryInterface
     protected function getAcl()
     {
         $cache = $this->container->get('LegacyCache');
-        $roles = $this->loader->create('Roles', $cache);
+        $logger = $this->container->get(\Gems_Log::class);
+        //$roles = $this->loader->create('Roles', $cache, $logger);
+        try {
+            $roles = $this->loader->create('Roles', $cache);
+        } catch (\Gems_Exception $e) {
+            $logger->log($e->getMessage(), \Gems_LOg::ERR);
+        }
+
         return $roles->getAcl();
     }
 
