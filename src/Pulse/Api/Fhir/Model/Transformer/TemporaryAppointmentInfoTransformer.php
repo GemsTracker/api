@@ -24,9 +24,9 @@ class TemporaryAppointmentInfoTransformer extends \MUtil_Model_ModelTransformerA
                     $definitiveTime = $admissionTime->sub(new \DateInterval('P3D'));
                     if ($definitiveTime <= new \DateTimeImmutable()) {
                         $definitiveInfo['value'] = true;
-                        $showDateOnly = true;
                     }
                 }
+                $showDateOnly = !$definitiveInfo['value'];
                 $info[] = $definitiveInfo;
             }
 
