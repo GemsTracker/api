@@ -56,13 +56,21 @@ class QuestionnaireResponseStatusTransformer extends \MUtil_Model_ModelTransform
             }
 
             $validUntil = null;
-            $now = new \MUtil_Date;
-            if ($row['gto_valid_until'] && !($row['gto_valid_until'] instanceof \MUtil_Date)) {
-                $validUntil = new \MUtil_Date($row['gto_valid_until']);
+            $now = new \DateTimeImmutable();
+            $validUntil = null;
+            if ($row['gto_valid_until']) {
+                $validUntil = $row['gto_valid_until'];
+                if ($validUntil instanceof \MUtil_Date) {
+                    $validUntil = $validUntil->getTimestamp();
+                }
+
+                if (!$validUntil instanceof \DateTimeImmutable) {
+                    $validUntil = new \DateTimeImmutable($validUntil);
+                }
             }
 
             if ($row['gto_completion_time'] === null && $row['grc_success'] == 1 && $row['gto_start_time'] !== null) {
-                if ($now->isLater($validUntil)) {
+                if ($now > $validUntil) {
                     $data[$key]['status'] = 'stopped';
                 } else {
                     $data[$key]['status'] = 'in-progress';

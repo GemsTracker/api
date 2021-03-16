@@ -49,18 +49,33 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
         foreach($data as $key=>$row) {
-            $now = new \MUtil_Date;
+            $now = new \DateTimeImmutable();
+
             $validFrom = null;
-            if ($row['gto_valid_from'] && !($row['gto_valid_from'] instanceof \MUtil_Date)) {
-                $validFrom = new \MUtil_Date($row['gto_valid_from']);
+            if ($row['gto_valid_from']) {
+                $validFrom = $row['gto_valid_from'];
+                if ($validFrom instanceof \MUtil_Date) {
+                    $validFrom = $validFrom->getTimestamp();
+                }
+
+                if (!$validFrom instanceof \DateTimeImmutable) {
+                    $validFrom = new \DateTimeImmutable($validFrom);
+                }
             }
 
             $validUntil = null;
-            if ($row['gto_valid_until'] && !($row['gto_valid_until'] instanceof \MUtil_Date)) {
-                $validUntil = new \MUtil_Date($row['gto_valid_until']);
+            if ($row['gto_valid_until']) {
+                $validUntil = $row['gto_valid_until'];
+                if ($validUntil instanceof \MUtil_Date) {
+                    $validUntil = $validUntil->getTimestamp();
+                }
+
+                if (!$validUntil instanceof \DateTimeImmutable) {
+                    $validUntil = new \DateTimeImmutable($validUntil);
+                }
             }
 
-            if (($validFrom === null || $now->isEarlier($validFrom)) && $row['gto_start_time'] === null && ($validUntil === null || $now->isEarlier($validUntil))) {
+            if (($validFrom === null || $now > $validFrom) && $row['gto_start_time'] === null && ($validUntil === null || $now > $validUntil)) {
                 $data[$key]['status'] = 'draft';
                 continue;
             }
@@ -70,7 +85,7 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 continue;
             }
 
-            if ($validFrom && $now->isLaterOrEqual($validFrom) && ($validUntil === null || $now->isEarlier($validUntil)) && $row['grc_success'] == 1 && $row['gto_completion_time'] === null) {
+            if ($validFrom && $now >= $validFrom && ($validUntil === null || $now < $validUntil) && $row['grc_success'] == 1 && $row['gto_completion_time'] === null) {
                 if ($row['gto_start_time'] !== null) {
                     $data[$key]['status'] = 'in-progress';
                     continue;
@@ -79,12 +94,10 @@ class QuestionnaireTaskStatusTransformer extends \MUtil_Model_ModelTransformerAb
                 continue;
             }
 
-            if ($validUntil && $row['gto_completion_time'] === null && $row['grc_success'] == 1 && $now->isLater($validUntil)) {
+            if ($validUntil && $row['gto_completion_time'] === null && $row['grc_success'] == 1 && $now > $validUntil) {
                 $data[$key]['status'] = 'rejected';
                 continue;
             }
-
-
 
             $data[$key]['status'] = 'unknown';
         }
