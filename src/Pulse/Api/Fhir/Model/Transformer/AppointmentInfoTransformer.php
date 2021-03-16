@@ -37,10 +37,7 @@ class AppointmentInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
                 if ($appointmentInfo && isset($appointmentInfo['present_time'])) {
                     try {
                         $presentTime = new \DateTimeImmutable($appointmentInfo['present_time']);
-                        print_r($presentTime);
                         $presentTimeInfo['value'] = $presentTime->format(\DateTime::ATOM);
-                        print_r($presentTimeInfo);
-                        die;
                     } catch (\Exception $e) {
                     }
                 }
