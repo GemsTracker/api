@@ -33,11 +33,14 @@ class AppointmentInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
                 'value' => $admissionTime->format(\DateTime::ATOM),
             ];
             if (isset($row['gap_info'])) {
-                $appointmentInfo = json_decode($row['gap_info'], true);
+                $appointmentInfo = json_decode(trim(str_replace(['\"', '":"', '+00:00'], ['"', '": "', ''], $row['gap_info']), '"'), true);
                 if ($appointmentInfo && isset($appointmentInfo['present_time'])) {
                     try {
                         $presentTime = new \DateTimeImmutable($appointmentInfo['present_time']);
+                        print_r($presentTime);
                         $presentTimeInfo['value'] = $presentTime->format(\DateTime::ATOM);
+                        print_r($presentTimeInfo);
+                        die;
                     } catch (\Exception $e) {
                     }
                 }

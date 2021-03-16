@@ -36,7 +36,7 @@ class TemporaryAppointmentInfoTransformer extends \MUtil_Model_ModelTransformerA
                 'value' => $admissionTime->format(\DateTime::ATOM),
             ];
             if (isset($row['gap_info'])) {
-                $appointmentInfo = json_decode($row['gap_info'], true);
+                $appointmentInfo = json_decode(trim(str_replace(['\"', '":"', '+00:00'], ['"', '": "', ''], $row['gap_info']), '"'), true);
                 if ($appointmentInfo && isset($appointmentInfo['present_time'])) {
                     try {
                         $presentTime = new \DateTimeImmutable($appointmentInfo['present_time']);
@@ -62,10 +62,6 @@ class TemporaryAppointmentInfoTransformer extends \MUtil_Model_ModelTransformerA
                 $model->remove('gap_admission_time', $model::LOAD_TRANSFORMER);
             }
         }
-
-
-
-
 
         return $data;
     }
