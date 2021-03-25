@@ -199,6 +199,23 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'item',
                 ],
             ],
+            'fhir/care-plan' => [
+                'model' => CarePlanModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'resourceType',
+                    'id',
+                    'status',
+                    'intent',
+                    'title',
+                    'created',
+                    'subject',
+                    'period',
+                    'contributor',
+                    'supportingInfo',
+                    'activity',
+                ],
+            ],
             'fhir/codesystem/service-type' => [
                 'model' => ServiceTypeModel::class,
                 'methods' => ['GET'],
