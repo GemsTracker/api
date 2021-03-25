@@ -26,23 +26,23 @@ class PatientInformationFormatter
 
     public function getDisplayName()
     {
-        $displayName = null;
+        $displayNameParts = [];
 
         if (isset($this->data['grs_last_name'])) {
-            $displayName = $this->data['grs_last_name'];
+            $displayNameParts[] = $this->data['grs_last_name'];
         }
 
         if (isset($this->data['grs_surname_prefix'])) {
-            $displayName = $this->data['grs_surname_prefix'] . $displayName;
+            $displayNameParts = array_unshift($displayNameParts, $this->data['grs_surname_prefix']);
         }
 
         if (isset($this->data['grs_first_name'])) {
-            $displayName = $this->data['grs_first_name'] . $displayName;
+            $displayNameParts = array_unshift($displayNameParts, $this->data['grs_first_name']);
         } elseif (isset($this->data['grs_initials_name'])) {
-            $displayName = $this->data['grs_initials_name'] . $displayName;
+            $displayNameParts = array_unshift($displayNameParts, $this->data['grs_initials_name']);
         }
 
-        return $displayName;
+        return join(' ', $displayNameParts);
     }
 
     public function getReference()
