@@ -86,7 +86,7 @@ END'), 'status');
         $this->set('gr2t_start_date', ['label' => 'start', 'apiName' => 'start']);
         $this->set('gr2t_end_date', ['label' => 'end', 'apiName' => 'end']);
 
-        $this->set('gtr_track_name', ['label' => 'trackName', 'apiName' => 'track_name']);
+        //$this->set('gtr_track_name', ['label' => 'trackName', 'apiName' => 'track_name']);
         $this->set('gtr_code', ['label' => 'trackCode', 'apiName' => 'track_code']);
         $this->set('gtr_id_track', ['label' => 'trackId', 'apiName' => 'track_id']);
     }
