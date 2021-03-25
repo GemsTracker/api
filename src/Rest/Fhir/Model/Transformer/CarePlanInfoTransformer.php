@@ -36,6 +36,9 @@ class CarePlanInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
                         'value' => $trackFieldRow['gr2t2f_value'],
                     ];
                 }
+                if (isset($trackFieldRow['gtf_field_code'])) {
+                    $infoRow['code'] = $trackFieldRow['gtf_field_code'];
+                }
                 $info[] = $infoRow;
             }
 
