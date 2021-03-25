@@ -33,13 +33,13 @@ class PatientInformationFormatter
         }
 
         if (isset($this->data['grs_surname_prefix'])) {
-            $displayNameParts = array_unshift($displayNameParts, $this->data['grs_surname_prefix']);
+            array_unshift($displayNameParts, $this->data['grs_surname_prefix']);
         }
 
         if (isset($this->data['grs_first_name'])) {
-            $displayNameParts = array_unshift($displayNameParts, $this->data['grs_first_name']);
+            array_unshift($displayNameParts, $this->data['grs_first_name']);
         } elseif (isset($this->data['grs_initials_name'])) {
-            $displayNameParts = array_unshift($displayNameParts, $this->data['grs_initials_name']);
+            array_unshift($displayNameParts, $this->data['grs_initials_name']);
         }
 
         return join(' ', $displayNameParts);
