@@ -5,6 +5,7 @@ namespace Gems\Rest\Fhir;
 
 
 use Gems\Rest\Fhir\Model\AppointmentModel;
+use Gems\Rest\Fhir\Model\CarePlanModel;
 use Gems\Rest\Fhir\Model\EpisodeOfCareModel;
 use Gems\Rest\Fhir\Model\LocationModel;
 use Gems\Rest\Fhir\Model\OrganizationModel;
