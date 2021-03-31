@@ -39,7 +39,7 @@ class EmmaRespondentTokensControllerTest extends TestCase
 
         $response = $controller->get($request, $delegate);
 
-        $this->checkResponse($response, EmptyResponse::class, 404);
+        $this->checkResponse($response, EmptyResponse::class, 200);
     }
 
     public function testLoad()
@@ -64,11 +64,18 @@ class EmmaRespondentTokensControllerTest extends TestCase
         $urlHelperProphecy = $this->prophesize(UrlHelper::class);
         $legacyDbProphecy = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
 
+
+        $baseOrganizationProphecy = $this->prophesize(\Gems_User_Organization::class);
+        $baseOrganizationProphecy->getCode()->willReturn('test');
+        $currentUserProphecy = $this->prophesize(\Gems_User_User::class);
+        $currentUserProphecy->getBaseOrganization()->willReturn($baseOrganizationProphecy->reveal());
+
         $controller = new EmmaRespondentTokensController(
             $accesslogRepository->reveal(),
             $projectOverloaderProphecy->reveal(),
             $urlHelperProphecy->reveal(),
-            $legacyDbProphecy->reveal()
+            $legacyDbProphecy->reveal(),
+            $currentUserProphecy->reveal()
         );
 
         $modelProphecy = $this->prophesize(\Gems_Tracker_Model_StandardTokenModel::class);
