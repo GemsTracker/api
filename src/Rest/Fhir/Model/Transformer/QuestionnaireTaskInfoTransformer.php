@@ -37,6 +37,11 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
             unset($filter['track_code']);
         }
 
+        if (isset($filter['respondentTrackId'])) {
+            $filter['gto_id_respondent_track'] = $filter['respondentTrackId'];
+            unset($filter['respondentTrackId']);
+        }
+
         return $filter;
     }
 
@@ -68,6 +73,13 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
                 $info[] = [
                     'type' => 'track',
                     'value' => $row['gtr_track_name'],
+                ];
+            }
+
+            if (isset($row['gto_id_respondent_track'])) {
+                $info[] = [
+                    'type' => 'respondentTrack',
+                    'value' => $row['gto_id_respondent_track'],
                 ];
             }
 
