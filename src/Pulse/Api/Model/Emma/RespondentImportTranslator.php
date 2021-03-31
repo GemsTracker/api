@@ -240,51 +240,65 @@ class RespondentImportTranslator extends ApiModelTranslator
 
     public function translateLastNames(&$row)
     {
-        if (isset($row['last_name_order'])) {
-            switch ($row['last_name_order']) {
-                case 'surname, partner name':
-                    $row['grs_surname_prefix'] = $row['surname_prefix'];
-                    $row['grs_last_name'] = $row['last_name'];
-
-                    if (isset($row['partner_name'])) {
-                        $row['grs_last_name'] .= ' - ' . ltrim($row['partner_surname_prefix'] . ' ') . $row['partner_name'];
-                    }
-                    break;
-
-                case 'partner name, surname':
-                    if (isset($row['partner_name'])) {
-                        $row['grs_surname_prefix'] = $row['partner_surname_prefix'];
-                        $row['grs_last_name'] = $row['partner_name'];
-
-                        if ($row['last_name']) {
-                            $row['grs_last_name'] .= ' - ' . ltrim($row['surname_prefix'] . ' ') . $row['last_name'];
-                        }
-                    } else {
-                        $row['grs_surname_prefix'] = $row['surname_prefix'];
-                        $row['grs_last_name'] = $row['last_name'];
-                    }
-
-                    break;
-
-                case 'partner name':
-                    if (isset($row['partner_name'])) {
-                        $row['grs_surname_prefix'] = $row['partner_surname_prefix'];
-                        $row['grs_last_name'] = $row['partner_name'];
-                    } else {
-                        $row['grs_surname_prefix'] = $row['surname_prefix'];
-                        $row['grs_last_name'] = $row['last_name'];
-                    }
-                    break;
-
-                case 'surname':
-                default:
-                    $row['grs_surname_prefix'] = $row['surname_prefix'];
-                    $row['grs_last_name'] = $row['last_name'];
-                    break;
+        if (isset($row['grs_raw_last_name'])) {
+            if (!isset($row['grs_raw_surname_prefix'])) {
+                $row['grs_raw_surname_prefix'] = null;
             }
-        } else {
-            $row['grs_surname_prefix'] = $row['surname_prefix'];
-            $row['grs_last_name'] = $row['last_name'];
+            if (isset($row['grs_last_name_order'])) {
+                switch ($row['grs_last_name_order']) {
+                    case 'surname, partner name':
+                        $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                        $row['grs_last_name'] = $row['grs_raw_last_name'];
+
+                        if (isset($row['grs_partner_last_name'])) {
+                            if (!isset($row['grs_partner_surname_prefix'])) {
+                                $row['grs_partner_surname_prefix'] = null;
+                            }
+                            $row['grs_last_name'] .= ' - ' . ltrim($row['grs_partner_surname_prefix'] . ' ') . $row['grs_partner_last_name'];
+                        }
+                        break;
+
+                    case 'partner name, surname':
+                        if (isset($row['grs_partner_last_name'])) {
+                            if (!isset($row['grs_partner_surname_prefix'])) {
+                                $row['grs_partner_surname_prefix'] = null;
+                            }
+                            $row['grs_surname_prefix'] = $row['grs_partner_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_partner_last_name'];
+
+                            if ($row['grs_raw_last_name']) {
+                                $row['grs_last_name'] .= ' - ' . ltrim($row['grs_raw_surname_prefix'] . ' ') . $row['grs_raw_last_name'];
+                            }
+                        } else {
+                            $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_raw_last_name'];
+                        }
+
+                        break;
+
+                    case 'partner name':
+                        if (isset($row['grs_partner_last_name'])) {
+                            if (!isset($row['grs_partner_surname_prefix'])) {
+                                $row['grs_partner_surname_prefix'] = null;
+                            }
+                            $row['grs_surname_prefix'] = $row['grs_partner_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_partner_last_name'];
+                        } else {
+                            $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_raw_last_name'];
+                        }
+                        break;
+
+                    case 'surname':
+                    default:
+                        $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                        $row['grs_last_name'] = $row['grs_raw_last_name'];
+                        break;
+                }
+            } else {
+                $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                $row['grs_last_name'] = $row['grs_raw_last_name'];
+            }
         }
     }
 

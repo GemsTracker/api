@@ -18,6 +18,7 @@ class RespondentImportTranslatorTest extends TestCase
         $expectedResult = [
             'grs_iso_lang' => 'nl',
             'gr2o_readonly' => 1,
+            'grs_surname_prefix' => null,
         ];
 
         $result = $translator->translateRowOnce($testRow);
@@ -32,7 +33,8 @@ class RespondentImportTranslatorTest extends TestCase
             'grs_iso_lang' => 'nl',
             'gr2o_readonly' => 1,
             'gr2o_reception_code' => 'deceased',
-            'deceased' => true
+            'deceased' => true,
+            'grs_surname_prefix' => null
         ];
 
         $testRow = [
@@ -56,7 +58,8 @@ class RespondentImportTranslatorTest extends TestCase
             'gr2o_patient_nr' => 1,
             'grs_iso_lang' => 'nl',
             'gr2o_readonly' => 1,
-            'gr2o_email' => null
+            'gr2o_email' => null,
+            'grs_surname_prefix' => null,
         ];
 
         $result = $translator->translateRowOnce($testRow);
@@ -76,11 +79,264 @@ class RespondentImportTranslatorTest extends TestCase
             'gr2o_patient_nr' => 1,
             'grs_iso_lang' => 'nl',
             'gr2o_readonly' => 1,
-            'gr2o_email' => null
+            'gr2o_email' => null,
+            'grs_surname_prefix' => null,
         ];
 
         $result = $translator->translateRowOnce($testRow);
         $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testTranslateLastName()
+    {
+        $translator = $this->getTranslator();
+
+        $testRow = [
+            'patient_nr' => 1,
+            'last_name' => 'Janssen',
+        ];
+        $expectedResult = [
+            'grs_iso_lang' => 'nl',
+            'gr2o_readonly' => 1,
+            'grs_raw_surname_prefix' => null,
+            'grs_surname_prefix' => null,
+            'gr2o_patient_nr' => 1,
+            'grs_raw_last_name' => 'Janssen',
+            'grs_last_name' => 'Janssen',
+        ];
+
+        $result = $translator->translateRowOnce($testRow);
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testTranslateSurnamePrefix()
+    {
+        $translator = $this->getTranslator();
+
+        $testRow = [
+            'patient_nr' => 1,
+            'last_name' => 'Janssen',
+            'surname_prefix' => 'van',
+        ];
+        $expectedResult = [
+            'grs_iso_lang' => 'nl',
+            'gr2o_readonly' => 1,
+            'grs_raw_surname_prefix' => 'van',
+            'grs_surname_prefix' => 'van',
+            'gr2o_patient_nr' => 1,
+            'grs_raw_last_name' => 'Janssen',
+            'grs_last_name' => 'Janssen',
+        ];
+
+        $result = $translator->translateRowOnce($testRow);
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testTranslateNameOrderNoPartnerName()
+    {
+        $translator = $this->getTranslator();
+
+
+
+        $testRow = [
+            'patient_nr' => 1,
+            'last_name' => 'Janssen',
+            'surname_prefix' => 'van',
+            'last_name_order' => 'surname',
+        ];
+
+        $lastNameOrderOptions = [
+            'surname',
+            'surname, partner name',
+            'partner name',
+            'partner name, surname',
+            'test',
+        ];
+
+        $expectedResult = [
+            'grs_iso_lang' => 'nl',
+            'gr2o_readonly' => 1,
+            'grs_raw_surname_prefix' => 'van',
+            'grs_surname_prefix' => 'van',
+            'gr2o_patient_nr' => 1,
+            'grs_raw_last_name' => 'Janssen',
+            'grs_last_name' => 'Janssen',
+            'grs_last_name_order' => 'surname'
+        ];
+
+        foreach($lastNameOrderOptions as $lastNameOrderOption) {
+            $testRow['last_name_order'] = $lastNameOrderOption;
+            $expectedResult['grs_last_name_order'] = $lastNameOrderOption;
+
+            $result = $translator->translateRowOnce($testRow);
+            $this->assertEquals($expectedResult, $result, sprintf('last name order: %s', $lastNameOrderOption));
+        }
+    }
+
+    public function testTranslateNameOrderPartnerName()
+    {
+        $translator = $this->getTranslator();
+
+        $lastNameOrderOptions = [
+            'surname' => [
+                'grs_surname_prefix' => 'van',
+                'grs_last_name' => 'Janssen',
+            ],
+            'surname, partner name' => [
+                'grs_surname_prefix' => 'van',
+                'grs_last_name' => 'Janssen - de Jong',
+            ],
+            'partner name' => [
+                'grs_surname_prefix' => 'de',
+                'grs_last_name' => 'Jong',
+            ],
+            'partner name, surname' => [
+                'grs_surname_prefix' => 'de',
+                'grs_last_name' => 'Jong - van Janssen',
+            ],
+            'test' => [
+                'grs_surname_prefix' => 'van',
+                'grs_last_name' => 'Janssen',
+            ],
+        ];
+
+        $testRow = [
+            'patient_nr' => 1,
+            'last_name' => 'Janssen',
+            'surname_prefix' => 'van',
+            'last_name_order' => 'surname',
+            'partner_last_name' => 'Jong',
+            'partner_surname_prefix' => 'de',
+        ];
+        $expectedResult = [
+            'grs_iso_lang' => 'nl',
+            'gr2o_readonly' => 1,
+            'gr2o_patient_nr' => 1,
+            'grs_raw_last_name' => 'Janssen',
+            'grs_raw_surname_prefix' => 'van',
+            'grs_partner_last_name' => 'Jong',
+            'grs_partner_surname_prefix' => 'de',
+        ];
+
+        foreach($lastNameOrderOptions as $lastNameOrderOption => $expectedSettings) {
+            $testRow['last_name_order'] = $lastNameOrderOption;
+            $expectedResult['grs_last_name_order'] = $lastNameOrderOption;
+            $expectedResult = $expectedSettings + $expectedResult;
+
+            $result = $translator->translateRowOnce($testRow);
+            $this->assertEquals($expectedResult, $result, sprintf('last name order: %s', $lastNameOrderOption));
+        }
+    }
+
+    public function testTranslateNameOrderPartnerNameWithoutPrefix()
+    {
+        $translator = $this->getTranslator();
+
+        $lastNameOrderOptions = [
+            'surname' => [
+                'grs_surname_prefix' => 'van',
+                'grs_last_name' => 'Janssen',
+            ],
+            'surname, partner name' => [
+                'grs_surname_prefix' => 'van',
+                'grs_last_name' => 'Janssen - Jong',
+                'grs_partner_surname_prefix' => null,
+            ],
+            'partner name' => [
+                'grs_surname_prefix' => null,
+                'grs_last_name' => 'Jong',
+                'grs_partner_surname_prefix' => null,
+            ],
+            'partner name, surname' => [
+                'grs_surname_prefix' => null,
+                'grs_last_name' => 'Jong - van Janssen',
+                'grs_partner_surname_prefix' => null,
+            ],
+            'test' => [
+                'grs_surname_prefix' => 'van',
+                'grs_last_name' => 'Janssen',
+            ],
+        ];
+
+        $testRow = [
+            'patient_nr' => 1,
+            'last_name' => 'Janssen',
+            'surname_prefix' => 'van',
+            'last_name_order' => 'surname',
+            'partner_last_name' => 'Jong',
+        ];
+        $expectedBaseResult = [
+            'grs_iso_lang' => 'nl',
+            'gr2o_readonly' => 1,
+            'gr2o_patient_nr' => 1,
+            'grs_raw_last_name' => 'Janssen',
+            'grs_raw_surname_prefix' => 'van',
+            'grs_partner_last_name' => 'Jong',
+        ];
+
+        foreach($lastNameOrderOptions as $lastNameOrderOption => $expectedSettings) {
+            $testRow['last_name_order'] = $lastNameOrderOption;
+            $expectedResult = $expectedSettings + $expectedBaseResult;
+            $expectedResult['grs_last_name_order'] = $lastNameOrderOption;
+
+            $result = $translator->translateRowOnce($testRow);
+            $this->assertEquals($expectedResult, $result, sprintf('last name order: %s', $lastNameOrderOption));
+        }
+    }
+
+    public function testTranslateNameOrderPartnerNameWithoutSurnamePrefix()
+    {
+        $translator = $this->getTranslator();
+
+        $lastNameOrderOptions = [
+            'surname' => [
+                'grs_surname_prefix' => null,
+                'grs_last_name' => 'Janssen',
+            ],
+            'surname, partner name' => [
+                'grs_surname_prefix' => null,
+                'grs_last_name' => 'Janssen - Jong',
+                'grs_partner_surname_prefix' => null,
+            ],
+            'partner name' => [
+                'grs_surname_prefix' => null,
+                'grs_last_name' => 'Jong',
+                'grs_partner_surname_prefix' => null,
+            ],
+            'partner name, surname' => [
+                'grs_surname_prefix' => null,
+                'grs_last_name' => 'Jong - Janssen',
+                'grs_partner_surname_prefix' => null,
+            ],
+            'test' => [
+                'grs_surname_prefix' => null,
+                'grs_last_name' => 'Janssen',
+            ],
+        ];
+
+        $testRow = [
+            'patient_nr' => 1,
+            'last_name' => 'Janssen',
+            'last_name_order' => 'surname',
+            'partner_last_name' => 'Jong',
+        ];
+        $expectedBaseResult = [
+            'grs_iso_lang' => 'nl',
+            'gr2o_readonly' => 1,
+            'gr2o_patient_nr' => 1,
+            'grs_raw_last_name' => 'Janssen',
+            'grs_raw_surname_prefix' => null,
+            'grs_partner_last_name' => 'Jong',
+        ];
+
+        foreach($lastNameOrderOptions as $lastNameOrderOption => $expectedSettings) {
+            $testRow['last_name_order'] = $lastNameOrderOption;
+            $expectedResult = $expectedSettings + $expectedBaseResult;
+            $expectedResult['grs_last_name_order'] = $lastNameOrderOption;
+
+            $result = $translator->translateRowOnce($testRow);
+            $this->assertEquals($expectedResult, $result, sprintf('last name order: %s', $lastNameOrderOption));
+        }
     }
 
     public function testMatchRowToExistingPatientSmallSsn()
