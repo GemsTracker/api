@@ -198,8 +198,11 @@ class AccesslogRepository
         $output = [];
         while($result->valid()) {
             $row = $result->current();
-            $output[$row['gls_name']] = $row;
+            if ($row) {
+                $output[$row['gls_name']] = $row;
+            }
             $result->next();
+
         }
 
         return $output;
