@@ -67,6 +67,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->set('track', 'label', 'track');
         $this->set('track_name', 'label', 'track_name');
         $this->set('track_code', 'label', 'track_code');
+        $this->set('respondentTrackId', 'label', 'respondentTrackId');
 
         $this->set('gto_round_order', 'label', 'roundOrder', 'apiName', 'roundOrder');
 
