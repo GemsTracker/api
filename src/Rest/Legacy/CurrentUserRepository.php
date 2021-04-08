@@ -30,9 +30,9 @@ class CurrentUserRepository
     public function getCurrentUser()
     {
         if (!$this->currentUser instanceof \Gems_User_User) {
-            if ($this->loginName === null || $this->organizationId === null) {
+            /*if ($this->loginName === null || $this->organizationId === null) {
                 throw new \Exception('No user credentials set');
-            }
+            }*/
 
             $userLoader = $this->getUserLoader();
             $user = $userLoader->getUser($this->loginName, $this->organizationId);
