@@ -7,9 +7,11 @@ class Endpoints
 {
     const PREFIX = 'fhir';
 
-    const APPOINTMENT = 'fhir/appiontment/';
+    const APPOINTMENT = 'fhir/appointment/';
 
-    const EPISODE_OF_CARE = 'fhir/episode-of-care';
+    const CARE_PLAN = 'fhir/care-plan/';
+
+    const EPISODE_OF_CARE = 'fhir/episode-of-care/';
 
     const LOCATION = 'fhir/location/';
 
@@ -32,6 +34,8 @@ class Endpoints
         switch (strtolower($resourceType)) {
             case 'appointment':
                 return static::APPOINTMENT;
+            case 'careplan':
+                return static::CARE_PLAN;
             case 'episodeofcare':
                 return static::EPISODE_OF_CARE;
             case 'location':
