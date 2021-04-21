@@ -30,34 +30,34 @@ class AppointmentModel extends \Gems_Model_AppointmentModel
 
         $this->set('resourceType', 'label', 'resourceType');
 
-        $this->set('gap_id_appointment', 'label', $this->_('id'), 'apiName', 'id');
-        $this->set('gap_status', 'label', $this->_('active'), 'apiName', 'status');
-        $this->set('gap_admission_time', 'label', $this->_('start'), 'apiName', 'start');
+        $this->set('gap_id_appointment', 'label', 'id', 'apiName', 'id');
+        $this->set('gap_status', 'label', 'active', 'apiName', 'status');
+        $this->set('gap_admission_time', 'label', 'start', 'apiName', 'start');
         // Search options
-        $this->set('admission_date', 'label', $this->_('date'), 'apiName', 'date');
+        $this->set('admission_date', 'label', 'date', 'apiName', 'date');
 
-        $this->set('gap_discharge_time', 'label', $this->_('end'), 'apiName', 'end');
-        $this->set('gap_created', 'label', $this->_('created'), 'apiName', 'created');
-        $this->set('gap_subject', 'label', $this->_('comment'), 'apiName', 'comment');
-        $this->set('gap_comment', 'label', $this->_('description'), 'apiName', 'description');
+        $this->set('gap_discharge_time', 'label', 'end', 'apiName', 'end');
+        $this->set('gap_created', 'label', 'created', 'apiName', 'created');
+        $this->set('gap_subject', 'label', 'comment', 'apiName', 'comment');
+        $this->set('gap_comment', 'label', 'description', 'apiName', 'description');
 
-        $this->set('serviceType', 'label', $this->_('serviceType'));
+        $this->set('serviceType', 'label', 'serviceType');
 
-        $this->set('gap_created', 'label', $this->_('created'), 'apiName', 'created');
-        $this->set('gap_changed', 'label', $this->_('changed'), 'apiName', 'changed');
+        $this->set('gap_created', 'label', 'created', 'apiName', 'created');
+        $this->set('gap_changed', 'label', 'changed', 'apiName', 'changed');
 
         // Search options
-        $this->set('service-type', 'label', $this->_('service-type'));
-        $this->set('service-type.display', 'label', $this->_('service-type.display'));
+        $this->set('service-type', 'label', 'service-type');
+        $this->set('service-type.display', 'label', 'service-type.display');
 
-        $this->set('participant', 'label', $this->_('participant'));
+        $this->set('participant', 'label', 'participant');
         // Search options
-        $this->set('patient', 'label', $this->_('patient'));
-        $this->set('patient.email', 'label', $this->_('patient.email'));
-        $this->set('practitioner', 'label', $this->_('practitioner'));
-        $this->set('practitioner.name', 'label', $this->_('practitioner.name'));
-        $this->set('location', 'label', $this->_('location'));
-        $this->set('location.name', 'label', $this->_('location.name'));
+        $this->set('patient', 'label', 'patient');
+        $this->set('patient.email', 'label', 'patient.email');
+        $this->set('practitioner', 'label', 'practitioner');
+        $this->set('practitioner.name', 'label', 'practitioner.name');
+        $this->set('location', 'label', 'location');
+        $this->set('location.name', 'label', 'location.name');
 
 
         $this->addTransformer(new AppointmentStatusTransformer());

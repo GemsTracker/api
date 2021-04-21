@@ -37,21 +37,21 @@ class TreatmentModel extends \MUtil_Model_UnionModel
     public function afterRegistry()
     {
         $this->set('resourceType', 'label', 'resourceType');
-        $this->set('treatment_name', 'label', $this->_('title'), 'apiName', 'title');
+        $this->set('treatment_name', 'label', 'title', 'apiName', 'title');
         $this->set('treatment_start_datetime', [
-                'label' => $this->_('created'),
+                'label' => 'created',
                 'apiName' =>'created',
                 'type' => \MUtil_Model::TYPE_DATETIME,
                 'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
             ]
         );
 
-        $this->set('subject', 'label', $this->_('subject'));
-        $this->set('status', 'label', $this->_('status'));
+        $this->set('subject', 'label', 'subject');
+        $this->set('status', 'label', 'status');
 
         // Search options
-        $this->set('patient', 'label', $this->_('patient'));
-        $this->set('patient.email', 'label', $this->_('patient.email'));
+        $this->set('patient', 'label', 'patient');
+        $this->set('patient.email', 'label', 'patient.email');
     }
 
     protected function getAppointmentTreatmentModel()

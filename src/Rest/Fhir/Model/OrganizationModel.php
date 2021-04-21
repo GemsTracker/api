@@ -18,12 +18,12 @@ class OrganizationModel extends \Gems_Model_OrganizationModel
 
         $this->set('resourceType', 'label', 'resourceType');
 
-        $this->set('gor_id_organization', 'label', $this->_('id'), 'apiName', 'id');
-        $this->set('gor_active', 'label', $this->_('active'), 'apiName', 'active');
-        $this->set('gor_name', 'label', $this->_('name'), 'apiName', 'name');
-        $this->set('telecom', 'label', $this->_('telecom'));
-        $this->set('contact', 'label', $this->_('contact'));
-        $this->set('gor_code', 'label', $this->_('code'), 'apiName', 'code');
+        $this->set('gor_id_organization', 'label','id', 'apiName', 'id');
+        $this->set('gor_active', 'label','active', 'apiName', 'active');
+        $this->set('gor_name', 'label','name', 'apiName', 'name');
+        $this->set('telecom', 'label','telecom');
+        $this->set('contact', 'label','contact');
+        $this->set('gor_code', 'label','code', 'apiName', 'code');
 
         $this->addTransformer(new OrganizationTelecomTransformer());
         $this->addTransformer(new OrganizationContactTransformer());

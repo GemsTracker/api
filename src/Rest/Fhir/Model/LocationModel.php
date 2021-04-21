@@ -19,17 +19,17 @@ class LocationModel extends \Gems_Model_JoinModel
 
         $this->set('resourceType', 'label', 'resourceType');
 
-        $this->set('glo_id_location', 'label', $this->_('id'), 'apiName', 'id');
+        $this->set('glo_id_location', 'label', 'id', 'apiName', 'id');
 
-        $this->set('glo_active', 'label', $this->_('status'), 'apiName', 'status');
-        $this->set('glo_name', 'label', $this->_('name'), 'apiName', 'name');
-        $this->set('telecom', 'label', $this->_('telecom'));
+        $this->set('glo_active', 'label', 'status', 'apiName', 'status');
+        $this->set('glo_name', 'label', 'name', 'apiName', 'name');
+        $this->set('telecom', 'label', 'telecom');
 
-        $this->set('address', 'label', $this->_('address'));
+        $this->set('address', 'label', 'address');
         // Search options
-        $this->set('address-city', 'label', $this->_('address-city'));
-        $this->set('address-country', 'label', $this->_('address-country'));
-        $this->set('address-postalcode', 'label', $this->_('address-postalcode'));
+        $this->set('address-city', 'label', 'address-city');
+        $this->set('address-country', 'label', 'address-country');
+        $this->set('address-postalcode', 'label', 'address-postalcode');
 
 
 
