@@ -76,6 +76,7 @@ END'), 'status');
         $this->set('status', ['label' => 'status']);
         $this->set('period', ['label' => 'period']);
         $this->set('gtr_track_name', ['label' => 'title', 'apiName' => 'title']);
+        $this->set('gtr_code', ['label' => 'code', 'apiName' => 'code']);
         $this->set('gr2t_created', ['label' => 'created', 'apiName' => 'created']);
         $this->set('contributor', ['label' => 'contributor']);
         $this->set('supportingInfo', ['label' => 'supportingInfo']);
