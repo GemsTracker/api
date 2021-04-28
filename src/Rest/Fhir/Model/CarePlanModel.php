@@ -89,8 +89,8 @@ END'), 'status');
         //$this->set('gtr_code', ['label' => 'trackCode', 'apiName' => 'track_code']);
         $this->set('gtr_id_track', ['label' => 'trackId', 'apiName' => 'track_id']);
 
-        $this->set('patient', 'label', $this->_('patient'));
-        $this->set('patient.email', 'label', $this->_('patient.email'));
+        $this->set('patient', 'label', 'patient');
+        $this->set('patient.email', 'label', 'patient.email');
     }
 
     public function afterRegistry()
