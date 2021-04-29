@@ -64,7 +64,7 @@ class QuestionnaireItemsTransformer extends \MUtil_Model_ModelTransformerAbstrac
                             }
                             break;
                         default:
-                            $answerItem['answer']['valueString'] = $answer;
+                            $answerItem['answer']['valueString'] = str_replace('\n', "\n", $answer);
                     }
                 }
 
