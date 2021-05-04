@@ -15,6 +15,13 @@ class TreatmentInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
                     'value' => $row['pse_name'],
                 ];
             }
+            if (isset($row['gdt_id_diagnosis'])) {
+                $info[] = [
+                    'type' => 'diagnosis',
+                    'id' => (int)$row['gdt_id_diagnosis'],
+                    'value' => $row['gdt_diagnosis_name'],
+                ];
+            }
 
             if (count($info)) {
                 $data[$key]['info'] = $info;

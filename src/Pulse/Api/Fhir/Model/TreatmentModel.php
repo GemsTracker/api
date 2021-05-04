@@ -41,9 +41,9 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addLeftTable(['treatmentSedationTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentSedationTrackField.gr2t2f_id_respondent_track', 'treatmentSedationTrackField.gr2t2f_id_field' => 'treatmentSedationField.gtf_id_field'], 'gr2t2f', false);
         $this->addLeftTable('pulse__sedations', ['treatmentSedationTrackField.gr2t2f_value' => 'pse_id_sedation'], 'pse', false);
 
-        //$this->addLeftTable(['treatmentSedationTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentSedationTrackField.gr2t2f_id_respondent_track'], 'gr2t2f', false);
-        //$this->addLeftTable(['treatmentSedationField' => 'gems__track_fields'], ['treatmentSedationTrackField.gr2t2f_id_field' => 'treatmentSedationField.gtf_id_field', 'treatmentSedationField.gtf_field_type' => new \Zend_Db_Expr('\'sedation\'')], 'gr2t2f', false);
-        //$this->addLeftTable('pulse__sedations', ['treatmentSedationTrackField.gr2t2f_value' => 'pse_id_sedation'], 'pse', false);
+        $this->addLeftTable(['diagnosisField' => 'gems__track_fields'], ['gr2t_id_track' => 'diagnosisField.gtf_id_track', 'diagnosisField.gtf_field_type' => new \Zend_Db_Expr('\'diagnosis\'')], 'gr2t2f', false);
+        $this->addLeftTable(['diagnosisTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'diagnosisTrackField.gr2t2f_id_respondent_track', 'diagnosisTrackField.gr2t2f_id_field' => 'diagnosisField.gtf_id_field'], 'gr2t2f', false);
+        $this->addLeftTable('gems__diagnosis2track', ['diagnosisTrackField.gr2t2f_value' => 'gdt_id_diagnosis'], 'gdt', false);
 
         $this->addColumn(new \Zend_Db_Expr('\'Treatment\''), 'resourceType');
         $this->addColumn(new \Zend_Db_Expr('CONCAT(\'RT\',gr2t_id_respondent_track)'), 'id');
