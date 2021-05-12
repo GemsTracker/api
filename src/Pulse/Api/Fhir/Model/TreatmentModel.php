@@ -32,7 +32,7 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addTable('gems__respondent2track', ['gr2t_id_user' => 'gr2o_id_user', 'gr2t_id_organization' => 'gr2o_id_organization'], 'gr2t', false);
         $this->addTable('gems__reception_codes', ['gr2t_reception_code' => 'grc_id_reception_code'], 'rc', false);
 
-        $this->addTable(['treatmentField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentField.gtf_field_type' => new \Zend_Db_Expr('\'treatment\'')], 'gr2t2f', false);
+        $this->addTable(['treatmentField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentField.gtf_field_type IN (\'treatment\', \'treatmentDiagnosis\')'], 'gr2t2f', false);
         $this->addTable(['treatmentTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentTrackField.gr2t2f_id_respondent_track', 'treatmentTrackField.gr2t2f_id_field' => 'treatmentField.gtf_id_field'], 'gr2t2f', false);
         $this->addTable('gems__treatments', ['treatmentTrackField.gr2t2f_value' => 'gtrt_id_treatment'], 'gtrt', false);
 
