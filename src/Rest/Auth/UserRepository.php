@@ -31,11 +31,11 @@ class UserRepository extends EntityRepositoryAbstract implements UserRepositoryI
         }
 
         // Check password
-        if (strpos($password, 'key:') === 0 && class_exists('\LoginByKey\User\UserLoginByKeyRepository')) {
-            $password = ltrim($password, 'key:');
+        if (strpos($password, 'key:') === 0 && class_exists('\Gems\LoginByKey\User\UserLoginByKeyRepository')) {
+            $password = substr($password, 4);
             $result = $user->authenticate($password, false);
             if ($result->isValid()) {
-                $userLoginByKeyRepository = new \LoginByKey\User\UserLoginByKeyRepository();
+                $userLoginByKeyRepository = new \Gems\LoginByKey\User\UserLoginByKeyRepository();
                 $legacyLoader->applySource($userLoginByKeyRepository);
                 if (!$userLoginByKeyRepository->authenticateByLoginKey($password)) {
                     return null;
