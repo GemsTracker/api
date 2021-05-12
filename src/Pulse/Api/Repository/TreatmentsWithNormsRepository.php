@@ -24,21 +24,16 @@ class TreatmentsWithNormsRepository
         $select = $sql->select();
 
         $select
-            ->from('pulse__treatments')
-            ->columns(['ptr_id_treatment', 'ptr_name'])
-            ->join('pulse__treatment2outcomevariable', 'ptr_id_treatment = pt2o_id_treatment', [])
+            ->from('gems__treatments')
+            ->columns(['gtrt_id_treatment', 'gtrt_name'])
+            ->join('pulse__treatment2outcomevariable', 'gtrt_id_treatment = pt2o_id_treatment', [])
             ->join('gems__norms','gno_survey_id = pt2o_id_survey AND gno_answer_code = pt2o_question_code AND ' . $treatmentField . ' = pt2o_id_treatment', [])
             ->where([
-                'ptr_active' => 1,
+                'gtrt_active' => 1,
                 'pt2o_active' => 1,
             ])
             ->group('pt2o_id_treatment')
-            ->order('ptr_name')
-            ->where->isNull('ptr_duplicate_of');
-
-        if (isset($params['ptr_id_organization'])) {
-            $select->where(['ptr_id_organization' => $params['ptr_id_organization']]);
-        }
+            ->order('gtrt_name');
 
         $test = $select->getSqlString($this->db->getPlatform());
 

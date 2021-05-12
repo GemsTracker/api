@@ -171,8 +171,8 @@ class TreatmentEpisodesRepository
     {
         $sql = new Sql($this->db);
         $select = $sql->select();
-        $select->from('pulse__treatments')
-            ->where(['ptr_id_treatment' => $treatmentId, 'ptr_active' => 1]);
+        $select->from('gems__treatments')
+            ->where(['gtrt_id_treatment' => $treatmentId, 'gtrt_active' => 1]);
 
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();

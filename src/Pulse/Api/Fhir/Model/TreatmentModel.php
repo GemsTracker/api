@@ -31,8 +31,11 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addTable('gems__respondents', ['gr2o_id_user' => 'grs_id_user'], 'grs', false);
         $this->addTable('gems__respondent2track', ['gr2t_id_user' => 'gr2o_id_user', 'gr2t_id_organization' => 'gr2o_id_organization'], 'gr2t', false);
         $this->addTable('gems__reception_codes', ['gr2t_reception_code' => 'grc_id_reception_code'], 'rc', false);
-        $this->addTable('pulse__respondent2track2treatment', ['pr2t2t_id_respondent_track' => 'gr2t_id_respondent_track'], 'pr2t2t', false);
-        $this->addTable('pulse__treatments', ['pr2t2t_id_treatment' => 'ptr_id_treatment', 'ptr_name != \'- algemeen -\''], 'ptr', false);
+
+        $this->addTable(['treatmentField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentField.gtf_field_type' => new \Zend_Db_Expr('\'treatment\'')], 'gr2t2f', false);
+        $this->addTable(['treatmentTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentTrackField.gr2t2f_id_respondent_track', 'treatmentTrackField.gr2t2f_id_field' => 'treatmentField.gtf_id_field'], 'gr2t2f', false);
+        $this->addTable('gems__treatments', ['treatmentTrackField.gr2t2f_value' => 'gtrt_id_treatment'], 'gtrt', false);
+
         $this->addLeftTable('gems__track_appointments', ['gtap_id_track' => 'gr2t_id_track', 'gtap_field_code' => new \Zend_Db_Expr('\'treatmentAppointment\'')], 'gtap', false);
         $this->addLeftTable('gems__respondent2track2appointment', ['gr2t2a_id_app_field' => 'gtap_id_app_field', 'gr2t2a_id_respondent_track' => 'gr2t_id_respondent_track'], 'gr2t2a', false);
         $this->addLeftTable('gems__appointments', ['gr2t2a_id_appointment' => 'gap_id_appointment'], 'gap', false);
@@ -47,8 +50,8 @@ class TreatmentModel extends \Gems_Model_JoinModel
 
         $this->addColumn(new \Zend_Db_Expr('\'Treatment\''), 'resourceType');
         $this->addColumn(new \Zend_Db_Expr('CONCAT(\'RT\',gr2t_id_respondent_track)'), 'id');
-        $this->addColumn(new \Zend_Db_Expr('ptr_name'), 'treatment_name');
-        $this->addColumn(new \Zend_Db_Expr('ptr_id_treatment'), 'treatment_id');
+        $this->addColumn(new \Zend_Db_Expr('gtrt_name'), 'treatment_name');
+        $this->addColumn(new \Zend_Db_Expr('gtrt_id_treatment'), 'treatment_id');
         $this->addColumn(new \Zend_Db_Expr('
 CASE 
     WHEN gap_id_appointment THEN gap_admission_time 
@@ -75,7 +78,6 @@ CASE
     WHEN gr2t_reception_code = \'mistake\' THEN \'entered-in-error\' 
     ELSE \'unknown\' 
 END'), 'status');
-        $this->addColumn(new \Zend_Db_Expr('ptr_code'),'treatment_code');
 
         $this->addTransformer(new PatientReferenceTransformer('subject'));
         $this->addTransformer(new TreatmentIdTransformer());
