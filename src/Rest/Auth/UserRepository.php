@@ -22,17 +22,32 @@ class UserRepository extends EntityRepositoryAbstract implements UserRepositoryI
         $container = $this->loader->getServiceManager();
         $legacyLoader = $container->get('LegacyLoader');
         $userLoader = $legacyLoader->getUserLoader();
+
         $user = $userLoader->getUser($username, $organizationId);
 
         if (!$user instanceof \Gems_User_User) {
             //throw new \Exception('No user found');
-            return;
+            return null;
         }
+
         // Check password
-        $result = $user->authenticate($password);
+        if (strpos($password, 'key:') === 0 && class_exists('\LoginByKey\User\UserLoginByKeyRepository')) {
+            $password = ltrim($password, 'key:');
+            $result = $user->authenticate($password, false);
+            if ($result->isValid()) {
+                $userLoginByKeyRepository = new \LoginByKey\User\UserLoginByKeyRepository();
+                $legacyLoader->applySource($userLoginByKeyRepository);
+                if (!$userLoginByKeyRepository->authenticateByLoginKey($password)) {
+                    return null;
+                }
+            }
+        } else {
+            $result = $user->authenticate($password);
+        }
+
         if (!$result->isValid()) {
             //throw new \Exception('User could not be authenticated');
-            return;
+            return null;
         }
 
         // Check if this user is allowed to use this grant
