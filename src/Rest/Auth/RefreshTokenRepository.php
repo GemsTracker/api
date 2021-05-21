@@ -21,9 +21,9 @@ class RefreshTokenRepository extends EntityRepositoryAbstract implements Refresh
      * @param $data
      * @return array filtered data
      */
-    protected function filterDataForSave($data)
+    protected function filterDataForSave($data, $new)
     {
-        $data = parent::filterDataForSave($data);
+        $data = parent::filterDataForSave($data, $new);
 
         foreach($data as $key=>$value) {
             if ($value instanceof AccessTokenEntityInterface) {

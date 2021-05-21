@@ -71,9 +71,10 @@ class EntityRepositoryAbstract
      * Filter data before saving
      *
      * @param $data
+     * @param $new bool new or updated
      * @return array filtered data
      */
-    protected function filterDataForSave($data)
+    protected function filterDataForSave($data, $new)
     {
         $data = $this->checkDataColumns($data);
 
@@ -262,7 +263,7 @@ class EntityRepositoryAbstract
             }
         }
 
-        $data = $this->filterDataForSave($data);
+        $data = $this->filterDataForSave($data, !$update);
 
         $sql = new Sql($this->db);
 

@@ -18,9 +18,9 @@ class AuthCodeRepository extends EntityRepositoryAbstract implements AuthCodeRep
 
     //protected $nonPersistColumns = ['redirect'];
 
-    protected function filterDataForSave($data)
+    protected function filterDataForSave($data, $new)
     {
-        $data = parent::filterDataForSave($data);
+        $data = parent::filterDataForSave($data, $new);
 
         if (isset($data['scopes'])) {
             $scopeNames = [];

@@ -17,9 +17,9 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
 
     protected $table = 'gems__oauth_access_tokens';
 
-    protected function filterDataForSave($data)
+    protected function filterDataForSave($data, $new)
     {
-        $data = parent::filterDataForSave($data);
+        $data = parent::filterDataForSave($data, $new);
 
         if (isset($data['scopes']) && is_array($data['scopes'])) {
             $scopeNames = [];
@@ -35,6 +35,19 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
 
         if (isset($data['client_id']) && $data['client_id'] instanceof ClientEntityInterface) {
             $data['client_id'] = $data['client_id']->getIdentifier();
+        }
+
+        if (isset($data['user_id'])) {
+            $userIds = explode('@', $data['user_id']);
+            $userId = $userIds[0];
+        }
+
+        $data['changed_by'] = $userId;
+
+        if ($new) {
+            $now = new \DateTimeImmutable();
+            $data['created'] = $now->format('Y-m-d H:i:s');
+            $data['created_by'] = $userId;
         }
 
         return $data;
