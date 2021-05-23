@@ -5,6 +5,7 @@ namespace Pulse\Api\Fhir\Model;
 
 
 use Gems\Rest\Fhir\Model\Transformer\PatientReferenceTransformer;
+use Pulse\Api\Fhir\Model\Transformer\PrefixedTreatmentInfoTransformer;
 use Pulse\Api\Fhir\Model\Transformer\TreatmentIdTransformer;
 use Pulse\Api\Fhir\Model\Transformer\TreatmentInfoTransformer;
 use Pulse\Api\Fhir\Model\Transformer\TreatmentStatusTransformer;
@@ -82,7 +83,7 @@ END'), 'status');
         $this->addTransformer(new PatientReferenceTransformer('subject'));
         $this->addTransformer(new TreatmentIdTransformer());
         $this->addTransformer(new TreatmentStatusTransformer(self::RESPONDENTTRACKMODEL));
-        $this->addTransformer(new TreatmentInfoTransformer());
+        $this->addTransformer(new PrefixedTreatmentInfoTransformer());
 
         $this->set('treatment_start_datetime', [
                 'type' => \MUtil_Model::TYPE_DATETIME,
