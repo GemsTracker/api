@@ -40,14 +40,13 @@ class AccessTokenRepository extends EntityRepositoryAbstract implements AccessTo
         if (isset($data['user_id'])) {
             $userIds = explode('@', $data['user_id']);
             $userId = $userIds[0];
-        }
-
-        $data['changed_by'] = $userId;
-
-        if ($new) {
-            $now = new \DateTimeImmutable();
-            $data['created'] = $now->format('Y-m-d H:i:s');
-            $data['created_by'] = $userId;
+            $data['changed_by'] = $userId;
+            
+            if ($new) {
+                $now = new \DateTimeImmutable();
+                $data['created'] = $now->format('Y-m-d H:i:s');
+                $data['created_by'] = $userId;
+            }
         }
 
         return $data;
