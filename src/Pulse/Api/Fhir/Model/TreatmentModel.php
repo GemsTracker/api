@@ -80,10 +80,7 @@ CASE
     ELSE \'unknown\' 
 END'), 'status');
 
-        $this->addTransformer(new PatientReferenceTransformer('subject'));
-        $this->addTransformer(new TreatmentIdTransformer());
-        $this->addTransformer(new TreatmentStatusTransformer(self::RESPONDENTTRACKMODEL));
-        $this->addTransformer(new PrefixedTreatmentInfoTransformer());
+        $this->addTransformers();
 
         $this->set('treatment_start_datetime', [
                 'type' => \MUtil_Model::TYPE_DATETIME,
@@ -93,6 +90,14 @@ END'), 'status');
 
         $this->setOnSave('treatment_start_datetime', [$this, 'formatSaveDate']);
         $this->setOnLoad('treatment_start_datetime', [$this, 'formatLoadDate']);
+    }
+
+    protected function addTransformers()
+    {
+        $this->addTransformer(new PatientReferenceTransformer('subject'));
+        $this->addTransformer(new TreatmentIdTransformer());
+        $this->addTransformer(new TreatmentStatusTransformer(self::RESPONDENTTRACKMODEL));
+        $this->addTransformer(new TreatmentInfoTransformer());
     }
 
     public function afterRegistry()
