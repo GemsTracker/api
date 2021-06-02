@@ -145,8 +145,8 @@ class TreatmentEpisodesRepository
 
                 if (!empty($treatment)) {
                     $this->treatmentTrackValues['treatment'] = [
-                        'id' => $treatment['ptr_id_treatment'],
-                        'ptr_name' => $treatment['ptr_name'],
+                        'id' => $treatment['gtrt_id_treatment'],
+                        'name' => $treatment['gtrt_name'],
                     ];
                 }
 
