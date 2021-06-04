@@ -10,8 +10,8 @@ class ServiceTypeModel extends \Gems_Model_JoinModel
     {
         parent::__construct('serviceType', 'gems__agenda_activities', 'gaa', false);
 
-        $this->set('gaa_id_activity', 'label', $this->_('code'), 'apiName', 'code');
-        $this->set('gaa_name', 'label', $this->_('display'), 'apiName', 'display');
+        $this->set('gaa_id_activity', 'label','code', 'apiName', 'code');
+        $this->set('gaa_name', 'label','display', 'apiName', 'display');
 
     }
 }

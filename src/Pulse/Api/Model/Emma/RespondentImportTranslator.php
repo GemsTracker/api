@@ -36,9 +36,16 @@ class RespondentImportTranslator extends ApiModelTranslator
     public $translations = [
         "grs_initials_name" => "initials_name",
         "grs_first_name" => "first_name",
-        "grs_last_name" => "last_name",
+        "grs_raw_last_name" => "last_name",
+        "grs_partner_last_name" => "partner_last_name",
+
+        "grs_raw_surname_prefix" => "surname_prefix",
+        "grs_partner_surname_prefix" => "partner_surname_prefix",
+        "grs_last_name_order" => "last_name_order",
+
         "grs_ssn" => "ssn",
-        "grs_surname_prefix" => "surname_prefix",
+
+
         "grs_gender" => "gender",
         "grs_birthday" => "birthday",
         "grs_address_1" => "address",
@@ -231,11 +238,77 @@ class RespondentImportTranslator extends ApiModelTranslator
         return $row;
     }
 
+    public function translateLastNames(&$row)
+    {
+        if (isset($row['grs_raw_last_name'])) {
+            if (!isset($row['grs_raw_surname_prefix'])) {
+                $row['grs_raw_surname_prefix'] = null;
+            }
+            if (isset($row['grs_last_name_order'])) {
+                switch ($row['grs_last_name_order']) {
+                    case 'surname, partner name':
+                        $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                        $row['grs_last_name'] = $row['grs_raw_last_name'];
+
+                        if (isset($row['grs_partner_last_name'])) {
+                            if (!isset($row['grs_partner_surname_prefix'])) {
+                                $row['grs_partner_surname_prefix'] = null;
+                            }
+                            $row['grs_last_name'] .= ' - ' . ltrim($row['grs_partner_surname_prefix'] . ' ') . $row['grs_partner_last_name'];
+                        }
+                        break;
+
+                    case 'partner name, surname':
+                        if (isset($row['grs_partner_last_name'])) {
+                            if (!isset($row['grs_partner_surname_prefix'])) {
+                                $row['grs_partner_surname_prefix'] = null;
+                            }
+                            $row['grs_surname_prefix'] = $row['grs_partner_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_partner_last_name'];
+
+                            if ($row['grs_raw_last_name']) {
+                                $row['grs_last_name'] .= ' - ' . ltrim($row['grs_raw_surname_prefix'] . ' ') . $row['grs_raw_last_name'];
+                            }
+                        } else {
+                            $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_raw_last_name'];
+                        }
+
+                        break;
+
+                    case 'partner name':
+                        if (isset($row['grs_partner_last_name'])) {
+                            if (!isset($row['grs_partner_surname_prefix'])) {
+                                $row['grs_partner_surname_prefix'] = null;
+                            }
+                            $row['grs_surname_prefix'] = $row['grs_partner_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_partner_last_name'];
+                        } else {
+                            $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                            $row['grs_last_name'] = $row['grs_raw_last_name'];
+                        }
+                        break;
+
+                    case 'surname':
+                    default:
+                        $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                        $row['grs_last_name'] = $row['grs_raw_last_name'];
+                        break;
+                }
+            } else {
+                $row['grs_surname_prefix'] = $row['grs_raw_surname_prefix'];
+                $row['grs_last_name'] = $row['grs_raw_last_name'];
+            }
+        }
+    }
+
     public function translateRowOnce($row)
     {
         $row = parent::translateRow($row, true);
         $row['grs_iso_lang'] = 'nl';
         $row['gr2o_readonly'] = 1;
+
+        $this->translateLastNames($row);
 
         if (isset($row['deceased']) && $row['deceased'] === true) {
             $row['gr2o_reception_code'] = 'deceased';

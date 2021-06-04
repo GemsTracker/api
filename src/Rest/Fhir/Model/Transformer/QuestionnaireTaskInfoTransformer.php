@@ -3,6 +3,8 @@
 namespace Gems\Rest\Fhir\Model\Transformer;
 
 
+use Gems\Rest\Fhir\Endpoints;
+
 class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     /**
@@ -37,6 +39,16 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
             unset($filter['track_code']);
         }
 
+        if (isset($filter['carePlan'])) {
+            $filter['gto_id_respondent_track'] = $filter['carePlan'];
+            unset($filter['carePlan']);
+        }
+
+        if (isset($filter['respondentTrackId'])) {
+            $filter['gto_id_respondent_track'] = $filter['respondentTrackId'];
+            unset($filter['respondentTrackId']);
+        }
+
         return $filter;
     }
 
@@ -68,6 +80,15 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
                 $info[] = [
                     'type' => 'track',
                     'value' => $row['gtr_track_name'],
+                ];
+            }
+
+            if (isset($row['gto_id_respondent_track'])) {
+                $info[] = [
+                    'type' => 'CarePlan',
+                    'id' => $row['gto_id_respondent_track'],
+                    'reference' => Endpoints::CARE_PLAN . $row['gto_id_respondent_track'],
+                    'display' => $row['gtr_track_name'],
                 ];
             }
 

@@ -37,9 +37,9 @@ class RelatedPersonModel extends \MUtil_Model_JoinModel
         $this->set('gender', 'label', 'gender');
         $this->set('grr_birthdate', 'label', 'birthdate', 'apiKey', 'birthdate');
 
-        $this->set('family', 'label', $this->_('family'));
-        $this->set('given', 'label', $this->_('given'));
-        $this->set('email', 'label', $this->_('email'));
+        $this->set('family', 'label', 'family');
+        $this->set('given', 'label', 'given');
+        $this->set('email', 'label', 'email');
 
 
         $this->addTransformer(new BooleanTransformer(['grr_active']));

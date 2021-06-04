@@ -24,36 +24,50 @@ class PatientModel extends \Gems_Model_RespondentModel
 
         $this->set('resourceType', 'label', 'resourceType');
 
-        $this->set('id', 'label', $this->_('id'));
-        $this->set('grc_success', 'label', $this->_('active'), 'apiName', 'active');
-        $this->set('gender', 'label', $this->_('gender'));
-        $this->set('grs_birthday', 'label', $this->_('birthDate'), 'apiName', 'birthDate');
+        $this->set('id', 'label', 'id');
+        $this->set('grc_success', 'label', 'active', 'apiName', 'active');
+        $this->set('gender', 'label', 'gender');
+        $this->set('grs_birthday', 'label', 'birthDate', 'apiName', 'birthDate');
 
-        $this->set('name', 'label', $this->_('name'));
-        $this->set('gr2o_created', 'label', $this->_('created'), 'apiName', 'created');
-        $this->set('gr2o_changed', 'label', $this->_('changed'), 'apiName', 'changed');
+        $this->set('name', 'label', 'name');
+        $this->set('gr2o_created', 'label', 'created', 'apiName', 'created');
+        $this->set('gr2o_changed', 'label', 'changed', 'apiName', 'changed');
 
         // search options
-        $this->set('family', 'label', $this->_('name'));
-        $this->set('given', 'label', $this->_('name'));
+        $this->set('family', 'label', 'name');
+        $this->set('given', 'label', 'name');
 
 
 
-        $this->set('telecom', 'label', $this->_('telecom'));
+        $this->set('telecom', 'label', 'telecom');
         // search options
-        $this->set('email', 'label', $this->_('email'));
-        $this->set('phone', 'label', $this->_('phone'));
+        $this->set('email', 'label', 'email');
+        $this->set('phone', 'label', 'phone');
 
-        $this->set('managingOrganization', 'label', $this->_('managingOrganization'));
+        $this->set('managingOrganization', 'label', 'managingOrganization');
         // search options
-        $this->set('organization', 'label', $this->_('organization'));
-        $this->set('organization_name', 'label', $this->_('organization_name'));
-        $this->set('organization_code', 'label', $this->_('organization_code'));
+        $this->set('organization', 'label', 'organization');
+        $this->set('organization_name', 'label', 'organization_name');
+        $this->set('organization_code', 'label', 'organization_code');
 
         $this->addTransformer(new PatientHumanNameTransformer());
         $this->addTransformer(new PatientTelecomTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gr2o_id_organization', true));
         $this->addTransformer(new BooleanTransformer(['grc_success']));
+    }
 
+    /**
+     * Calculates the total number of items in a model result with certain filters
+     *
+     * @param array $filter Filter array, num keys contain fixed expresions, text keys are equal or one of filters
+     * @param array $sort Sort array field name => sort type
+     * @return integer number of total items in model result
+     * @throws \Zend_Db_Select_Exception
+     */
+    public function getItemCount($filter = true, $sort = true)
+    {
+        $count = parent::getItemCount($filter, $sort);
+
+        return $count;
     }
 }

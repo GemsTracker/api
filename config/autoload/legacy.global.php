@@ -19,6 +19,7 @@ return [
             EventDispatcher::class => LegacyFactory::class,
             Gems_Model::class => LegacyFactory::class,
             'LegacyCurrentUser' => LegacyFactory::class,
+            'LegacySource' => LegacyFactory::class,
             Zend_Acl::class => LegacyFactory::class,
             Zend_Locale::class => LegacyFactory::class,
             Zend_Session_Namespace::class => LegacyFactory::class,

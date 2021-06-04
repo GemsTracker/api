@@ -166,7 +166,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'fhir/questionnaire-task' => [
                 'model' => QuestionnaireTaskModel::class,
-                'methods' => ['GET'],
+                'methods' => ['GET', 'PATCH'],
                 'allowed_fields' => [
                     'resourceType',
                     'id',
@@ -209,6 +209,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'status',
                     'intent',
                     'title',
+                    'code',
                     'created',
                     'subject',
                     'period',

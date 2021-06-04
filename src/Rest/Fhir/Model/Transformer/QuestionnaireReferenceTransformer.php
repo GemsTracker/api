@@ -80,6 +80,9 @@ class QuestionnaireReferenceTransformer extends \MUtil_Model_ModelTransformerAbs
                 if (isset($row['gsu_survey_name'])) {
                     $questionnaireReference['display'] = $row['gsu_survey_name'];
                 }
+                if (isset($row['gsu_code'])) {
+                    $questionnaireReference['code'] = $row['gsu_code'];
+                }
 
                 $data[$key][$this->field] = $questionnaireReference;
             }

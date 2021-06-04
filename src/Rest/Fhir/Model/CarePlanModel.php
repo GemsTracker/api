@@ -52,22 +52,20 @@ class CarePlanModel extends \Gems_Model_JoinModel
             'gor',
             false
         );
+        $this->addTable('gems__reception_codes',
+            [
+                'gr2t_reception_code' => 'grc_id_reception_code',
+            ],
+            'grc',
+            false
+        );
 
         $this->addColumn(new \Zend_Db_Expr('\'CarePlan\''), 'resourceType');
         $this->addColumn(new \Zend_Db_Expr('\'intent\''), 'order');
         $this->addColumn(new \Zend_Db_Expr('
 CASE 
-    WHEN gr2t_completed >= gr2t_count THEN \'completed\' 
-    WHEN gr2t_end_date <= NOW() THEN \'completed\' 
     WHEN gr2t_reception_code = \'OK\' THEN \'active\' 
     WHEN gr2t_reception_code = \'retract\' THEN \'revoked\' 
-    WHEN gr2t_reception_code = \'stop\' THEN \'revoked\' 
-    WHEN gr2t_reception_code = \'refused\' THEN \'revoked\' 
-    WHEN gr2t_reception_code = \'misdiag\' THEN \'revoked\' 
-    WHEN gr2t_reception_code = \'diagchange\' THEN \'revoked\' 
-    WHEN gr2t_reception_code = \'agenda_cancelled\' THEN \'revoked\' 
-    WHEN gr2t_reception_code = \'incap\' THEN \'revoked\' 
-    WHEN gr2t_reception_code = \'mistake\' THEN \'entered-in-error\' 
     ELSE \'unknown\' 
 END'), 'status');
 
@@ -78,6 +76,7 @@ END'), 'status');
         $this->set('status', ['label' => 'status']);
         $this->set('period', ['label' => 'period']);
         $this->set('gtr_track_name', ['label' => 'title', 'apiName' => 'title']);
+        $this->set('gtr_code', ['label' => 'code', 'apiName' => 'code']);
         $this->set('gr2t_created', ['label' => 'created', 'apiName' => 'created']);
         $this->set('contributor', ['label' => 'contributor']);
         $this->set('supportingInfo', ['label' => 'supportingInfo']);
@@ -87,8 +86,11 @@ END'), 'status');
         $this->set('gr2t_end_date', ['label' => 'end', 'apiName' => 'end']);
 
         //$this->set('gtr_track_name', ['label' => 'trackName', 'apiName' => 'track_name']);
-        $this->set('gtr_code', ['label' => 'trackCode', 'apiName' => 'track_code']);
+        //$this->set('gtr_code', ['label' => 'trackCode', 'apiName' => 'track_code']);
         $this->set('gtr_id_track', ['label' => 'trackId', 'apiName' => 'track_id']);
+
+        $this->set('patient', 'label', 'patient');
+        $this->set('patient.email', 'label', 'patient.email');
     }
 
     public function afterRegistry()

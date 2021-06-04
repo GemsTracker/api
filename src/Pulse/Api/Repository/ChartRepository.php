@@ -640,10 +640,10 @@ class ChartRepository
     {
         $sql = new Sql($this->db);
         $select = $sql->select();
-        $select->from('pulse__treatments', ['ptr_name'])
+        $select->from('gems__treatments', ['gtrt_name'])
             ->where([
-                'ptr_id_treatment' => $treatmentId,
-                'ptr_active' => 1
+                'gtrt_id_treatment' => $treatmentId,
+                'gtrt_active' => 1
             ]);
 
         $statement = $sql->prepareStatementForSqlObject($select);
@@ -651,8 +651,8 @@ class ChartRepository
 
         $row = $result->current();
 
-        if ($row && $row['ptr_name']) {
-            return $row['ptr_name'];
+        if ($row && $row['gtrt_name']) {
+            return $row['gtrt_name'];
         }
 
         return null;

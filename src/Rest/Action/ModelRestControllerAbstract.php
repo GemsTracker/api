@@ -306,6 +306,16 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     }
 
     /**
+     * Get the allowed filter fields, null if all is allowed
+     *
+     * @return null|string[]
+     */
+    protected function getAllowedFilterFields()
+    {
+        return $this->model->getItemNames();
+    }
+
+    /**
      * Get the api column names translations if they are set
      *
      * @param bool $reverse return the reversed translations
@@ -462,7 +472,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
 
         $keywords = array_flip($keywords);
 
-        $itemNames = array_flip($this->model->getItemNames());
+        $allowedFilterFields = $this->getAllowedFilterFields();
+
         $translations = $this->getApiNames(true);
 
         $filters = [];
@@ -497,7 +508,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 $colName = $translations[$key];
             }
 
-            if (isset($itemNames[$colName])) {
+            if ($allowedFilterFields === null || in_array($colName, $allowedFilterFields)) {
                 if (is_string($value) || is_numeric($value)) {
                     if (strpos($value, '[') === 0 && strpos($value, ']') === strlen($value) - 1) {
                         $values = explode(',', str_replace(['[', ']'], '', $value));

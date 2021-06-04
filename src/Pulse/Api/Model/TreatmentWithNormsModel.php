@@ -6,9 +6,9 @@ class TreatmentWithNormsModel extends \Gems_Model_JoinModel
 {
     public function __construct()
     {
-        parent::__construct('treatment-with-norms','pulse__treatments', 'ptr', false);
+        parent::__construct('treatment-with-norms','gems__treatments', 'gtrt', false);
         $this->addTable('pulse__treatment2outcomevariable',
-            ['ptr_id_treatment' => 'pt2o_id_treatment']
+            ['gtrt_id_treatment' => 'pt2o_id_treatment']
         );
         $this->addTable('gems__norms',
             [

@@ -3,6 +3,7 @@
 namespace Pulse\Api\Fhir;
 
 
+use Pulse\Api\Fhir\Model\PrefixedCodeTreatmentModel;
 use Pulse\Api\Fhir\Model\TemporaryAppointmentModel;
 use Pulse\Api\Fhir\Model\TreatmentModel;
 use Pulse\Api\Fhir\Model\AppointmentModel;
@@ -57,6 +58,23 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
 
         $restModels['fhir/treatment'] =[
             'model' => TreatmentModel::class,
+            'methods' => ['GET'],
+            'allowed_fields' => [
+                'resourceType',
+                'id',
+                'subject',
+                'code',
+                'title',
+                'created',
+                'status',
+                'info',
+            ],
+            'idField' => 'id',
+            'idFieldRegex' => '[A-Za-z0-9]+',
+        ];
+
+        $restModels['fhir/prefixed-treatment'] =[
+            'model' => PrefixedCodeTreatmentModel::class,
             'methods' => ['GET'],
             'allowed_fields' => [
                 'resourceType',

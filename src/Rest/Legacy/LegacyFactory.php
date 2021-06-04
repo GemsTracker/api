@@ -82,6 +82,8 @@ class LegacyFactory implements FactoryInterface
             case EventDispatcher::class:
                 return new EventDispatcher();
                 break;
+            case 'LegacySource':
+                return new \Gems\Rest\Legacy\ServiceManagerRegistrySource($container);
 
             case ProjectSettings::class:
                 $project = $this->getProjectSettings();

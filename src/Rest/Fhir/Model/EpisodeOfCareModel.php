@@ -36,11 +36,11 @@ class EpisodeOfCareModel extends \Gems_Model_JoinModel
 
         $this->addColumn('gap_admission_time', 'admission_date');*/
 
-        $this->set('gec_episode_of_care_id', 'label', $this->_('id'), 'apiName', 'id');
-        $this->set('gec_status', 'label', $this->_('status'), 'apiName', 'status');
-        $this->set('patient', 'label', $this->_('patient'), 'apiName', 'patient');
-        $this->set('period', 'label', $this->_('period'), 'apiName', 'period');
-        $this->set('managingOrganization', 'label', $this->_('managingOrganization'), 'apiName', 'managingOrganization');
+        $this->set('gec_episode_of_care_id', 'label', 'id', 'apiName', 'id');
+        $this->set('gec_status', 'label', 'status', 'apiName', 'status');
+        $this->set('patient', 'label', 'patient', 'apiName', 'patient');
+        $this->set('period', 'label', 'period', 'apiName', 'period');
+        $this->set('managingOrganization', 'label', 'managingOrganization', 'apiName', 'managingOrganization');
 
         $jsonType = new JsonData(10);
         $jsonType->apply($this, 'gec_diagnosis_data', false);
