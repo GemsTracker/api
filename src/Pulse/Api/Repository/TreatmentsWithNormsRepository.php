@@ -25,7 +25,7 @@ class TreatmentsWithNormsRepository
 
         $select
             ->from('gems__treatments')
-            ->columns(['gtrt_id_treatment', 'gtrt_name'])
+            ->columns(['id' => 'gtrt_id_treatment', 'name' => 'gtrt_name'])
             ->join('pulse__treatment2outcomevariable', 'gtrt_id_treatment = pt2o_id_treatment', [])
             ->join('gems__norms','gno_survey_id = pt2o_id_survey AND gno_answer_code = pt2o_question_code AND ' . $treatmentField . ' = pt2o_id_treatment', [])
             ->where([
