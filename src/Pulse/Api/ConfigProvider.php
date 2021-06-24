@@ -487,10 +487,16 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'name',
                     'treatmentId',
                     'surveyId',
+                    'graph',
+                    'questionCode',
+                    'order',
                     'pt2o_id',
                     'pt2o_name',
                     'pt2o_id_treatment',
                     'pt2o_id_survey',
+                    'pt2o_graph',
+                    'pt2o_question_code',
+                    'pt2o_order',
                 ]
             ],
             'survey-answer-info' => [
