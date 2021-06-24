@@ -8,6 +8,7 @@ use Gems\Rest\Log\Formatter\SimpleMulti;
 
 use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Gems\Rest\RestModelConfigProviderAbstract;
+use Gems\SurveyAnswerInfo\Model\SurveyAnswerInfoModel;
 use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
@@ -37,6 +38,7 @@ use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
+use Pulse\Api\Model\OutcomeVariableModel;
 use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
@@ -475,14 +477,28 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
             ],
             'outcome-variables' => [
-                'model' => 'Model\\OutcomeVariableModel',
+                'model' => OutcomeVariableModel::class,
                 'methods' => ['GET'],
+                'applySettings' => [
+                    'applySettings',
+                ],
                 'allowed_fields' => [
+                    'id',
+                    'name',
+                    'treatmentId',
+                    'surveyId',
                     'pt2o_id',
                     'pt2o_name',
                     'pt2o_id_treatment',
-                    'pt2o_id_survey'
+                    'pt2o_id_survey',
                 ]
+            ],
+            'survey-answer-info' => [
+                'model' => SurveyAnswerInfoModel::class,
+                'methods' => ['GET'],
+                'applySettings' => [
+                    'applyBrowseSettings',
+                ],
             ],
             /*'treatments-with-norms' => [
                 'model' => TreatmentWithNormsModel::class,
