@@ -32,7 +32,9 @@
         "laminas/laminas-permissions-acl": "^2.7",
         "laminas/laminas-servicemanager": "^3.3",
         "laminas/laminas-stdlib": "^3.1",
-        "lcobucci/jwt": "3.3.3"
+        "lcobucci/jwt": "3.3.3",
+        "jvangestel/data-set-mapper": "dev-master",
+        "jvangestel/gems-reference-data": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.0.8 || ^5.7.15",
@@ -100,6 +102,14 @@
         {
             "type": "git",
             "url": "https://github.com/MagnaFacta/zalt-soap.git"
+        {
+            "type": "git",
+            "url": "https://github.com/jvangestel/gems-reference-data.git"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/jvangestel/data-set-mapper.git"
+        },
         }
     ]
 }
