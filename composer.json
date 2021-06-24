@@ -51,7 +51,8 @@
             "Gems\\Rest\\": "src/Rest/",
             "Gems\\Legacy\\": "src/Gems/Legacy/",
             "Prediction\\": "src/Prediction/",
-            "Pulse\\Api\\": "src/Pulse/Api/"
+            "Pulse\\Api\\": "src/Pulse/Api/",
+            "Gems\\ReferenceData\\": "src/ReferenceData"
         }
     },
     "autoload-dev": {
