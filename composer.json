@@ -52,6 +52,7 @@
             "Gems\\Legacy\\": "src/Gems/Legacy/",
             "Prediction\\": "src/Prediction/",
             "Pulse\\Api\\": "src/Pulse/Api/",
+            "Gems\\DataSetMapper\\": "src/DataSetMapper",
             "Gems\\ReferenceData\\": "src/ReferenceData"
         }
     },
