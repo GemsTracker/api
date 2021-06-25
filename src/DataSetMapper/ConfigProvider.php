@@ -130,32 +130,32 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
         $routes = [
             [
-                'name' => 'api.data-collection/calculated-data',
-                'path' => '/data-collection/calculated-data/[{collectionId:[a-zA-Z0-9-_]+}]',
+                'name' => 'api.data-set/calculated-data',
+                'path' => '/data-set/calculated-data/[{collectionId:[a-zA-Z0-9-_]+}]',
                 'middleware' => $this->getCustomActionMiddleware(CalculatedDataAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.data-collection/data',
-                'path' => '/data-collection/data/[{collectionId:[a-zA-Z0-9-_]+}]',
+                'name' => 'api.data-set/data',
+                'path' => '/data-set/data/[{collectionId:[a-zA-Z0-9-_]+}]',
                 'middleware' => $this->getCustomActionMiddleware(DataAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.data-collection/respondents',
-                'path' => '/data-collection/respondents',
+                'name' => 'api.data-set/respondents',
+                'path' => '/data-set/respondents',
                 'middleware' => $this->getCustomActionMiddleware(RespondentAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.data-collection/track-fields',
-                'path' => '/data-collection/track-fields/{trackId:\d+}',
+                'name' => 'api.data-set/track-fields',
+                'path' => '/data-set/track-fields/{trackId:\d+}',
                 'middleware' => $this->getCustomActionMiddleware(TrackFieldAction::class),
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'api.data-collection/survey-questions',
-                'path' => '/data-collection/survey-questions/{surveyId:\d+}',
+                'name' => 'api.data-set/survey-questions',
+                'path' => '/data-set/survey-questions/{surveyId:\d+}',
                 'middleware' => $this->getCustomActionMiddleware(SurveyQuestions::class),
                 'allowed_methods' => ['GET'],
             ],
