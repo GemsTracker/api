@@ -53,7 +53,8 @@
             "Prediction\\": "src/Prediction/",
             "Pulse\\Api\\": "src/Pulse/Api/",
             "Gems\\DataSetMapper\\": "src/DataSetMapper",
-            "Gems\\ReferenceData\\": "src/ReferenceData"
+            "Gems\\ReferenceData\\": "src/ReferenceData",
+            "Ichom\\": "src/Ichom"
         }
     },
     "autoload-dev": {
