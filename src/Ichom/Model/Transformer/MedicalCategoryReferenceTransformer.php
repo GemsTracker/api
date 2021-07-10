@@ -15,6 +15,16 @@ class MedicalCategoryReferenceTransformer extends \MUtil_Model_ModelTransformerA
         $this->medicalCategoryIdField = $medicalCategoryIdField;
     }
 
+    public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
+    {
+        if (isset($filter['medicalCategory'])) {
+            $filter[$this->medicalCategoryIdField] = $filter['medicalCategory'];
+            unset($filter['medicalCategory']);
+        }
+
+        return $filter;
+    }
+
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
         foreach($data as $rowIndex=>$row) {
