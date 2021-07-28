@@ -13,8 +13,30 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
     protected $currentUri;
 
     public function __construct($currentUri = null)
+    /**
+     * @var \Zend_Db_Adapter_Abstract
+     */
+    protected $db;
+    /**
+     * @var array|null
+     */
+    protected $respondentTrackReceptionCodes;
     {
         $this->currentUri = $currentUri;
+    }
+
+    protected function getRespondentTrackReceptionCodes()
+    {
+        if (!$this->respondentTrackReceptionCodes) {
+            $select = $this->db->select();
+            $select->from('gems__reception_codes', ['grc_id_reception_code' => 'grc_success'])
+                ->where('grc_for_tracks = 1')
+                ->where('grc_active = 1');
+
+            $this->respondentTrackReceptionCodes = $this->db->fetchPairs($select);
+        }
+
+        return $this->respondentTrackReceptionCodes;
     }
 
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
@@ -50,7 +72,14 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
         }
 
         if (isset($filter['carePlanSuccess'])) {
-            $filter['respondentTrackSuccess'] = (int)$filter['carePlanSuccess'];
+            $receptionCodes = $this->getRespondentTrackReceptionCodes();
+            $expectedStatus = (int)$filter['carePlanSuccess'];
+
+            $filteredReceptionCodes = array_filter($receptionCodes, function($value, $key) use ($expectedStatus) {
+                return $value == $expectedStatus;
+            });
+
+            $filter['gr2t_reception_code'] = array_keys($filteredReceptionCodes);
             unset($filter['carePlanSuccess']);
         }
 
@@ -94,13 +123,6 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
                     'id' => $row['gto_id_respondent_track'],
                     'reference' => Endpoints::CARE_PLAN . $row['gto_id_respondent_track'],
                     'display' => $row['gtr_track_name'],
-                ];
-            }
-
-            if (isset($row['respondentTrackSuccess'])) {
-                $info[] = [
-                    'type' => 'carePlanSuccess',
-                    'value' => (bool)$row['respondentTrackSuccess'],
                 ];
             }
 

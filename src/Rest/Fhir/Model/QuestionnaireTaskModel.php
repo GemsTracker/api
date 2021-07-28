@@ -37,8 +37,6 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->addColumn(new \Zend_Db_Expr('\'routine\''), 'priority');
         $this->addColumn(new \Zend_Db_Expr('\'order\''), 'intent');
 
-        $this->addColumn('(SELECT grc_success as respondentTrackSuccess FROM gems__reception_codes WHERE grc_id_reception_code = gr2t_reception_code)', 'respondentTrackSuccess');
-
         $this->set('resourceType', 'label', 'resourceType');
         $this->set('gto_id_token', 'label', 'id', 'apiName', 'id');
         $this->set('status', 'label', 'status', 'apiName', 'status');
