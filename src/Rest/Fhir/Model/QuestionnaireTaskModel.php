@@ -14,6 +14,10 @@ use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskStatusTransformer;
 class QuestionnaireTaskModel extends \Gems_Model_JoinModel
 {
     /**
+     * @var \Zend_Db_Adapter_Abstract
+     */
+    protected $db;
+    /**
      * @var \Gems_Util
      */
     public $util;
@@ -88,7 +92,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->addTransformer(new QuestionnaireOwnerTransformer());
         $this->addTransformer(new QuestionnaireTaskForTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gto_id_organization', true));
-        $this->addTransformer(new QuestionnaireTaskInfoTransformer($currentUri));
+        $this->addTransformer(new QuestionnaireTaskInfoTransformer($this->db, $currentUri));
         $this->addTransformer(new QuestionnaireReferenceTransformer('focus'));
     }
 }

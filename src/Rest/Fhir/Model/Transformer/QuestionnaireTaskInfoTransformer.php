@@ -21,8 +21,9 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
      */
     protected $respondentTrackReceptionCodes;
 
-    public function __construct($currentUri = null)
+    public function __construct(\Zend_Db_Adapter_Abstract $db, $currentUri = null)
     {
+        $this->db = $db;
         $this->currentUri = $currentUri;
     }
 
