@@ -49,6 +49,11 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
             unset($filter['respondentTrackId']);
         }
 
+        if (isset($filter['carePlanSuccess'])) {
+            $filter['respondentTrackSuccess'] = (int)$filter['carePlanSuccess'];
+            unset($filter['carePlanSuccess']);
+        }
+
         return $filter;
     }
 
@@ -89,6 +94,13 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
                     'id' => $row['gto_id_respondent_track'],
                     'reference' => Endpoints::CARE_PLAN . $row['gto_id_respondent_track'],
                     'display' => $row['gtr_track_name'],
+                ];
+            }
+
+            if (isset($row['respondentTrackSuccess'])) {
+                $info[] = [
+                    'type' => 'carePlanSuccess',
+                    'value' => (bool)$row['respondentTrackSuccess'],
                 ];
             }
 

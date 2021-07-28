@@ -182,6 +182,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'managingOrganization',
                     'focus',
                     'info',
+                    'carePlanSuccess',
                 ],
             ],
             'fhir/questionnaire-response' => [

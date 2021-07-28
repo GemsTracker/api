@@ -22,6 +22,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
     {
         parent::__construct('questionairetasks', 'gems__tokens', 'gto', true);
         $this->addTable('gems__respondent2org', ['gr2o_id_user' => 'gto_id_respondent', 'gr2o_id_organization' => 'gto_id_organization']);
+        $this->addTable('gems__respondent2track', ['gto_id_respondent_track' => 'gr2t_id_respondent_track']);
         $this->addTable('gems__reception_codes', ['gto_reception_code' => 'grc_id_reception_code']);
         $this->addTable('gems__surveys', ['gto_id_survey' => 'gsu_id_survey']);
         $this->addTable('gems__tracks', ['gto_id_track' => 'gtr_id_track']);
@@ -35,6 +36,8 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->addColumn(new \Zend_Db_Expr('\'QuestionnaireTask\''), 'resourceType');
         $this->addColumn(new \Zend_Db_Expr('\'routine\''), 'priority');
         $this->addColumn(new \Zend_Db_Expr('\'order\''), 'intent');
+
+        $this->addColumn('(SELECT grc_success as respondentTrackSuccess FROM gems__reception_codes WHERE grc_id_reception_code = gr2t_reception_code)', 'respondentTrackSuccess');
 
         $this->set('resourceType', 'label', 'resourceType');
         $this->set('gto_id_token', 'label', 'id', 'apiName', 'id');
