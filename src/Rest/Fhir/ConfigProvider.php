@@ -167,6 +167,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'fhir/questionnaire-task' => [
                 'model' => QuestionnaireTaskModel::class,
                 'methods' => ['GET', 'PATCH'],
+                'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
                 'allowed_fields' => [
                     'resourceType',
                     'id',
@@ -183,6 +184,15 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'focus',
                     'info',
                     'carePlanSuccess',
+                ],
+                'allowed_save_fields' => [
+                    'executionPeriod',
+                    'status',
+                    'gto_id_token',
+                    'gto_id_respondent_track',
+                    'gto_id_round',
+                    'gto_id_track',
+                    'gto_id_survey',
                 ],
             ],
             'fhir/questionnaire-response' => [
