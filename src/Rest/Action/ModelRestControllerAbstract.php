@@ -741,7 +741,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     public function getStructure()
     {
         if (!$this->structure) {
-            $columns = $this->model->getItemNames();
+            $columns = $this->model->getItemsOrdered();
 
             $translations = $this->getApiNames();
 
@@ -832,6 +832,12 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                     $structure[$columnLabel]['name'] = $columnLabel;
                 }
             }
+
+            $usedColumns = array_keys($structure);
+
+            $columns = $this->filterColumns($usedColumns, false, false);
+            $structure = array_intersect_key($structure, array_flip($columns));
+
             $this->structure = $structure;
         }
 
