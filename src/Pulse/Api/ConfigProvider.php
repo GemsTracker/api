@@ -485,6 +485,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_fields' => [
                     'id',
                     'name',
+                    'diagnosisId',
                     'treatmentId',
                     'surveyId',
                     'graph',
