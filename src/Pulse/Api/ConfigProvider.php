@@ -34,6 +34,7 @@ use Pulse\Api\Action\TokenController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
+use Pulse\Api\Model\DossierTemplatesModel;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
@@ -511,6 +512,23 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => TreatmentWithNormsModel::class,
                 'methods' => ['GET'],
             ],*/
+            'dossier-templates' => [
+                'model' => DossierTemplatesModel::class,
+                'methods' => ['GET', 'POST', 'PATCH'],
+                'applySettings' => [
+                    'applyApiSettings'
+                ],
+                'allowed_fields' => [
+                    'id',
+                    'name',
+                    'dataSet',
+                    'medicalCategory',
+                    'diagnosis',
+                    'treatment',
+                    'active',
+                    'template',
+                ],
+            ],
         ];
     }
 
