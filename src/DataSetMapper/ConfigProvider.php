@@ -100,13 +100,13 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => DataSetMappingModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
-                    'gdcm_data_collection_id',
-                    'gdcm_name',
-                    'gdcm_required',
-                    'gdcm_type',
-                    'gdcm_type_id',
-                    'gdcm_type_sub_id',
-                    'gdcm_custom_mapping',
+                    'gdsm_data_collection_id',
+                    'gdsm_name',
+                    'gdsm_required',
+                    'gdsm_type',
+                    'gdsm_type_id',
+                    'gdsm_type_sub_id',
+                    'gdsm_custom_mapping',
                 ]
             ],
             'data-collection/data-collection-model-with-mapping' => [
