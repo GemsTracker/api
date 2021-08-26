@@ -754,19 +754,23 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 'type',
                 'multiOptions',
                 'default',
+                'elementClass',
+                'multiOptionSettings',
+                'disable',
             ];
 
-            $structure = [];
+            $translatedColumns = [];
 
-            $columns = $this->filterColumns($columns, false, false);
-
-            foreach ($columns as $columnName) {
-
+            foreach($columns as $columnName) {
                 $columnLabel = $columnName;
                 if (isset($translations[$columnName]) && !empty($translations[$columnName])) {
                     $columnLabel = $translations[$columnName];
                 }
+                $translatedColumns[$columnName] = $columnLabel;
+            }
+            $columns = $this->filterColumns($translatedColumns, false, false);
 
+            foreach ($columns as $columnName => $columnLabel) {
                 foreach ($structureAttributes as $attributeName) {
                     if ($this->model->has($columnName, $attributeName)) {
 
