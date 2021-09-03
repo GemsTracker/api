@@ -40,6 +40,7 @@ use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
 use Pulse\Api\Model\OutcomeVariableModel;
+use Pulse\Api\Model\RespondentDossierTemplatesModel;
 use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
@@ -529,6 +530,22 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'template',
                 ],
             ],
+            'respondent-dossier-templates' => [
+                'model' => RespondentDossierTemplatesModel::class,
+                'methods' => ['GET'],
+                'applySettings' => [
+                    'applyBrowseSettings',
+                    'applyDetailSettings',
+                ],
+                'allowed_fields' => [
+                    'id',
+                    'trackName',
+                    'trackInfo',
+                    'trackStartDate',
+                    'hasTemplate',
+                    'dossierTemplate',
+                ]
+            ]
         ];
     }
 
