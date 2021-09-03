@@ -757,6 +757,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 'elementClass',
                 'multiOptionSettings',
                 'disable',
+                'raw',
             ];
 
             $translatedColumns = [];
