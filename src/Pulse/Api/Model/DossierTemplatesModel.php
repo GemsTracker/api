@@ -189,6 +189,7 @@ class DossierTemplatesModel extends \Gems_Model_JoinModel
             'label' => $this->_('Template'),
             'elementClass' => 'DossierTemplate',
             'apiName' => 'template',
+            'raw' => true,
         ]);
 
         $this->addTransformer(new BooleanTransformer(['gdot_active']));
