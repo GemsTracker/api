@@ -517,7 +517,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => DossierTemplatesModel::class,
                 'methods' => ['GET', 'POST', 'PATCH'],
                 'applySettings' => [
-                    'applyApiSettings'
+                    'applyApiSettings',
+                    'applyDiagnosesTreatments',
                 ],
                 'allowed_fields' => [
                     'id',
@@ -528,6 +529,21 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'treatment',
                     'active',
                     'template',
+                ],
+                'allowed_save_fields' => [
+                    'id',
+                    'name',
+                    'dataSet',
+                    'medicalCategory',
+                    'diagnosis',
+                    'treatment',
+                    'active',
+                    'template',
+                    'gdot_id_dossier_template',
+                    'gdot_name',
+                    'gdot_id_data_set',
+                    'gdot_active',
+                    'gdot_template',
                 ],
             ],
             'respondent-dossier-templates' => [
