@@ -3,6 +3,7 @@
 
 namespace Gems\DataSetMapper\Action;
 
+use Gems\DataSetMapper\Exception\DataSetMissingDataException;
 use Gems\DataSetMapper\Repository\DataSetRepository;
 use Prediction\Communication\R\PlumberClient;
 use Gems\Rest\Exception\RestException;
@@ -52,8 +53,11 @@ class DataAction implements MiddlewareInterface
                 $params
             );
             //$data = $this->dataCollectionRepository->getPredicationDataInputModel(1, '800101-A001', 70, 1);
-        } catch(RestException $e) {
-            return $e->generateHttpResponse(new JsonResponse(null));
+        } catch(DataSetMissingDataException $e) {
+            return new JsonResponse([
+               'error' => $e->getMessage(),
+               'messages' => $e->getErrors(),
+            ], 400);
         }
 
         return new JsonResponse($data);
