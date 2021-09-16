@@ -87,9 +87,12 @@ class TreatmentEpisodesRepository
         }
 
         $treatmentEpisode = [
-            'gte_id_episode' => $treatmentTrack['gr2t_id_respondent_track'],
+            'gte_id_episode' => null,
             'tracks' => $tracks,
         ];
+        if ($treatmentTrack && isset($treatmentTrack['gr2t_id_respondent_track'])) {
+            $treatmentEpisode['gte_id_episode'] = $treatmentTrack['gr2t_id_respondent_track'];
+        }
 
         $treatmentEpisode = array_merge($treatmentEpisode, $this->treatmentTrackValues);
 

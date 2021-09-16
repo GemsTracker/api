@@ -23,13 +23,16 @@ class SimpleMulti extends Simple
     public function format($event)
     {
         foreach ($event as $key => $value) {
+            if ($key == 'extra' && is_array($value)) {
+                continue;
+            }
             $event[$key] = $this->normalize($value);
         }
 
         $output = $this->format;
 
         foreach ($event as $name => $value) {
-            if ('extra' == $name && count($value)) {
+            if ('extra' == $name && is_array($value) && count($value)) {
                 $value = $this->normalize($value);
             } elseif ('extra' == $name) {
                 // Don't print an empty array
