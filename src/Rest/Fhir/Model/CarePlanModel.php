@@ -64,7 +64,7 @@ class CarePlanModel extends \Gems_Model_JoinModel
         $this->addColumn(new \Zend_Db_Expr('\'intent\''), 'order');
         $this->addColumn(new \Zend_Db_Expr('
 CASE 
-    WHEN gr2t_reception_code = \'OK\' THEN \'active\' 
+    WHEN grc_success = 1 THEN \'active\' 
     WHEN gr2t_reception_code = \'retract\' THEN \'revoked\' 
     ELSE \'unknown\' 
 END'), 'status');

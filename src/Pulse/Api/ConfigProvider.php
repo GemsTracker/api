@@ -8,6 +8,7 @@ use Gems\Rest\Log\Formatter\SimpleMulti;
 
 use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Gems\Rest\RestModelConfigProviderAbstract;
+use Gems\SurveyAnswerInfo\Model\SurveyAnswerInfoModel;
 use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
@@ -33,10 +34,13 @@ use Pulse\Api\Action\TokenController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
+use Pulse\Api\Model\DossierTemplatesModel;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
+use Pulse\Api\Model\OutcomeVariableModel;
+use Pulse\Api\Model\RespondentDossierTemplatesModel;
 use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
 use Pulse\Api\Repository\ChartRepository;
@@ -475,19 +479,89 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
             ],
             'outcome-variables' => [
-                'model' => 'Model\\OutcomeVariableModel',
+                'model' => OutcomeVariableModel::class,
                 'methods' => ['GET'],
+                'applySettings' => [
+                    'applySettings',
+                ],
                 'allowed_fields' => [
+                    'id',
+                    'name',
+                    'diagnosisId',
+                    'treatmentId',
+                    'surveyId',
+                    'graph',
+                    'questionCode',
+                    'order',
                     'pt2o_id',
                     'pt2o_name',
                     'pt2o_id_treatment',
-                    'pt2o_id_survey'
+                    'pt2o_id_survey',
+                    'pt2o_graph',
+                    'pt2o_question_code',
+                    'pt2o_order',
                 ]
+            ],
+            'survey-answer-info' => [
+                'model' => SurveyAnswerInfoModel::class,
+                'methods' => ['GET'],
+                'applySettings' => [
+                    'applyBrowseSettings',
+                ],
             ],
             /*'treatments-with-norms' => [
                 'model' => TreatmentWithNormsModel::class,
                 'methods' => ['GET'],
             ],*/
+            'dossier-templates' => [
+                'model' => DossierTemplatesModel::class,
+                'methods' => ['GET', 'POST', 'PATCH'],
+                'applySettings' => [
+                    'applyApiSettings',
+                    'applyDiagnosesTreatments',
+                ],
+                'allowed_fields' => [
+                    'id',
+                    'name',
+                    'dataSet',
+                    'medicalCategory',
+                    'diagnosis',
+                    'treatment',
+                    'active',
+                    'template',
+                ],
+                'allowed_save_fields' => [
+                    'id',
+                    'name',
+                    'dataSet',
+                    'medicalCategory',
+                    'diagnosis',
+                    'treatment',
+                    'active',
+                    'template',
+                    'gdot_id_dossier_template',
+                    'gdot_name',
+                    'gdot_id_data_set',
+                    'gdot_active',
+                    'gdot_template',
+                ],
+            ],
+            'respondent-dossier-templates' => [
+                'model' => RespondentDossierTemplatesModel::class,
+                'methods' => ['GET'],
+                'applySettings' => [
+                    'applyBrowseSettings',
+                    'applyDetailSettings',
+                ],
+                'allowed_fields' => [
+                    'id',
+                    'trackName',
+                    'trackInfo',
+                    'trackStartDate',
+                    'hasTemplate',
+                    'dossierTemplate',
+                ]
+            ]
         ];
     }
 

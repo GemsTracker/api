@@ -741,7 +741,7 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
     public function getStructure()
     {
         if (!$this->structure) {
-            $columns = $this->model->getItemNames();
+            $columns = $this->model->getItemsOrdered();
 
             $translations = $this->getApiNames();
 
@@ -754,19 +754,24 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                 'type',
                 'multiOptions',
                 'default',
+                'elementClass',
+                'multiOptionSettings',
+                'disable',
+                'raw',
             ];
 
-            $structure = [];
+            $translatedColumns = [];
 
-            $columns = $this->filterColumns($columns, false, false);
-
-            foreach ($columns as $columnName) {
-
+            foreach($columns as $columnName) {
                 $columnLabel = $columnName;
                 if (isset($translations[$columnName]) && !empty($translations[$columnName])) {
                     $columnLabel = $translations[$columnName];
                 }
+                $translatedColumns[$columnName] = $columnLabel;
+            }
+            $columns = $this->filterColumns($translatedColumns, false, false);
 
+            foreach ($columns as $columnName => $columnLabel) {
                 foreach ($structureAttributes as $attributeName) {
                     if ($this->model->has($columnName, $attributeName)) {
 
@@ -832,6 +837,12 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
                     $structure[$columnLabel]['name'] = $columnLabel;
                 }
             }
+
+            $usedColumns = array_keys($structure);
+
+            $columns = $this->filterColumns($usedColumns, false, false);
+            $structure = array_intersect_key($structure, array_flip($columns));
+
             $this->structure = $structure;
         }
 

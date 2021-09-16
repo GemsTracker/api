@@ -36,6 +36,11 @@ class InsertTrackTokenController extends RestControllerAbstract
     ];
 
     /**
+     * @var \Gems_User_User
+     */
+    protected $currentUser;
+
+    /**
      * @var Adapter
      */
     protected $db;
@@ -50,11 +55,23 @@ class InsertTrackTokenController extends RestControllerAbstract
      */
     protected $tracker;
 
-    public function __construct(\Gems_Tracker $tracker, UrlHelper $helper, Adapter $db)
+    protected $fieldTranslations = [
+        'respondentTrackId' => 'gto_id_respondent_track',
+        'surveyId' => 'gto_id_survey',
+        'roundDescription' => 'gto_round_description',
+        'validFrom' => 'gto_valid_from',
+        'validUntil' => 'gto_valid_until',
+        'comment' => 'gto_comment',
+        'roundOrder' => 'gto_round_order',
+    ];
+
+    public function __construct(\Gems_Tracker $tracker, UrlHelper $helper, Adapter $db, $currentUser)
     {
+        $this->currentUser = $currentUser;
         $this->db = $db;
         $this->helper = $helper;
         $this->tracker = $tracker;
+
     }
 
     /**
@@ -79,18 +96,32 @@ class InsertTrackTokenController extends RestControllerAbstract
 
         $tokenData = json_decode($request->getBody()->getContents(), true);
 
+        foreach($tokenData as $field=>$value) {
+            if (isset($this->fieldTranslations[$field])) {
+                $tokenData[$this->fieldTranslations[$field]] = $value;
+                unset($tokenData[$field]);
+            }
+        }
+
         if (!isset($tokenData['gto_id_respondent_track'])) {
             throw new RestException('No respondent track ID supplied', 400, 'missing_data');
         }
 
-        $tokenData['gto_id_round']          = '0';
-        $tokenData['gto_round_order']       = $this->getNextRoundOrder($tokenData);
+        if (!isset($tokenData['gto_id_survey'])) {
+            throw new RestException('No survey ID supplied', 400, 'missing_data');
+        }
+
+
+        if (!isset($tokenData['gto_round_order'])) {
+            $tokenData['gto_id_round']    = '0';
+            $tokenData['gto_round_order'] = $this->getNextRoundOrder($tokenData);
+        }
 
 
         $respondentTrack = $this->tracker->getRespondentTrack($tokenData['gto_id_respondent_track']);
         $surveyId = $tokenData['gto_id_survey'];
 
-        $userId = 0;
+        $userId = $this->currentUser->getUserId();
         $token = $respondentTrack->addSurveyToTrack($surveyId, $tokenData, $userId);
 
         $link = null;

@@ -41,7 +41,7 @@ class QuestionnaireItemsTransformer extends \MUtil_Model_ModelTransformerAbstrac
 
                     $display = $surveyInformation[$key]['answers'][$answer];
                     if (is_numeric($display)) {
-                        if (is_int($display)) {
+                        if ((int)$display == $display) {
                             $display = (int)$display;
                         } else {
                             $display = (float)$display;
@@ -54,13 +54,13 @@ class QuestionnaireItemsTransformer extends \MUtil_Model_ModelTransformerAbstrac
                         'system' => null, // Should reference a place to view the answer options
                     ];
                 } else {
-
                     switch ($surveyInformation[$key]['type']) {
                         case 'N':
-                            if (is_int($answer)) {
-                                $answerItem['answer']['valueDecimal'] = (int)$answer;
+                        case 'K':
+                            if ((int)$answer == $answer) {
+                                $answerItem['answer']['valueInteger'] = (int)$answer;
                             } else {
-                                $answerItem['answer']['valueInteger'] = (float)$answer;
+                                $answerItem['answer']['valueDecimal'] = (float)$answer;
                             }
                             break;
                         default:

@@ -51,6 +51,7 @@ return [
             'LegacyUserLoader' => Gems_User_UserLoader::class,
             'LegacyCache' => Zend_Cache::class,
             'LegacyView' => Zend_View::class,
+            'LegacyOverLoader' => \Zalt\Loader\ProjectOverloader::class,
         ],
     ],
     'routes' => [

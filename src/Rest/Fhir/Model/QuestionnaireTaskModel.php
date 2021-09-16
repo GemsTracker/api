@@ -14,6 +14,10 @@ use Gems\Rest\Fhir\Model\Transformer\QuestionnaireTaskStatusTransformer;
 class QuestionnaireTaskModel extends \Gems_Model_JoinModel
 {
     /**
+     * @var \Zend_Db_Adapter_Abstract
+     */
+    protected $db;
+    /**
      * @var \Gems_Util
      */
     public $util;
@@ -22,6 +26,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
     {
         parent::__construct('questionairetasks', 'gems__tokens', 'gto', true);
         $this->addTable('gems__respondent2org', ['gr2o_id_user' => 'gto_id_respondent', 'gr2o_id_organization' => 'gto_id_organization']);
+        $this->addTable('gems__respondent2track', ['gto_id_respondent_track' => 'gr2t_id_respondent_track']);
         $this->addTable('gems__reception_codes', ['gto_reception_code' => 'grc_id_reception_code']);
         $this->addTable('gems__surveys', ['gto_id_survey' => 'gsu_id_survey']);
         $this->addTable('gems__tracks', ['gto_id_track' => 'gtr_id_track']);
@@ -68,6 +73,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->set('track_name', 'label', 'track_name');
         $this->set('track_code', 'label', 'track_code');
         $this->set('carePlan', 'label', 'carePlan');
+        $this->set('carePlanSuccess', 'label', 'carePlanSuccess');
         $this->set('respondentTrackId', 'label', 'respondentTrackId');
 
         $this->set('gto_round_order', 'label', 'roundOrder', 'apiName', 'roundOrder');
@@ -86,7 +92,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->addTransformer(new QuestionnaireOwnerTransformer());
         $this->addTransformer(new QuestionnaireTaskForTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gto_id_organization', true));
-        $this->addTransformer(new QuestionnaireTaskInfoTransformer($currentUri));
+        $this->addTransformer(new QuestionnaireTaskInfoTransformer($this->db, $currentUri));
         $this->addTransformer(new QuestionnaireReferenceTransformer('focus'));
     }
 }
