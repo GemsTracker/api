@@ -65,9 +65,9 @@ class InsertTrackTokenController extends RestControllerAbstract
         'roundOrder' => 'gto_round_order',
     ];
 
-    public function __construct(\Gems_Tracker $tracker, UrlHelper $helper, Adapter $db, $currentUser)
+    public function __construct(\Gems_Tracker $tracker, UrlHelper $helper, Adapter $db, $LegacyCurrentUser)
     {
-        $this->currentUser = $currentUser;
+        $this->currentUser = $LegacyCurrentUser;
         $this->db = $db;
         $this->helper = $helper;
         $this->tracker = $tracker;
