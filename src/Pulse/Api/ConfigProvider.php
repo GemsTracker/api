@@ -3,6 +3,7 @@
 
 namespace Pulse\Api;
 
+use Gems\Rest\Factory\ProjectOverloaderFactory;
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\Log\Formatter\SimpleMulti;
 
@@ -23,6 +24,7 @@ use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\LastAnsweredTokenController;
 use Pulse\Api\Action\PatientNumberPerOrganizationController;
 use Pulse\Api\Action\PermissionGeneratorController;
+use Pulse\Api\Action\PreviewDossierTemplateController;
 use Pulse\Api\Action\RefreshIntramedController;
 use Pulse\Api\Action\RespondentBulkRestController;
 use Pulse\Api\Action\RespondentRestController;
@@ -54,6 +56,7 @@ use Pulse\Api\Repository\TrackfieldsRepository;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
 use Laminas\Log\Logger;
+use Pulse\Tracker\DossierTemplateRepository;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
 {
@@ -124,6 +127,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 EmmaTokenAnswersRestController::class => ReflectionFactory::class,
                 EmmaSurveysRestController::class => ReflectionFactory::class,
                 PatientNumberPerOrganizationController::class => ReflectionFactory::class,
+                PreviewDossierTemplateController::class => ReflectionFactory::class,
 
                 ActivityMatcher::class => ReflectionFactory::class,
 
@@ -133,6 +137,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 OrganizationRepository::class => ReflectionFactory::class,
                 RespondentRepository::class => ReflectionFactory::class,
                 SurveyQuestionsRepository::class => ReflectionFactory::class,
+                DossierTemplateRepository::class => ProjectOverloaderFactory::class,
 
                 TokenRepository::class => ReflectionFactory::class,
                 SelectTranslator::class => ReflectionFactory::class,
@@ -659,6 +664,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'path' => '/match-activities',
                 'middleware' => $this->getCustomActionMiddleware(ActivityMatcher::class),
                 'allowed_methods' => ['POST'],
+            ],
+            [
+                'name' => 'preview-dossier-template',
+                'path' => '/preview-dossier-template',
+                'middleware' => $this->getCustomActionMiddleware(PreviewDossierTemplateController::class),
+                'allowed_methods' => ['GET'],
             ],
             [
                 'name' => 'refresh-intramed',
