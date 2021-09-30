@@ -19,14 +19,16 @@ class ProjectOverloaderFactory implements FactoryInterface
      */
     protected $loader;
 
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         $this->container = $container;
         $this->loader = $container->get('loader');
 
-        //$requestedName = $this->stripOverloader($requestedName);
+        $requestedName = $this->stripOverloader($requestedName);
+
+        $className = $this->loader->find($requestedName);
         //echo $requestedName;
-        return $this->loader->create($requestedName);
+        return $this->loader->create($className);
     }
 
     protected function stripOverloader($requestedName)
@@ -34,7 +36,7 @@ class ProjectOverloaderFactory implements FactoryInterface
         $overloaders = $this->loader->getOverloaders();
         foreach($overloaders as $overloader) {
             if (strpos($requestedName, $overloader) === 0 || strpos($requestedName, '\\'.$overloader) === 0) {
-                $requestedName = str_replace([$overloader.'_', $overloader], '', $requestedName);
+                $requestedName = str_replace([$overloader.'_', $overloader.'\\'], '', $requestedName);
                 return $requestedName;
             }
         }
