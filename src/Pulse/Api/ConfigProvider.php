@@ -567,8 +567,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'dossierTemplate',
                     'patientNr',
                     'organizationId',
-                ]
-            ]
+                    'success',
+                ],
+            ],
         ];
     }
 
