@@ -565,6 +565,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'trackStartDate',
                     'hasTemplate',
                     'dossierTemplate',
+                    'patientNr',
+                    'organizationId',
                 ]
             ]
         ];
