@@ -557,12 +557,17 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      * Get the order items should be ordered in for listing model items with a GET request
      *
      * @param ServerRequestInterface $request
-     * @return array
+     * @return bool|array
      */
     public function getListOrder(ServerRequestInterface $request)
     {
         $params = $request->getQueryParams();
         if (isset($params['order'])) {
+
+            if ($params['order'] == 1) {
+                return true;
+            }
+
             $orderParams = explode(',', $params['order']);
 
             $order = [];

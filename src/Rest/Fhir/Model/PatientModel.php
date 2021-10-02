@@ -5,6 +5,7 @@ namespace Gems\Rest\Fhir\Model;
 use Gems\Rest\Fhir\Model\Transformer\BooleanTransformer;
 use Gems\Rest\Fhir\Model\Transformer\ManagingOrganizationTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientHumanNameTransformer;
+use Gems\Rest\Fhir\Model\Transformer\PatientIdTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientManagingOrganizationTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientTelecomTransformer;
 
@@ -50,6 +51,7 @@ class PatientModel extends \Gems_Model_RespondentModel
         $this->set('organization_name', 'label', 'organization_name');
         $this->set('organization_code', 'label', 'organization_code');
 
+        $this->addTransformer(new PatientIdTransformer());
         $this->addTransformer(new PatientHumanNameTransformer());
         $this->addTransformer(new PatientTelecomTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gr2o_id_organization', true));

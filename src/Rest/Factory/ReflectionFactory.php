@@ -32,7 +32,7 @@ class ReflectionFactory implements FactoryInterface
         $constructor = $reflector->getConstructor();
 
         if (is_null($constructor)) {
-            return new $className;
+            return $loader->create($className);
         }
 
         $dependencies = $constructor->getParameters();
