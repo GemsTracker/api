@@ -557,6 +557,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'applySettings' => [
                     'applyBrowseSettings',
                     'applyDetailSettings',
+                    'applyDiagnosisSort',
                 ],
                 'allowed_fields' => [
                     'id',
