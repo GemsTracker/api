@@ -22,6 +22,7 @@ use Pulse\Api\Action\EmmaTokenAnswersRestController;
 use Pulse\Api\Action\EnvTestController;
 use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\LastAnsweredTokenController;
+use Pulse\Api\Action\OtherPatientNumbersController;
 use Pulse\Api\Action\PatientNumberPerOrganizationController;
 use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\PreviewDossierTemplateController;
@@ -128,6 +129,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 EmmaSurveysRestController::class => ReflectionFactory::class,
                 PatientNumberPerOrganizationController::class => ReflectionFactory::class,
                 PreviewDossierTemplateController::class => ReflectionFactory::class,
+                OtherPatientNumbersController::class => ReflectionFactory::class,
 
                 ActivityMatcher::class => ReflectionFactory::class,
 
@@ -333,6 +335,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'model' => 'Model_RespondentModel',
                 'methods' => ['GET'],
                 'customAction' => PatientNumberPerOrganizationController::class,
+                'applySettings' => [
+                    'applyBrowseSettings',
+                ],
                 'idField' => [
                     'gr2o_patient_nr',
                     'gr2o_id_organization',
@@ -341,6 +346,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     '[A-Za-z0-9\-]+',
                     '\d+',
                 ],
+
             ],
             'tracks' => [
                 'model' => 'Tracker_Model_TrackModel',
@@ -579,6 +585,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         $modelRoutes = parent::getRoutes($includeModelRoutes);
 
         $newRoutes = [
+            [
+                'name' => 'other-patient-numbers',
+                'path' => '/other-patient-numbers/{patientNr:[a-zA-Z0-9-_]+}/{organizationId:\d+}',
+                'middleware' => $this->getCustomActionMiddleware(OtherPatientNumbersController::class),
+                'allowed_methods' => ['GET'],
+            ],
             [
                 'name' => 'survey-questions',
                 'path' => '/survey-questions/[{id:\d+}]',
