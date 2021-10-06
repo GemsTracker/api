@@ -575,6 +575,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'patientNr',
                     'organizationId',
                     'success',
+                    'diagnosisName',
+                    'treatmentName',
                 ],
             ],
         ];
