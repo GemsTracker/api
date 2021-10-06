@@ -57,13 +57,14 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
             'idField' => 'id',
         ];
 
-        $restModels['fhir/temp/appointment'] = [
+        $restModels['fhir/care-plan'] = [
             'model' => CarePlanModel::class,
             'methods' => ['GET'],
             'allowed_fields' => [
                 'resourceType',
                 'id',
                 'status',
+                'staffOnly',
                 'intent',
                 'title',
                 'code',
