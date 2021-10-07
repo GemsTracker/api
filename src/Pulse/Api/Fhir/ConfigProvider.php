@@ -3,6 +3,7 @@
 namespace Pulse\Api\Fhir;
 
 
+use Pulse\Api\Fhir\Model\CarePlanModel;
 use Pulse\Api\Fhir\Model\PrefixedCodeTreatmentModel;
 use Pulse\Api\Fhir\Model\TemporaryAppointmentModel;
 use Pulse\Api\Fhir\Model\TreatmentModel;
@@ -54,6 +55,26 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
                 'info',
             ],
             'idField' => 'id',
+        ];
+
+        $restModels['fhir/care-plan'] = [
+            'model' => CarePlanModel::class,
+            'methods' => ['GET'],
+            'allowed_fields' => [
+                'resourceType',
+                'id',
+                'status',
+                'staffOnly',
+                'intent',
+                'title',
+                'code',
+                'created',
+                'subject',
+                'period',
+                'contributor',
+                'supportingInfo',
+                'activity',
+            ],
         ];
 
         $restModels['fhir/treatment'] =[
