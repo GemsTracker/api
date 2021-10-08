@@ -9,6 +9,7 @@ use Gems\Rest\Auth\AuthorizeGemsAndOauthMiddleware;
 use Gems\Rest\Middleware\AccessLogMiddleware;
 use Gems\Rest\Middleware\ApiGateMiddleware;
 use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
+use Gems\Rest\Middleware\ApiPatientGateMiddleware;
 use Gems\Rest\Middleware\LocaleMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 
@@ -41,6 +42,7 @@ abstract class RestModelConfigProviderAbstract
             LocaleMiddleware::class,
             AuthorizeGemsAndOauthMiddleware::class,
             ApiGateMiddleware::class,
+            ApiPatientGateMiddleware::class,
             ApiOrganizationGateMiddleware::class,
             AccessLogMiddleware::class,
             SecurityHeadersMiddleware::class,
