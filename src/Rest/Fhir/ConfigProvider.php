@@ -199,7 +199,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
                 'patientIdField' => [
                     'for',
-                    'owner',
                     'patient',
                 ],
             ],
@@ -240,6 +239,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'supportingInfo',
                     'activity',
                 ],
+                'patientIdField' => [
+                    'patient',
+                    'subject'
+                ],
             ],
             'fhir/codesystem/service-type' => [
                 'model' => ServiceTypeModel::class,
@@ -252,10 +255,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'contact',
                 ],
                 'idField' => 'code',
-                'patientIdField' => [
-                    'patient',
-                    'subject'
-                ],
             ],
         ];
     }
