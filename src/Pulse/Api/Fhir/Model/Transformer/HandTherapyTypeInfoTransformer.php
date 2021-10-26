@@ -23,7 +23,7 @@ class HandTherapyTypeInfoTransformer extends \MUtil_Model_ModelTransformerAbstra
                 $availableDates[$row['treatment_start_date']] = $rowKey;
 
                 $data[$rowKey]['info'][] = [
-                    'type' => 'handTherapyInfo',
+                    'type' => 'hand-therapy-info',
                     'id' => 'HT' . $row['gtrt_hand_therapy_info'],
                 ];
 
@@ -34,14 +34,14 @@ class HandTherapyTypeInfoTransformer extends \MUtil_Model_ModelTransformerAbstra
 
             if (isset($row['gtrt_hand_therapy_info']) && $row['gtrt_hand_therapy_info'] < $data[$otherRowKey]['gtrt_hand_therapy_info']) {
                 foreach($data[$otherRowKey]['info'] as $infoKey => $infoRow) {
-                    if ($infoRow['type'] == 'handTherapyInfo') {
+                    if ($infoRow['type'] == 'hand-therapy-info') {
                         unset($data[$otherRowKey]['info'][$infoKey]);
                         break;
                     }
                 }
 
                 $data[$rowKey]['info'][] = [
-                    'type' => 'handTherapyInfo',
+                    'type' => 'hand-therapy-info',
                     'id' => 'HT' . $row['gtrt_hand_therapy_info'],
                 ];
                 $availableDates[$row['treatment_start_date']] = $rowKey;
