@@ -5,6 +5,8 @@ namespace Pulse\Api\Fhir\Model;
 
 
 use Gems\Rest\Fhir\Model\Transformer\PatientReferenceTransformer;
+use Pulse\Api\Fhir\Model\Transformer\HandTherapyAllowedTrackCodesTransformer;
+use Pulse\Api\Fhir\Model\Transformer\HandTherapyTypeInfoTransformer;
 use Pulse\Api\Fhir\Model\Transformer\PrefixedTreatmentInfoTransformer;
 use Pulse\Api\Fhir\Model\Transformer\TreatmentIdTransformer;
 use Pulse\Api\Fhir\Model\Transformer\TreatmentInfoTransformer;
@@ -32,8 +34,9 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addTable('gems__respondents', ['gr2o_id_user' => 'grs_id_user'], 'grs', false);
         $this->addTable('gems__respondent2track', ['gr2t_id_user' => 'gr2o_id_user', 'gr2t_id_organization' => 'gr2o_id_organization'], 'gr2t', false);
         $this->addTable('gems__reception_codes', ['gr2t_reception_code' => 'grc_id_reception_code'], 'rc', false);
+        $this->addTable('gems__tracks', ['gtr_id_track' => 'gr2t_id_track'], 'gtr', false);
 
-        $this->addTable(['treatmentField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentField.gtf_field_type IN (\'treatment\', \'treatmentDiagnosis\')'], 'gr2t2f', false);
+        $this->addTable(['treatmentField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentField.gtf_field_type IN (\'treatment\', \'treatmentDiagnosis\')'], 'gtf', false);
         $this->addTable(['treatmentTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentTrackField.gr2t2f_id_respondent_track', 'treatmentTrackField.gr2t2f_id_field' => 'treatmentField.gtf_id_field'], 'gr2t2f', false);
         $this->addTable('gems__treatments', ['treatmentTrackField.gr2t2f_value' => 'gtrt_id_treatment'], 'gtrt', false);
 
@@ -41,7 +44,10 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addLeftTable('gems__respondent2track2appointment', ['gr2t2a_id_app_field' => 'gtap_id_app_field', 'gr2t2a_id_respondent_track' => 'gr2t_id_respondent_track'], 'gr2t2a', false);
         $this->addLeftTable('gems__appointments', ['gr2t2a_id_appointment' => 'gap_id_appointment'], 'gap', false);
 
-        $this->addLeftTable(['treatmentSedationField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentSedationField.gtf_id_track', 'treatmentSedationField.gtf_field_type' => new \Zend_Db_Expr('\'sedation\'')], 'gr2t2f', false);
+        $this->addTable(['treatmentDateField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentDateField.gtf_field_code' => new \Zend_Db_Expr('\'treatmentDate\'')], 'gtf', false);
+        $this->addTable(['treatmentDateTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentDateTrackField.gr2t2f_id_respondent_track', 'treatmentDateTrackField.gr2t2f_id_field' => 'treatmentDateField.gtf_id_field'], 'gr2t2f', false);
+
+        $this->addLeftTable(['treatmentSedationField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentSedationField.gtf_id_track', 'treatmentSedationField.gtf_field_type' => new \Zend_Db_Expr('\'sedation\'')], 'gtf', false);
         $this->addLeftTable(['treatmentSedationTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentSedationTrackField.gr2t2f_id_respondent_track', 'treatmentSedationTrackField.gr2t2f_id_field' => 'treatmentSedationField.gtf_id_field'], 'gr2t2f', false);
         $this->addLeftTable('pulse__sedations', ['treatmentSedationTrackField.gr2t2f_value' => 'pse_id_sedation'], 'pse', false);
 
@@ -56,11 +62,13 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addColumn(new \Zend_Db_Expr('
 CASE 
     WHEN gap_id_appointment THEN gap_admission_time 
+    WHEN treatmentDateTrackField.gr2t2f_value IS NOT NULL THEN CAST(treatmentDateTrackField.gr2t2f_value AS datetime)
     ELSE DATE_ADD(gr2t_start_date,INTERVAL 14 DAY) 
 END'), 'treatment_start_datetime');
         $this->addColumn(new \Zend_Db_Expr('
 DATE(CASE 
     WHEN gap_id_appointment THEN gap_admission_time 
+    WHEN treatmentDateTrackField.gr2t2f_value IS NOT NULL THEN treatmentDateTrackField.gr2t2f_value
     ELSE DATE_ADD(gr2t_start_date,INTERVAL 14 DAY) 
 END)'), 'treatment_start_date');
 
@@ -82,12 +90,6 @@ END'), 'status');
 
         $this->addTransformers();
 
-        $this->set('treatment_start_datetime', [
-                'type' => \MUtil_Model::TYPE_DATETIME,
-                'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
-            ]
-        );
-
         $this->setOnSave('treatment_start_datetime', [$this, 'formatSaveDate']);
         $this->setOnLoad('treatment_start_datetime', [$this, 'formatLoadDate']);
     }
@@ -98,20 +100,35 @@ END'), 'status');
         $this->addTransformer(new TreatmentIdTransformer());
         $this->addTransformer(new TreatmentStatusTransformer(self::RESPONDENTTRACKMODEL));
         $this->addTransformer(new TreatmentInfoTransformer());
+        $this->addTransformer(new HandTherapyAllowedTrackCodesTransformer());
+        $this->addTransformer(new HandTherapyTypeInfoTransformer());
     }
 
     public function afterRegistry()
     {
-        $this->set('resourceType', 'label', 'resourceType');
-        $this->set('treatment_name', 'label', $this->_('title'), 'apiName', 'title');
-        $this->set('treatment_id', 'label', $this->_('code'), 'apiName', 'code');
+        $this->set('resourceType', [
+            'label' => 'resourceType',
+        ]);
+        $this->set('treatment_name', [
+            'label' => $this->_('title'),
+            'apiName' => 'title',
+        ]);
+        $this->set('treatment_id', [
+            'label', $this->_('code'),
+            'apiName', 'code',
+        ]);
         $this->set('treatment_start_datetime', [
-                'label' => $this->_('created'),
-                'apiName' =>'created',
-                'type' => \MUtil_Model::TYPE_DATETIME,
-                'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
-            ]
-        );
+            'label' => $this->_('created'),
+            'apiName' =>'created',
+            'type' => \MUtil_Model::TYPE_DATETIME,
+            'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
+        ]);
+        $this->set('gr2t_end_date', [
+            'label' => $this->_('End date'),
+            'apiName' => 'endDate',
+            'type' => \MUtil_Model::TYPE_DATETIME,
+            'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
+        ]);
 
         $this->set('subject', 'label', $this->_('subject'));
         $this->set('status', 'label', $this->_('status'));
