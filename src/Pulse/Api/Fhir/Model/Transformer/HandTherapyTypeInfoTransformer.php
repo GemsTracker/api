@@ -25,6 +25,7 @@ class HandTherapyTypeInfoTransformer extends \MUtil_Model_ModelTransformerAbstra
                 $data[$rowKey]['info'][] = [
                     'type' => 'hand-therapy-info',
                     'id' => 'HT' . $row['gtrt_hand_therapy_info'],
+                    'value' => 'HT' . $row['gtrt_hand_therapy_info'],
                 ];
 
                 continue;
@@ -43,6 +44,7 @@ class HandTherapyTypeInfoTransformer extends \MUtil_Model_ModelTransformerAbstra
                 $data[$rowKey]['info'][] = [
                     'type' => 'hand-therapy-info',
                     'id' => 'HT' . $row['gtrt_hand_therapy_info'],
+                    'value' => 'HT' . $row['gtrt_hand_therapy_info'],
                 ];
                 $availableDates[$row['treatment_start_date']] = $rowKey;
             }
