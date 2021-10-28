@@ -114,8 +114,8 @@ END'), 'status');
             'apiName' => 'title',
         ]);
         $this->set('treatment_id', [
-            'label', $this->_('code'),
-            'apiName', 'code',
+            'label' => $this->_('code'),
+            'apiName' => 'code',
         ]);
         $this->set('treatment_start_datetime', [
             'label' => $this->_('created'),
