@@ -33,7 +33,7 @@ class TreatmentModel extends \Gems_Model_JoinModel
 
         $this->addTable('gems__respondents', ['gr2o_id_user' => 'grs_id_user'], 'grs', false);
         $this->addTable('gems__respondent2track', ['gr2t_id_user' => 'gr2o_id_user', 'gr2t_id_organization' => 'gr2o_id_organization'], 'gr2t', false);
-        $this->addTable('gems__reception_codes', ['gr2t_reception_code' => 'grc_id_reception_code'], 'rc', false);
+        $this->addTable('gems__reception_codes', ['gr2t_reception_code' => 'grc_id_reception_code'], 'grc', false);
         $this->addTable('gems__tracks', ['gtr_id_track' => 'gr2t_id_track'], 'gtr', false);
 
         $this->addTable(['treatmentField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentField.gtf_field_type IN (\'treatment\', \'treatmentDiagnosis\')'], 'gtf', false);
@@ -74,9 +74,8 @@ END)'), 'treatment_start_date');
 
         $this->addColumn(new \Zend_Db_Expr('
 CASE 
-    WHEN gr2t_completed >= gr2t_count THEN \'completed\' 
-    WHEN gr2t_end_date <= NOW() THEN \'completed\' 
-    WHEN gr2t_reception_code = \'OK\' THEN \'active\' 
+    WHEN (grc_success = 1 AND gr2t_completed < gr2t_count AND (gr2t_end_date IS NULL OR gr2t_end_date > NOW())) THEN \'active\'
+    WHEN (grc_success = 1 AND (gr2t_completed >= gr2t_count OR gr2t_end_date <= NOW())) THEN \'completed\'
     WHEN gr2t_reception_code = \'retract\' THEN \'revoked\' 
     WHEN gr2t_reception_code = \'stop\' THEN \'revoked\' 
     WHEN gr2t_reception_code = \'refused\' THEN \'revoked\' 
