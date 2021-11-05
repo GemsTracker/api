@@ -44,7 +44,7 @@ class TreatmentModel extends \Gems_Model_JoinModel
         $this->addLeftTable('gems__respondent2track2appointment', ['gr2t2a_id_app_field' => 'gtap_id_app_field', 'gr2t2a_id_respondent_track' => 'gr2t_id_respondent_track'], 'gr2t2a', false);
         $this->addLeftTable('gems__appointments', ['gr2t2a_id_appointment' => 'gap_id_appointment'], 'gap', false);
 
-        $this->addLeftTable(['treatmentDateField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentField.gtf_id_track', 'treatmentDateField.gtf_field_code' => new \Zend_Db_Expr('\'treatmentDate\'')], 'gtf', false);
+        $this->addLeftTable(['treatmentDateField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentDateField.gtf_id_track', 'treatmentDateField.gtf_field_code' => new \Zend_Db_Expr('\'treatmentDate\'')], 'gtf', false);
         $this->addLeftTable(['treatmentDateTrackField' => 'gems__respondent2track2field'], ['gr2t_id_respondent_track' => 'treatmentDateTrackField.gr2t2f_id_respondent_track', 'treatmentDateTrackField.gr2t2f_id_field' => 'treatmentDateField.gtf_id_field'], 'gr2t2f', false);
 
         $this->addLeftTable(['treatmentSedationField' => 'gems__track_fields'], ['gr2t_id_track' => 'treatmentSedationField.gtf_id_track', 'treatmentSedationField.gtf_field_type' => new \Zend_Db_Expr('\'sedation\'')], 'gtf', false);
