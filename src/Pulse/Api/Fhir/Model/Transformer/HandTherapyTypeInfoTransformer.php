@@ -9,45 +9,71 @@ class HandTherapyTypeInfoTransformer extends \MUtil_Model_ModelTransformerAbstra
         88,
     ];
 
+    protected $applyToStatus = [
+        'completed',
+        'active',
+    ];
+
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
-        $availableDates = [];
+        $sortedTreatmentsTypes = [];
 
         foreach($data as $rowKey=>$row) {
             // only apply to specific organizations
             if (!in_array($row['gr2t_id_organization'], $this->applyToOrganizationIds)) {
                 continue;
             }
-
-            if (!isset($availableDates[$row['gr2t_created']])) {
-                $availableDates[$row['gr2t_created']] = $rowKey;
-
-                $data[$rowKey]['info'][] = [
-                    'type' => 'hand-therapy-info',
-                    'id' => 'HT' . $row['gtrt_hand_therapy_info'],
-                    'value' => 'HT' . $row['gtrt_hand_therapy_info'],
-                ];
-
+            // only apply to specific status
+            if (!in_array($row['status'], $this->applyToStatus)) {
                 continue;
             }
 
-            $otherRowKey = $availableDates[$row['gr2t_created']];
+            $createdDay = substr($row['gr2t_created'], 0, 10);
+            if (!isset($sortedTreatmentsTypes[$createdDay])) {
+                $sortedTreatmentsTypes[$createdDay] = [];
+            }
 
-            if (isset($row['gtrt_hand_therapy_info']) && $row['gtrt_hand_therapy_info'] < $data[$otherRowKey]['gtrt_hand_therapy_info']) {
-                foreach($data[$otherRowKey]['info'] as $infoKey => $infoRow) {
-                    if ($infoRow['type'] == 'hand-therapy-info') {
-                        unset($data[$otherRowKey]['info'][$infoKey]);
-                        break;
+            if (isset($row['gtrt_hand_therapy_info'])) {
+                $sortedTreatmentsTypes[$createdDay][$rowKey] = [
+                    'info' => $row['gtrt_hand_therapy_info'],
+                    'created' => $row['gr2t_created'],
+                ];
+            }
+        }
+
+
+        foreach($sortedTreatmentsTypes as $treatments) {
+            if (empty($treatments)) {
+                continue;
+            }
+            $therapyInfoTreatmentRowKey = key($treatments);
+            $therapyInfoTreatmentRow = reset($treatments);
+
+            if (count($treatments) > 1) {
+                foreach ($treatments as $rowKey => $treatment) {
+                    if ($rowKey === $therapyInfoTreatmentRowKey) {
+                        continue;
+                    }
+                    if ($treatment['info'] < $therapyInfoTreatmentRow['info']) {
+                        $therapyInfoTreatmentRowKey = $rowKey;
+                        $therapyInfoTreatmentRow = $treatment;
+                    }
+                    if ($treatment['info'] === $therapyInfoTreatmentRow['info']) {
+                        $current = new \DateTimeImmutable($treatment['created']);
+                        $new = new \DateTimeImmutable($therapyInfoTreatmentRow['created']);
+                        if ($new > $current) {
+                            $therapyInfoTreatmentRowKey = $rowKey;
+                            $therapyInfoTreatmentRow = $treatment;
+                        }
                     }
                 }
-
-                $data[$rowKey]['info'][] = [
-                    'type' => 'hand-therapy-info',
-                    'id' => 'HT' . $row['gtrt_hand_therapy_info'],
-                    'value' => 'HT' . $row['gtrt_hand_therapy_info'],
-                ];
-                $availableDates[$row['gr2t_created']] = $rowKey;
             }
+
+            $data[$therapyInfoTreatmentRowKey]['info'][] = [
+                'type' => 'hand-therapy-info',
+                'id' => 'HT' . $therapyInfoTreatmentRow['gtrt_hand_therapy_info'],
+                'value' => 'HT' . $therapyInfoTreatmentRow['gtrt_hand_therapy_info'],
+            ];
         }
 
         return $data;
