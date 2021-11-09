@@ -31,7 +31,7 @@ class HandTherapyAllowedTrackCodesTransformer extends \MUtil_Model_ModelTransfor
             }
         }
 
-        return $data;
+        return array_values($data);
     }
 
 }
