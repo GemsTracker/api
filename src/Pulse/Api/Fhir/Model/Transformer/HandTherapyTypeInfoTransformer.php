@@ -71,8 +71,8 @@ class HandTherapyTypeInfoTransformer extends \MUtil_Model_ModelTransformerAbstra
 
             $data[$therapyInfoTreatmentRowKey]['info'][] = [
                 'type' => 'hand-therapy-info',
-                'id' => 'HT' . $therapyInfoTreatmentRow['gtrt_hand_therapy_info'],
-                'value' => 'HT' . $therapyInfoTreatmentRow['gtrt_hand_therapy_info'],
+                'id' => 'HT' . $therapyInfoTreatmentRow['info'],
+                'value' => 'HT' . $therapyInfoTreatmentRow['info'],
             ];
         }
 
