@@ -53,6 +53,8 @@ class QuestionnaireItemsTransformer extends \MUtil_Model_ModelTransformerAbstrac
                         'display' => $display,
                         'system' => null, // Should reference a place to view the answer options
                     ];
+                } elseif ($answer === null) {
+                    $answerItem['answer'] = null;
                 } else {
                     switch ($surveyInformation[$key]['type']) {
                         case 'N':
