@@ -116,12 +116,18 @@ END'), 'status');
             'label' => $this->_('code'),
             'apiName' => 'code',
         ]);
-        $this->set('treatment_start_datetime', [
+        $this->set('gr2t_created', [
             'label' => $this->_('created'),
             'apiName' =>'created',
             'type' => \MUtil_Model::TYPE_DATETIME,
             'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
         ]);
+        /*$this->set('treatment_start_datetime', [
+            'label' => $this->_('startDate'),
+            'apiName' =>'startDate',
+            'type' => \MUtil_Model::TYPE_DATETIME,
+            'storageFormat' => 'yyyy-MM-dd HH:mm:ss'
+        ]);*/
         $this->set('gr2t_end_date', [
             'label' => $this->_('End date'),
             'apiName' => 'endDate',
