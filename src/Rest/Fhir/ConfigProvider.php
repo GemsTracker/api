@@ -62,6 +62,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
                 'idField' => 'id',
                 'idFieldRegex' => '[A-Za-z0-9\-@]+',
+                'patientIdField' => 'id',
             ],
             'fhir/appointment' => [
                 'model' => AppointmentModel::class,
@@ -81,6 +82,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'changed',
                 ],
                 'idField' => 'id',
+                'patientIdField' => 'patient',
             ],
             'fhir/episode-of-care' => [
                 'model' => EpisodeOfCareModel::class,
@@ -98,6 +100,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'participant',
                 ],
                 'idField' => 'id',
+                'patientIdField' => 'patient',
             ],
             'fhir/location' => [
                 'model' => LocationModel::class,
@@ -194,6 +197,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gto_id_track',
                     'gto_id_survey',
                 ],
+                'patientIdField' => [
+                    'for',
+                    'patient',
+                ],
             ],
             'fhir/questionnaire-response' => [
                 'model' => QuestionnaireResponseModel::class,
@@ -209,6 +216,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'source',
                     'author',
                     'item',
+                ],
+                'patientIdField' => [
+                    'patient',
+                    'subject'
                 ],
             ],
             'fhir/care-plan' => [
@@ -227,6 +238,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'contributor',
                     'supportingInfo',
                     'activity',
+                ],
+                'patientIdField' => [
+                    'patient',
+                    'subject'
                 ],
             ],
             'fhir/codesystem/service-type' => [

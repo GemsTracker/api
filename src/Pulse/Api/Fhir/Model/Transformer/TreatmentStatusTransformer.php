@@ -81,10 +81,10 @@ class TreatmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
                 foreach($filter[$this->statusField] as $status) {
                     switch($status) {
                         case 'active':
-                            $trackStatements[] = '(gr2t_reception_code = \'OK\' AND gr2t_completed < gr2t_count AND (gr2t_end_date IS NULL OR gr2t_end_date < NOW()))';
+                            $trackStatements[] = '(grc_success = 1 AND gr2t_completed < gr2t_count AND (gr2t_end_date IS NULL OR gr2t_end_date > NOW()))';
                             break;
                         case 'completed':
-                            $trackStatements[] = '(gr2t_reception_code = \'OK\' AND (gr2t_completed >= gr2t_count OR gr2t_end_date >= NOW()))';
+                            $trackStatements[] = '(grc_success = 1 AND (gr2t_completed >= gr2t_count OR gr2t_end_date <= NOW()))';
                             break;
                         case 'entered-in-error':
                             $trackStatements[] = '(gr2t_reception_code = \'mistake\')';

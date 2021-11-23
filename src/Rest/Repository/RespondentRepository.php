@@ -4,6 +4,9 @@
 namespace Gems\Rest\Repository;
 
 
+use Laminas\Db\Sql\Predicate\Like;
+use Laminas\Db\Sql\Predicate\Predicate;
+use Laminas\Db\Sql\Predicate\PredicateSet;
 use Psr\Http\Message\ServerRequestInterface;
 use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Sql;
@@ -43,6 +46,49 @@ class RespondentRepository
             return $result->current();
         }
         return false;
+    }
+
+    public function getOtherPatientNumbers($patientNr, $organizationId, $combined=false)
+    {
+        $sql = new Sql($this->db);
+        $subSelect = $sql->select('gems__respondent2org')
+            ->columns(['gr2o_id_user'])
+            ->where([
+                'gr2o_patient_nr' => $patientNr,
+                'gr2o_id_organization' => $organizationId,
+            ]);
+
+        $currentOrganizationPredicate = new Predicate();
+        $currentOrganizationPredicate->equalTo('gr2o_id_organization', $organizationId);
+
+        $select = $sql->select('gems__respondent2org')
+            ->join('gems__organizations', 'gor_id_organization = gr2o_id_organization', [])
+            ->join('gems__reception_codes', 'gr2o_reception_code = grc_id_reception_code', [])
+            ->columns(['gr2o_id_organization', 'gr2o_patient_nr'])
+            ->where([
+                'grc_success' => 1,
+                'gr2o_id_user' => $subSelect,
+                new PredicateSet([
+                    $currentOrganizationPredicate,
+                    new Like('gor_accessible_by', '%'.(int)$organizationId.'%'),
+                ], PredicateSet::COMBINED_BY_OR),
+            ]);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+
+        $patients = iterator_to_array($result);
+
+        if ($combined) {
+            $combinedPatients = [];
+            foreach($patients as $patient) {
+                $combinedPatients[] = $patient['gr2o_patient_nr'] . '@' . $patient['gr2o_id_organization'];
+            }
+            return $combinedPatients;
+        }
+
+        $pairs = array_column($patients, 'gr2o_patient_nr', 'gr2o_id_organization');
+        return $pairs;
     }
 
     public function getRespondentIdFromRequest(ServerRequestInterface $request)

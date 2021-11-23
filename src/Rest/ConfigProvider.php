@@ -36,6 +36,7 @@ use Gems\Rest\Auth\ResourceServerFactory;
 use Gems\Rest\Middleware\AccessLogMiddleware;
 use Gems\Rest\Middleware\ApiGateMiddleware;
 use Gems\Rest\Middleware\ApiOrganizationGateMiddleware;
+use Gems\Rest\Middleware\ApiPatientGateMiddleware;
 use Gems\Rest\Middleware\LocaleMiddleware;
 use Gems\Rest\Middleware\SecurityHeadersMiddleware;
 use Gems\Rest\Repository\AccesslogRepository;
@@ -134,7 +135,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ApiGateMiddleware::class => ReflectionFactory::class,
                 AccessLogMiddleware::class => ReflectionFactory::class,
                 ApiOrganizationGateMiddleware::class => ReflectionFactory::class,
+                ApiPatientGateMiddleware::class => ReflectionFactory::class,
                 LocaleMiddleware::class => ReflectionFactory::class,
+
 
                 // Actions
                 AuthorizeAction::class => ReflectionFactory::class,

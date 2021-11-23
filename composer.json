@@ -114,6 +114,7 @@
         {
             "type": "git",
             "url": "https://github.com/MagnaFacta/zalt-soap.git"
+        },
         {
             "type": "git",
             "url": "https://github.com/jvangestel/gems-reference-data.git"
@@ -121,7 +122,6 @@
         {
             "type": "git",
             "url": "https://github.com/jvangestel/data-set-mapper.git"
-        },
         }
     ]
 }

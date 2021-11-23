@@ -96,12 +96,13 @@ class QuestionnaireOwnerTransformer extends \MUtil_Model_ModelTransformerAbstrac
 
             } elseif (strpos($id, '@') !== false) {
                 // Assume patient if delimiter is used
-                list($patientNr, $organizationId) = str_replace(['Patient/', Endpoints::PATIENT], '', $id);
+                list($patientNr, $organizationId) = explode('@', str_replace(['Patient/', Endpoints::PATIENT], '', $id));
                 $filter['gr2o_patient_nr'] = $patientNr;
                 $filter['gr2o_id_organization'] = $organizationId;
-
                 $filter[$this->fieldName . '_type'] = 'patient';
             }
+
+            unset($filter[$this->fieldName]);
         }
 
         if (isset($filter['owner_type'])) {

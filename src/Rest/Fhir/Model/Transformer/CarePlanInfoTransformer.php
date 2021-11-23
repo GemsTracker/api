@@ -35,6 +35,9 @@ class CarePlanInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
                         'type' => 'trackField',
                         'value' => $trackFieldRow['gr2t2f_value'],
                     ];
+                    if ($displayValue = $this->getDisplayValue($trackFieldRow)) {
+                        $infoRow['display'] = $displayValue;
+                    }
                 }
                 if (isset($trackFieldRow['gtf_field_code'])) {
                     $infoRow['code'] = $trackFieldRow['gtf_field_code'];
@@ -46,6 +49,38 @@ class CarePlanInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         return $data;
+    }
+
+    protected function getCaretakerName($caretakerId)
+    {
+        $model = new \MUtil_Model_TableModel('gems__agenda_staff');
+        $result = $model->loadFirst(['gas_id_staff' => $caretakerId]);
+        if ($result) {
+            return $result['gas_name'];
+        }
+        return null;
+    }
+
+    protected function getDisplayValue($trackFieldInfo)
+    {
+        switch ($trackFieldInfo['gtf_field_type']) {
+            case 'caretaker':
+                return $this->getCaretakerName($trackFieldInfo['gr2t2f_value']);
+            case 'location':
+                return $this->getLocationName($trackFieldInfo['gr2t2f_value']);
+            default:
+                return null;
+        }
+    }
+
+    protected function getLocationName($locationId)
+    {
+        $model = new \MUtil_Model_TableModel('gems__locations');
+        $result = $model->loadFirst(['glo_id_location' => $locationId]);
+        if ($result) {
+            return $result['glo_name'];
+        }
+        return null;
     }
 
     protected function getTrackfieldModel()
