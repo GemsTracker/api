@@ -106,7 +106,6 @@ class ApiPatientGateMiddleware implements MiddlewareInterface
             if (!isset($filters[$patientIdField])) {
                 $filters[$patientIdField] = $patientNr . '@' . $organizationId;
             } else {
-
                 $allowedPatientNumbers = $this->getAllowedPatientNumbers($patientNr, $organizationId);
 
                 $selectedPatientIds = $filters[$patientIdField];
@@ -114,9 +113,10 @@ class ApiPatientGateMiddleware implements MiddlewareInterface
                     $selectedPatientIds = explode(',', str_replace(['[', ']'], '', $selectedPatientIds));
                 }
                 $filteredOrganizationIds = [];
-                foreach($selectedPatientIds as $organizationId) {
-                    if (in_array($organizationId, $allowedPatientNumbers)) {
-                        $filteredOrganizationIds[] = $organizationId;
+                foreach($selectedPatientIds as $patientCombination) {
+                    list($selectedPatientNr, $selectedOrganizationId) = explode('@', $patientCombination);
+                    if (isset($allowedPatientNumbers[$selectedOrganizationId]) && $allowedPatientNumbers[$selectedOrganizationId] === $selectedPatientNr) {
+                        $filteredOrganizationIds[] = $patientCombination;
                     }
                 }
                 $filters[$patientIdField] = $filteredOrganizationIds;
