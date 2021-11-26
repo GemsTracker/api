@@ -71,47 +71,13 @@ class TreatmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
                 if ($appointmentStatement !== null) {
                     $filter[] = $appointmentStatement;
                 }
+                unset($filter[$this->statusField]);
             } elseif ($this->modelType === TreatmentModel::RESPONDENTTRACKMODEL) {
-                if (!is_array($filter[$this->statusField])) {
-                    $filter[$this->statusField] = [$filter[$this->statusField]];
-                }
-
-                $trackStatements = [];
-
-                foreach($filter[$this->statusField] as $status) {
-                    switch($status) {
-                        case 'active':
-                            $trackStatements[] = '(grc_success = 1 AND gr2t_completed < gr2t_count AND (gr2t_end_date IS NULL OR gr2t_end_date > NOW()))';
-                            break;
-                        case 'completed':
-                            $trackStatements[] = '(grc_success = 1 AND (gr2t_completed >= gr2t_count OR gr2t_end_date <= NOW()))';
-                            break;
-                        case 'entered-in-error':
-                            $trackStatements[] = '(gr2t_reception_code = \'mistake\')';
-                            break;
-                        case 'revoked':
-
-                            $trackStatus = [
-                                'retract',
-                                'stop',
-                                'refused',
-                                'misdiag',
-                                'diagchange',
-                                'agenda_cancelled',
-                                'incap',
-                            ];
-
-                            $trackStatements[] = '(gr2t_reception_code IN (\'' . join('\', \'', $trackStatus) . '\'))';
-                            break;
-                    }
-                }
-
-                if (count($trackStatements)) {
-                    $filter[] = $trackStatements;
+                if ($this->statusField !== 'status') {
+                    $filter['status'] = $filter[$this->statusField];
+                    unset($this->statusField);
                 }
             }
-
-            unset($filter[$this->statusField]);
         }
 
         return $filter;

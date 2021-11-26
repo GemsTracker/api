@@ -89,6 +89,24 @@ class DossierTemplatesModel extends \Gems_Model_JoinModel
             ],
         ]);
 
+        $this->set('method', [
+            'label' => $this->_('Method'),
+            'apiName' => 'method',
+            'elementClass' => 'select',
+            'multiOptions' => $empty + [
+                'conservative' => $this->_('Conservative'),
+                'surgical' => $this->_('Surgical'),
+            ],
+            'disable' => [
+                'otherField' => [
+                    'treatment',
+                    'length',
+                    '>',
+                    1,
+                ],
+            ],
+        ]);
+
         $this->set('diagnosis', [
             'label' => $this->_('Diagnosis'),
             'apiName' => 'diagnosis',
@@ -225,7 +243,8 @@ class DossierTemplatesModel extends \Gems_Model_JoinModel
             'diagnosis' => 'gdotdt_id_diagnosis',
             'treatment' => 'gdotdt_id_treatment',
             'medicalCategory' => 'gdotdt_id_medical_category',
-        ], ['medicalCategory']));
+            'method' => 'gdotdt_method',
+        ], ['medicalCategory', 'method']));
     }
 
     protected function getDataSets()
