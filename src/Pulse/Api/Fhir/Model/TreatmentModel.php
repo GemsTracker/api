@@ -76,6 +76,10 @@ END)'), 'treatment_start_date');
 CASE 
     WHEN (grc_success = 1 AND gr2t_completed < gr2t_count AND (gr2t_end_date IS NULL OR gr2t_end_date > NOW())) THEN \'active\'
     WHEN (grc_success = 1 AND (gr2t_completed >= gr2t_count OR gr2t_end_date <= NOW())) THEN \'completed\'
+    
+    WHEN gr2t_reception_code = \'stop-new-diagnosis\' THEN \'completed\'
+    WHEN gr2t_reception_code = \'stop-new-treatment\' THEN \'completed\'
+    
     WHEN gr2t_reception_code = \'retract\' THEN \'revoked\' 
     WHEN gr2t_reception_code = \'stop\' THEN \'revoked\' 
     WHEN gr2t_reception_code = \'refused\' THEN \'revoked\' 
