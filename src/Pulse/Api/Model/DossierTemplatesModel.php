@@ -89,6 +89,16 @@ class DossierTemplatesModel extends \Gems_Model_JoinModel
             ],
         ]);
 
+        $this->set('method', [
+            'label' => $this->_('Method'),
+            'apiName' => 'method',
+            'elementClass' => 'select',
+            'multiOptions' => $empty + [
+                'conservative' => $this->_('Conservative'),
+                'surgical' => $this->_('Surgical'),
+            ],
+        ]);
+
         $this->set('diagnosis', [
             'label' => $this->_('Diagnosis'),
             'apiName' => 'diagnosis',
@@ -137,6 +147,7 @@ class DossierTemplatesModel extends \Gems_Model_JoinModel
                             'medicalCategory',
                             'id',
                         ],
+                        'method' => 'method',
                     ],
                 ],
             ],

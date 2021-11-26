@@ -535,6 +535,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'id',
                     'name',
                     'dataSet',
+                    'method',
                     'medicalCategory',
                     'diagnosis',
                     'treatment',
