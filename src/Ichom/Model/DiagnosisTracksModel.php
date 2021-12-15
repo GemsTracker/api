@@ -5,8 +5,8 @@ namespace Ichom\Model;
 
 use Gems\Rest\Fhir\Model\Transformer\AllNumberTransformer;
 use Gems\Rest\Fhir\Model\Transformer\BooleanTransformer;
-use Pulse\Api\Model\Transformer\FlatRespondentTrackFieldTransformer;
-use Pulse\Api\Model\Transformer\PatientNameTransformer;
+use Ichom\Model\Transformer\FlatRespondentTrackFieldTransformer;
+use Ichom\Model\Transformer\PatientNameTransformer;
 
 class DiagnosisTracksModel extends \Gems_Model_JoinModel
 {
