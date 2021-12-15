@@ -6,10 +6,9 @@ use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Ichom\Action\DiagnosisWizardController;
 use Ichom\Action\DiagnosisWizardStructureController;
-use Ichom\Model\Diagnosis2TrackModel;
+use Ichom\Model\DiagnosisTracksModel;
 use Ichom\Model\DiagnosisTransformedModel;
 use Ichom\Model\MedicalCategoryTransformedModel;
-use Ichom\Model\TreatmentModel;
 use Ichom\Model\TreatmentTransformedModel;
 use Ichom\Repository\Diagnosis2TreatmentRepository;
 
