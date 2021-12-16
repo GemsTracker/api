@@ -113,6 +113,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'treatmentName',
                     'trackStartDate',
                     'patientFullName',
+                    'primaryTrack',
                 ],
             ],
         ];
