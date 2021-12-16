@@ -182,6 +182,10 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                             ],
                         ],
                     ],
+                    'order' => [
+                        'displayOrder',
+                        'name',
+                    ],
                 ],
                 'name' => 'diagnosis',
             ],
