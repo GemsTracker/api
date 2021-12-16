@@ -620,9 +620,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             }
 
             return $order;
-
         }
-        return [];
+        return $this->model->getSort();
     }
 
     /**
