@@ -97,6 +97,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
                 'allowed_fields' => [
                     'id',
+                    'track',
                     'trackName',
                     'trackInfo',
                     'startDate',
