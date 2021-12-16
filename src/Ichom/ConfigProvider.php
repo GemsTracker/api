@@ -54,6 +54,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_fields' => [
                     'id',
                     'name',
+                    'displayOrder',
                     'externalName',
                     'priority',
                     'treatments',
