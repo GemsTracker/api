@@ -101,7 +101,7 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                 ],
                 'name' => 'action',
                 'default' => 'show',
-            ]
+            ],
         ];
 
         $structure = array_merge($structure, $this->getBaseStructure());
@@ -158,6 +158,12 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                 'type' => 'string',
                 'multiOptions' => $this->pairsToKeyValue($this->getDiagnosisTracks()),
                 'name' => 'track',
+                'onChange' => [
+                    'otherFieldValue' => [
+                        'diagnosis' => null,
+                        'treatment' => null,
+                    ],
+                ],
             ],
             'diagnosis' => [
                 'label' => $this->_('Diagnosis'),
@@ -188,6 +194,11 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                     ],
                 ],
                 'name' => 'diagnosis',
+                'onChange' => [
+                    'otherFieldValue' => [
+                        'treatment' => null,
+                    ],
+                ],
             ],
             'treatment' => [
                 'label' => $this->_('Treatment'),
