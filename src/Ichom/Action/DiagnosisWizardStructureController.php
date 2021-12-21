@@ -209,6 +209,9 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                     'key' => 'id',
                     'value' => 'name',
                 ],
+                'order' => [
+                    'name',
+                ],
                 'name' => 'treatment',
             ],
             'trackStartDate' => [
