@@ -90,14 +90,14 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
     {
         $structure = [
             'action' => [
-                'label' => 'Action',
+                'label' => $this->_('Action'),
                 'required' => true,
                 'elementClass' => 'Radio',
                 'type' => 'string',
                 'multiOptions' => [
-                    'show' => 'Show',
-                    'edit' => 'Edit',
-                    'delete' => 'Delete - diagnosis / treatment',
+                    'show' => $this->_('Show'),
+                    'edit' => $this->_('Edit'),
+                    'delete' => $this->_('Delete - diagnosis / treatment'),
                 ],
                 'name' => 'action',
                 'default' => 'show',
@@ -106,9 +106,9 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
 
         $structure = array_merge($structure, $this->getBaseStructure());
         $structure['removeDiagnosis'] = [
-            'label' => 'Remove diagnosis reason',
+            'label' => $this->_('Remove diagnosis reason'),
             'elementClass' => 'Checkbox',
-            'description' => 'Was this a misdiagnosis at the time?',
+            'description' => $this->_('Was this a misdiagnosis at the time?'),
             'name' => 'removeDiagnosis',
             'hidden' => [
                 'otherField' => [
@@ -119,16 +119,16 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
             ],
         ];
         $structure['diagnosisChangeReason'] = [
-            'label' => 'Change diagnosis reason',
+            'label' => $this->_('Change diagnosis reason'),
             'elementClass' => 'Checkbox',
             'name' => 'diagnosisChangeReason',
-            'description' => 'Was the previous diagnosis a misdiagnosis?',
+            'description' => $this->_('Was the previous diagnosis a misdiagnosis?'),
         ];
         $structure['treatmentChangeReason'] = [
-            'label' => 'Change treatment reason',
+            'label' => $this->_('Change treatment reason'),
             'elementClass' => 'Checkbox',
             'name' => 'treatmentChangeReason',
-            'description' => 'Was the previous treatment wrong?',
+            'description' => $this->_('Was the previous treatment wrong?'),
         ];
 
         unset($structure['track']['label']);
