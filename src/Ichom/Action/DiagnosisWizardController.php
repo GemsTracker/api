@@ -168,7 +168,11 @@ class DiagnosisWizardController extends RestControllerAbstract
                             );
                             break;
                         case 'delete':
-                            $actionCreator->addTrackRemoval($respondentTrackId, 1 == $data['removeDiagnosis'] ? 'error-end-diagnosis' : 'stop-end-diagnosis');
+                            $errorCode = 'stop-end-diagnosis';
+                            if (isset($data['removeDiagnosis']) && $data['removeDiagnosis'] === 1) {
+                                $errorCode = 'error-end-diagnosis';
+                            }
+                            $actionCreator->addTrackRemoval($respondentTrackId, $errorCode);
                             break;
                         default:
                             break;
