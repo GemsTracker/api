@@ -3,13 +3,13 @@
 
 namespace Pulse\Api;
 
+use Gems\DataSetMapper\Repository\DataSetRepository;
 use Gems\Rest\Factory\ProjectOverloaderFactory;
 use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\Log\Formatter\SimpleMulti;
 
 use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Gems\Rest\RestModelConfigProviderAbstract;
-use Gems\SurveyAnswerInfo\Model\SurveyAnswerInfoModel;
 use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
@@ -28,6 +28,7 @@ use Pulse\Api\Action\PermissionGeneratorController;
 use Pulse\Api\Action\PreviewDossierTemplateController;
 use Pulse\Api\Action\RefreshIntramedController;
 use Pulse\Api\Action\RespondentBulkRestController;
+use Pulse\Api\Action\RespondentDossierTemplatePreviewController;
 use Pulse\Api\Action\RespondentRestController;
 use Pulse\Api\Action\RespondentTrackfieldsRestController;
 use Pulse\Api\Action\RespondentTrackRestController;
@@ -118,6 +119,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 TreatmentsWithNormsRepository::class => ReflectionFactory::class,
 
                 RespondentResults::class => ReflectionFactory::class,
+
+                DataSetRepository::class => ReflectionFactory::class,
+                RespondentDossierTemplatePreviewController::class => ReflectionFactory::class,
 
                 RespondentTrackRestController::class => ReflectionFactory::class,
                 RespondentRestController::class => ReflectionFactory::class,
@@ -561,7 +565,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'respondent-dossier-templates' => [
                 'model' => RespondentDossierTemplatesModel::class,
-                'methods' => ['GET'],
+                'methods' => ['GET', 'OPTIONS'],
                 'applySettings' => [
                     'applyBrowseSettings',
                     'applyDetailSettings',
@@ -571,14 +575,18 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'id',
                     'trackName',
                     'trackInfo',
-                    'trackStartDate',
+                    'startDate',
                     'hasTemplate',
                     'dossierTemplate',
                     'patientNr',
                     'organizationId',
                     'success',
+                    'diagnosis',
                     'diagnosisName',
+                    'treatment',
                     'treatmentName',
+                    'trackStartDate',
+                    'patientFullName',
                 ],
             ],
         ];
@@ -695,6 +703,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'name' => 'refresh-intramed',
                 'path' => '/refresh-intramed',
                 'middleware' => $this->getCustomActionMiddleware(RefreshIntramedController::class),
+            ],
+            [
+                'name' => 'respondent-dossier-template-preview',
+                'path' => '/respondent-dossier-template-preview',
+                'middleware' => $this->getCustomActionMiddleware(RespondentDossierTemplatePreviewController::class),
+                'allowed_methods' => ['GET', 'OPTIONS'],
             ],
             [
                 'name' => 'env-test',

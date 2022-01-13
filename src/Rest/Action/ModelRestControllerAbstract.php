@@ -268,7 +268,23 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
      */
     protected function filterColumns($row, $save=false, $useKeys=true)
     {
-        $row = RouteOptionsModelFilter::filterColumns($row, $this->routeOptions, $save, $useKeys);
+        $filterOptions = $this->routeOptions;
+        $modelAllowFields = $this->model->getColNames('allow_api_load');
+        $modelAllowSaveFields = $this->model->getColNames('allow_api_save');
+        if (count($modelAllowFields)) {
+            if (!isset($filterOptions['allowed_fields'])) {
+                $filterOptions['allowed_fields'] = [];
+            }
+            $filterOptions['allowed_fields'] = array_merge($modelAllowFields, $filterOptions['allowed_fields']);
+        }
+        if (count($modelAllowSaveFields)) {
+            if (!isset($filterOptions['allowed_save_fields'])) {
+                $filterOptions['allowed_save_fields'] = [];
+            }
+            $filterOptions['allowed_save_fields'] = array_merge($modelAllowSaveFields, $filterOptions['allowed_save_fields']);
+        }
+
+        $row = RouteOptionsModelFilter::filterColumns($row, $filterOptions, $save, $useKeys);
 
         return $row;
     }
@@ -604,9 +620,8 @@ abstract class ModelRestControllerAbstract extends RestControllerAbstract
             }
 
             return $order;
-
         }
-        return [];
+        return $this->model->getSort();
     }
 
     /**

@@ -2,12 +2,15 @@
 
 namespace Ichom;
 
+use Gems\Rest\Factory\ReflectionFactory;
 use Gems\Rest\RestModelConfigProviderAbstract;
-use Ichom\Model\Diagnosis2TrackModel;
+use Ichom\Action\DiagnosisWizardController;
+use Ichom\Action\DiagnosisWizardStructureController;
+use Ichom\Model\DiagnosisTracksModel;
 use Ichom\Model\DiagnosisTransformedModel;
 use Ichom\Model\MedicalCategoryTransformedModel;
-use Ichom\Model\TreatmentModel;
 use Ichom\Model\TreatmentTransformedModel;
+use Ichom\Repository\Diagnosis2TreatmentRepository;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
 {
@@ -22,8 +25,19 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function __invoke()
     {
         return [
-            //'dependencies' => $this->getDependencies(),
+            'dependencies' => $this->getDependencies(),
             'routes'       => $this->getRoutes(),
+        ];
+    }
+
+    public function getDependencies()
+    {
+        return [
+            'factories'  => [
+                Diagnosis2TreatmentRepository::class => ReflectionFactory::class,
+                DiagnosisWizardStructureController::class => ReflectionFactory::class,
+                DiagnosisWizardController::class => ReflectionFactory::class,
+            ]
         ];
     }
 
@@ -40,9 +54,11 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_fields' => [
                     'id',
                     'name',
+                    'displayOrder',
                     'externalName',
                     'priority',
                     'treatments',
+                    'trackId',
                     'medicalCategory',
                 ],
             ],
@@ -73,6 +89,56 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'medicalCategory',
                 ],
             ],
+            'respondent-diagnosis-tracks' => [
+                'model' => DiagnosisTracksModel::class,
+                'methods' => ['GET'],
+                'applySettings' => [
+                    'applyBrowseSettings',
+                    'applyDiagnosisSort',
+                ],
+                'allowed_fields' => [
+                    'id',
+                    'track',
+                    'trackName',
+                    'trackInfo',
+                    'startDate',
+                    'hasTemplate',
+                    'dossierTemplate',
+                    'patientNr',
+                    'organizationId',
+                    'success',
+                    'diagnosis',
+                    'diagnosisName',
+                    'treatment',
+                    'treatmentName',
+                    'trackStartDate',
+                    'patientFullName',
+                    'primaryTrack',
+                ],
+            ],
         ];
+    }
+
+    public function getRoutes($includeModelRoutes=true)
+    {
+        $modelRoutes = parent::getRoutes($includeModelRoutes);
+
+        $newRoutes = [
+            [
+                'name' => 'diagnosis-wizard-structures',
+                'path' => '/diagnosis-wizard-structures',
+                'middleware' => $this->getCustomActionMiddleware(DiagnosisWizardStructureController::class),
+                'allowed_methods' => ['GET', 'OPTIONS'],
+            ],
+            [
+                'name' => 'diagnosis-wizard',
+                'path' => '/diagnosis-wizard',
+                'middleware' => $this->getCustomActionMiddleware(DiagnosisWizardController::class),
+                'allowed_methods' => ['POST', 'OPTIONS'],
+            ]
+        ];
+
+
+        return array_merge($modelRoutes, $newRoutes);
     }
 }

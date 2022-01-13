@@ -508,7 +508,6 @@ class LegacyFactory implements FactoryInterface
         if (! $translate->isAvailable($language)) {
             $translate = \MUtil_Translate_Adapter_Potemkin::create();
         }
-        return $translate;
 
         //Now if we have a project specific language file, add it
         $projectLanguageDir = APPLICATION_PATH . '/languages/';
