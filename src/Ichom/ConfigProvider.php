@@ -104,6 +104,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'startDate',
                     'hasTemplate',
                     'dossierTemplate',
+                    'patient',
                     'patientNr',
                     'organizationId',
                     'success',

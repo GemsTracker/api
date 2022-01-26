@@ -5,6 +5,7 @@ namespace Ichom\Model;
 
 use Gems\Rest\Fhir\Model\Transformer\AllNumberTransformer;
 use Gems\Rest\Fhir\Model\Transformer\BooleanTransformer;
+use Gems\Rest\Fhir\Model\Transformer\PatientReferenceTransformer;
 use Ichom\Model\Transformer\FlatRespondentTrackFieldTransformer;
 use Ichom\Model\Transformer\PatientNameTransformer;
 
@@ -40,6 +41,8 @@ class DiagnosisTracksModel extends \Gems_Model_JoinModel
 
     public function afterRegistry()
     {
+        $this->set('patient', ['label' => 'patient']);
+        $this->addTransformer(new PatientReferenceTransformer());
         $this->addTransformer(new PatientNameTransformer());
         $this->addTransformer(new FlatRespondentTrackFieldTransformer());
         $this->addTransformer(new BooleanTransformer(['primaryTrack', 'success']));
