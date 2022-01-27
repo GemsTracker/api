@@ -7,10 +7,12 @@ use Gems\DataSetMapper\Exception\DataSetMissingDataException;
 use Gems\DataSetMapper\Repository\DataSetRepository;
 use Gems\Rest\Action\RestControllerAbstract;
 use Interop\Http\ServerMiddleware\DelegateInterface;
+use Laminas\Db\Adapter\Adapter;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ServerRequestInterface;
 use Ichom\Model\Transformer\PatientNameTransformer;
+use Pulse\Api\Repository\OtherPatientNumbersRepository;
 use Pulse\Tracker\DossierTemplateRepository;
 
 class RespondentDossierTemplatePreviewController extends RestControllerAbstract
@@ -25,12 +27,16 @@ class RespondentDossierTemplatePreviewController extends RestControllerAbstract
     protected $dataSetRepository;
 
     protected $intakeTrackCode = 'intake';
+    /**
+     * @var Adapter
+     */
+    protected $db;
 
-    public function __construct(DossierTemplateRepository $dossierTemplateRepository, DataSetRepository $dataSetRepository)
+    public function __construct(Adapter $db, DossierTemplateRepository $dossierTemplateRepository, DataSetRepository $dataSetRepository)
     {
-
         $this->dossierTemplateRepository = $dossierTemplateRepository;
         $this->dataSetRepository = $dataSetRepository;
+        $this->db = $db;
     }
 
     public function get(ServerRequestInterface $request, DelegateInterface $delegate)
@@ -81,6 +87,7 @@ class RespondentDossierTemplatePreviewController extends RestControllerAbstract
 
                     // No action required
                     //\Mutil_Echo::track($e->getErrors());
+                    print_r($e->getErrors());
                 }
 
             }
@@ -132,10 +139,22 @@ class RespondentDossierTemplatePreviewController extends RestControllerAbstract
         $model->addTable('gems__respondent2org', ['gr2o_id_user' => 'gr2t_id_user', 'gr2o_id_organization' => 'gr2t_id_organization'], 'gr2o', false)
             ->addTable('gems__tracks', ['gr2t_id_track' => 'gtr_id_track'], false);
         $filter = [
-            'gr2o_patient_nr' => $patientNr,
-            'gr2t_id_organization' => $organizationId,
             'gtr_code' => $this->intakeTrackCode,
         ];
+
+        $otherPatientNumbersRepository = new OtherPatientNumbersRepository($this->db);
+
+        $pairs = $otherPatientNumbersRepository->getAllPatientNumbers($patientNr, $organizationId);
+
+        $patientFilter = [];
+        foreach($pairs as $organizationId=>$patientNr) {
+            $patientFilter[] = [
+                'gr2o_patient_nr' => $patientNr,
+                'gr2o_id_organization' => $organizationId
+            ];
+        }
+        $filter[] = $patientFilter;
+
         $order = ['gr2t_start_date' => SORT_DESC];
 
         $latestIntakeTrack = $model->loadFirst($filter, $order);
