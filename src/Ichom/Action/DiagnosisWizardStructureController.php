@@ -205,7 +205,6 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                 'required' => true,
                 'elementClass' => 'Select',
                 'multiOptionSettings' => [
-                    'reference' => 'ichom/treatment',
                     'key' => 'id',
                     'value' => 'name',
                 ],
