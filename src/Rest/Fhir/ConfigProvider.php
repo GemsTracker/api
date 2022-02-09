@@ -165,6 +165,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'date',
                     'description',
                     'subjectType',
+                    'item',
                 ],
             ],
             'fhir/questionnaire-task' => [
