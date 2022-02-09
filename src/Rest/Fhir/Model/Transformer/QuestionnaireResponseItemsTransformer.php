@@ -3,7 +3,7 @@
 namespace Gems\Rest\Fhir\Model\Transformer;
 
 
-class QuestionnaireItemsTransformer extends \MUtil_Model_ModelTransformerAbstract
+class QuestionnaireResponseItemsTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     /**
      * @var string Language
@@ -41,11 +41,7 @@ class QuestionnaireItemsTransformer extends \MUtil_Model_ModelTransformerAbstrac
 
                     $display = $surveyInformation[$key]['answers'][$answer];
                     if (is_numeric($display)) {
-                        if ((int)$display == $display) {
-                            $display = (int)$display;
-                        } else {
-                            $display = (float)$display;
-                        }
+                        $display = +$display;
                     }
 
                     $answerItem['answer']['valueCoding'] = [
