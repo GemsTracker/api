@@ -40,7 +40,7 @@ class EncounterPractitionerTransformer extends \MUtil_Model_ModelTransformerAbst
         foreach($row['participant'] as $participant) {
             if (isset($participant['individual'], $participant['individual']['reference']) && strpos($participant['individual']['reference'], 'Practitioner/') === 0) {
                 $staffName = $participant['individual']['display'];
-                $sourceId = str_replace('Practitioner/', '', $participant['actor']['reference']);
+                $sourceId = str_replace('Practitioner/', '', $participant['individual']['reference']);
                 $practitionerId = $this->agendaStaffRepository->matchStaffByNameOrSourceId($staffName, $this->epdRepository->getEpdName(), $sourceId, $row['gap_id_organization']);
                 if ($practitionerId) {
                     $row['gap_id_attended_by'] = $practitionerId;
