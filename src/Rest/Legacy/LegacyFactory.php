@@ -80,7 +80,8 @@ class LegacyFactory implements FactoryInterface
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
             case EventDispatcher::class:
-                return new EventDispatcher();
+                $event = $this->getEventDispatcher();
+                return $event;
                 break;
             case 'LegacySource':
                 return new \Gems\Rest\Legacy\ServiceManagerRegistrySource($container);
@@ -382,6 +383,22 @@ class LegacyFactory implements FactoryInterface
         }
 
         return 'development';
+    }
+
+    protected function getEventDispatcher()
+    {
+        $event = new EventDispatcher();
+        if (isset($this->config['events'])) {
+            foreach($this->config['events'] as $subscriberClass) {
+                if ($this->container->has($subscriberClass)) {
+                    $subscriber = $this->container->get($subscriberClass);
+                } else {
+                    $subscriber = new $subscriberClass;
+                }
+                $event->addSubscriber($subscriber);
+            }
+        }
+        return $event;
     }
 
     protected function getLocale()
