@@ -152,6 +152,7 @@ class PatientResourceAction extends ModelRestController
                 // return JsonResponse
 
                 $event = new SaveFailedModel($this->model);
+                $event->setException($e);
                 $event->setSaveData($row);
 
                 $this->event->dispatch($event, 'model.' . $this->model->getName() . '.save.error');
