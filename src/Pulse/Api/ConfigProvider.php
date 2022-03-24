@@ -169,6 +169,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
     public function getLoggers()
     {
         return [
+            'logDir' => GEMS_LOG_DIR,
             'EmmaImportLogger' => [
                 'writers' => [
                     'stream' => [
