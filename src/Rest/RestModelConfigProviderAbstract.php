@@ -40,12 +40,12 @@ abstract class RestModelConfigProviderAbstract
     {
         return [
             LocaleMiddleware::class,
+            SecurityHeadersMiddleware::class,
             AuthorizeGemsAndOauthMiddleware::class,
             ApiGateMiddleware::class,
             ApiPatientGateMiddleware::class,
             ApiOrganizationGateMiddleware::class,
             AccessLogMiddleware::class,
-            SecurityHeadersMiddleware::class,
             ModelRestController::class,
         ];
     }
@@ -79,7 +79,7 @@ abstract class RestModelConfigProviderAbstract
             if (isset($settings['idField'])) {
                 $idField = $settings['idField'];
             }
-            
+
             if (is_array($idField) && count($idField) > 1) {
                 $routeParameters = '';
                 foreach($idField as $key=>$field) {
@@ -126,6 +126,9 @@ abstract class RestModelConfigProviderAbstract
 
             if (isset($methods['PATCH'])) {
                 $fixedRouteMethods[] = 'PATCH';
+            }
+            if (isset($methods['PUT'])) {
+                $fixedRouteMethods[] = 'PUT';
             }
             if (isset($methods['DELETE'])) {
                 $fixedRouteMethods[] = 'DELETE';
