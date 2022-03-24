@@ -160,6 +160,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 PermissionGeneratorController::class => ReflectionFactory::class,
 
+                \Pulse\Api\Repository\RespondentRepository::class => ReflectionFactory::class,
+
             ]
         ];
     }
