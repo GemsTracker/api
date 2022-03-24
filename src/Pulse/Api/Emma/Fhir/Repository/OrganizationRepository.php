@@ -17,7 +17,7 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
 
     public function __construct(Adapter $db, CurrentUserRepository $currentUser)
     {
-        parent::__construct($db, 1);
+        parent::__construct($db, $currentUser);
         $this->currentUser = $currentUser;
     }
 

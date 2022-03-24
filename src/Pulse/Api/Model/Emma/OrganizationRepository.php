@@ -7,6 +7,7 @@ use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\TableGateway\TableGateway;
+use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 
 class OrganizationRepository
 {
@@ -22,10 +23,10 @@ class OrganizationRepository
 
     protected $localOrganizations;
 
-    public function __construct(Adapter $db, $currentUserId)
+    public function __construct(Adapter $db, CurrentUserRepository $currentUserRepository)
     {
         $this->db = $db;
-        $this->currentUserId = $currentUserId;
+        $this->currentUserId = $currentUserRepository->getUserId();
     }
 
     /**
