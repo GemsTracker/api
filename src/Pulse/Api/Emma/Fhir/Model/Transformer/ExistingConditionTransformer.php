@@ -37,6 +37,7 @@ class ExistingConditionTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         $row['gmco_id_condition'] = null;
+        $row['gmco_source'] = $this->epdRepository->getEpdName();
         $condition = $this->conditionRepository->getConditionBySourceId($row['id'], $this->epdRepository->getEpdName());
         if (isset($condition['gmco_id_condition'])) {
             $row['gmco_id_condition'] = $condition['gmco_id_condition'];
