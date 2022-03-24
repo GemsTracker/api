@@ -32,6 +32,10 @@ class SavedModel extends ModelEvent
             $now = new \DateTimeImmutable();
             return $now->getTimestamp() - $this->start->getTimestamp();
         }
+        if (is_numeric($this->start)) {
+            $now = microtime(true);
+            return $now - $this->start;
+        }
         return null;
     }
 
@@ -45,7 +49,7 @@ class SavedModel extends ModelEvent
         $this->oldData = $oldData;
     }
 
-    public function setStart(\DateTimeInterface $start)
+    public function setStart($start)
     {
         $this->start = $start;
     }

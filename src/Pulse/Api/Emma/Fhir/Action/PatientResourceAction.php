@@ -77,7 +77,7 @@ class PatientResourceAction extends ModelRestController
 
     public function put(ServerRequestInterface $request)
     {
-        $this->requestStart = new \DateTimeImmutable();
+        $this->requestStart = microtime(true);
         if ($this->checkContentType($request) === false) {
             return new EmptyResponse(415);
         }
@@ -171,7 +171,7 @@ class PatientResourceAction extends ModelRestController
                 //$this->logger->error($e->getMessage());
                 return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
             }
-            $this->requestStart = new \DateTimeImmutable();
+            $this->requestStart = microtime(true);
 
         }
 

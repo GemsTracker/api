@@ -76,7 +76,7 @@ class ResourceActionAbstract extends ModelRestControllerAbstract
 
     public function put(ServerRequestInterface $request)
     {
-        $this->requestStart = new \DateTimeImmutable();
+        $this->requestStart = microtime(true);
         if ($this->checkContentType($request) === false) {
             return new EmptyResponse(415);
         }
