@@ -166,7 +166,7 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         $statement = $sql->prepareStatementForSqlObject($select);
 
         $result = $statement->execute();
-        if ($result->count() && $result->current()) {
+        if ($result->valid() && $result->current()) {
             $current = $result->current();
             if (isset($current['count']) && $current['count'] > 0) {
                 return true;
