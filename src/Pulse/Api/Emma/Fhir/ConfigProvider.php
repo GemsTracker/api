@@ -130,26 +130,31 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             'emma/Patient' => [
                 'model' => RespondentModel::class,
                 'methods' => ['PUT'],
+                'idFieldRegex' => '[A-Za-z0-9\-]+',
                 'customAction' => PatientResourceAction::class,
             ],
             'emma/Appointment' => [
                 'model' => AppointmentModel::class,
                 'methods' => ['PUT'],
+                'idFieldRegex' => '[A-Za-z0-9\-]+',
                 'customAction' => AppointmentResourceAction::class,
             ],
             'emma/Encounter' => [
                 'model' => EncounterModel::class,
                 'methods' => ['PUT'],
+                'idFieldRegex' => '[A-Za-z0-9\-]+',
                 'customAction' => EncounterResourceAction::class,
             ],
             'emma/EpisodeOfCare' => [
                 'model' => EpisodeOfCareModel::class,
                 'methods' => ['PUT'],
+                'idFieldRegex' => '[A-Za-z0-9\-]+',
                 'customAction' => EpisodeOfCareResourceAction::class,
             ],
             'emma/Condition' => [
                 'model' => ConditionModel::class,
                 'methods' => ['PUT'],
+                'idFieldRegex' => '[A-Za-z0-9\-]+',
                 'customAction' => ConditionResourceAction::class,
             ],
         ];
