@@ -41,9 +41,9 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
             'glo_organizations' => ':'.$organizationId.':',
             'glo_match_to' => $name,
             'glo_changed' => new Expression('NOW()'),
-            'glo_changed_by' => $this->currentUserId,
+            'glo_changed_by' => $this->currentUser->getUserId(),
             'glo_created' => new Expression('NOW()'),
-            'glo_created_by' => $this->currentUserId,
+            'glo_created_by' => $this->currentUser->getUserId(),
         ]);
 
         if ($result) {
