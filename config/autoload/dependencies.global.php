@@ -34,7 +34,8 @@ return [
             Helper\UrlHelperMiddleware::class => Helper\UrlHelperMiddlewareFactory::class,
 
             Laminas\Stratigility\Middleware\ErrorHandler::class => Container\ErrorHandlerFactory::class,
-            Middleware\ErrorResponseGenerator::class         => Container\ErrorResponseGeneratorFactory::class,
+            //Middleware\ErrorResponseGenerator::class         => Container\ErrorResponseGeneratorFactory::class,
+            Middleware\ErrorResponseGenerator::class         => \Gems\Rest\Error\JsonErrorResponseGeneratorFactory::class,
             Middleware\NotFoundHandler::class                => Container\NotFoundHandlerFactory::class,
 
             Blast\BaseUrl\BaseUrlMiddleware::class           => Blast\BaseUrl\BaseUrlMiddlewareFactory::class,
