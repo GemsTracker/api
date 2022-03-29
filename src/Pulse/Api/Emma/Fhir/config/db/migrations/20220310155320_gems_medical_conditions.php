@@ -48,6 +48,11 @@ class GemsMedicalConditions extends AbstractMigration
                 ->addColumn('gmco_changed_by', 'biginteger', ['signed' => true])
                 ->addColumn('gmco_created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
                 ->addColumn('gmco_created_by', 'biginteger', ['signed' => true])
+                ->addIndex('gmco_source')
+                ->addIndex('gmco_id_source')
+                ->addIndex('gmco_id_user')
+                ->addIndex('gmco_id_episode_of_care')
+
                 ->create();
         }
     }
