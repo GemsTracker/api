@@ -81,7 +81,7 @@ class AppointmentEventSubscriber implements EventSubscriberInterface
     protected function getAccountRepository()
     {
         if (!$this->accountRepository) {
-            $this->overLoader->create('Respondent\\Accounts');
+            $this->accountRepository = $this->overLoader->create('Respondent\\Accounts');
         }
         return $this->accountRepository;
     }
