@@ -8,6 +8,7 @@ namespace Pulse\Api\Emma\Fhir\Action;
 
 use Gems\Event\EventDispatcher;
 use Gems\Rest\Action\ModelRestController;
+use Gems\Rest\Exception\MissingDataException;
 use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
 use Gems\Rest\Model\ModelValidationException;
@@ -98,7 +99,12 @@ class PatientResourceAction extends ModelRestController
 
         $this->logRequest($request, $translatedRow, false);
 
-        $patientRows = $this->getPatients($translatedRow);
+        try {
+            $patientRows = $this->getPatients($translatedRow);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'missing_data', 'message' => $e->getMessage()], 400);
+        }
+
 
         if (count($patientRows) === 0) {
             return new JsonResponse(['error' => 'missing_data', 'message' => 'Patient not found'], 400);
@@ -121,18 +127,22 @@ class PatientResourceAction extends ModelRestController
 
         $savePatients = [];
 
-        if (isset($row['grs_ssn'], $row['gr2o_patient_nr'])) {
-            $existingPatients = $this->existingEpdPatientRepository->getExistingPatients($row['grs_ssn'], $row['gr2o_patient_nr']);
+        if (!isset($row['gr2o_patient_nr'])) {
+            throw new MissingDataException('No patient number found');
+        }
+        if (!isset($row['grs_ssn'])) {
+            $row['grs_ssn'] = null;
+        }
+        $existingPatients = $this->existingEpdPatientRepository->getExistingPatients($row['grs_ssn'], $row['gr2o_patient_nr']);
 
-            if ($existingPatients) {
-                foreach ($existingPatients as $existingPatient) {
-                    $savePatients[] = $existingPatient + $row;
-                }
-                $this->update = true;
-            } else {
-                $row['gr2o_id_organization'] = $this->escrowOrganizationId;
-                $savePatients[] = $row;
+        if ($existingPatients) {
+            foreach ($existingPatients as $existingPatient) {
+                $savePatients[] = $existingPatient + $row;
             }
+            $this->update = true;
+        } else {
+            $row['gr2o_id_organization'] = $this->escrowOrganizationId;
+            $savePatients[] = $row;
         }
 
         return $savePatients;

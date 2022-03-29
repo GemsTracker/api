@@ -30,7 +30,11 @@ class ExistingEpdPatientRepository
 
     public function getExistingPatients($ssn, $patientNr)
     {
-        $existingPatients = $this->respondentRepository->getPatientsFromSsn($ssn, $this->currentEpd);
+        $existingPatients = null;
+        if ($ssn !== null) {
+            $existingPatients = $this->respondentRepository->getPatientsFromSsn($ssn, $this->currentEpd);
+        }
+
         if ($existingPatients) {
             foreach($existingPatients as $key=>$existingPatient) {
                 if (isset($existingPatient['gr2o_patient_nr']) && $existingPatient['gr2o_patient_nr'] != $patientNr) {
@@ -59,6 +63,11 @@ class ExistingEpdPatientRepository
         }
 
         return $existingPatients;
+    }
+
+    public function getExistingPatientsByPatientNumber($patientNr)
+    {
+        return $this->respondentRepository->getPatientsFromPatientNr($patientNr, $this->currentEpd);
     }
 
     protected function getKeyCopyName($name)
