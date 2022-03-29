@@ -153,6 +153,10 @@ class PatientResourceAction extends ModelRestController
         foreach($rows as $row) {
             $row = $this->filterColumns($row, true);
             $row = $this->beforeSaveRow($row);
+            $row['exists'] = false;
+            if ($update) {
+                $row['exists'] = true;
+            }
 
             try {
                 $newRow = $this->model->save($row);

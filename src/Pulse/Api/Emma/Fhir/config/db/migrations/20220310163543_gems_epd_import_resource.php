@@ -36,12 +36,15 @@ class GemsEpdImportResource extends AbstractMigration
             $importResource = $this->table('gems__epd_import_resource', ['id' => 'geir_id_import_resource', 'signed' => false]);
             $importResource
                 ->addColumn('geir_source', 'string', ['limit' => 32])
+                ->addColumn('geir_resource_id', 'string', ['limit' => 64])
                 ->addColumn('geir_type', 'string', ['limit' => 32])
                 ->addColumn('geir_id_user', 'biginteger', ['signed' => false, 'null' => true])
                 ->addColumn('geir_id_organization', 'biginteger', ['signed' => false, 'null' => true])
+
                 ->addColumn('geir_status', 'string', ['limit' => 32])
                 ->addColumn('geir_errors', 'text', ['null' => true])
                 ->addColumn('geir_duration', 'float', ['null' => true])
+                ->addColumn('geir_new', 'boolean', ['default' => 1])
                 ->addColumn('geir_changed', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
                 ->addColumn('geir_changed_by', 'biginteger', ['signed' => true])
                 ->addColumn('geir_created', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])

@@ -233,16 +233,24 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
 
         $userId = $this->getUserIdFromData($resourceName, $newValues);
         $organizationId = $this->getOrganizationIdFromData($resourceName, $newValues);
+        $resourceId = $this->getResourceIdFromData($resourceName, $newValues);
 
         $now = new \DateTimeImmutable();
 
+        $isNew = 1;
+        if ($newValues['exists']) {
+            $isNew = 0;
+        }
+
         $data = [
             'geir_source' => $this->epdRepository->getEpdName(),
+            'geir_resource_id' => $resourceId,
             'geir_type' => $resourceName,
             'geir_id_user' => $userId,
             'geir_id_organization' => $organizationId,
             'geir_status' => 'saved',
             'geir_duration' => $event->getDurationInSeconds(),
+            'geir_new' => $isNew,
             'geir_changed' => $now->format('Y-m-d H:i:s'),
             'geir_changed_by' => $this->currentUserRepository->getUserId(),
             'geir_created' => $now->format('Y-m-d H:i:s'),
@@ -283,10 +291,13 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $newValues = $event->getNewData();
         $resourceId = $this->getResourceIdFromData($resourceName, $newValues);
 
-
+        $isNew = 'new';
+        if ($newValues['exists']) {
+            $isNew = 'existing';
+        }
 
         $importLogger = $this->importLogRepository->getImportLogger();
-        $message = sprintf('Finished import of %s with ID %s', $resourceName, $resourceId);
+        $message = sprintf('Finished import of %s %s with ID %s', $isNew, $resourceName, $resourceId);
 
         $updateData = [];
         if (method_exists($model, 'getUpdateDiffFields')) {
