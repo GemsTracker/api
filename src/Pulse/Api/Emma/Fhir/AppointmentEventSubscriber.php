@@ -37,12 +37,12 @@ class AppointmentEventSubscriber implements EventSubscriberInterface
     {
         return [
             'model.appointmentModel.saved' => [
-                'updateTracks', -10,
-                'checkAccounts', -15,
+                'updateTracks', 30,
+                'checkAccounts', 25,
             ],
             'model.encounterModel.saved' => [
-                'updateTracks', -10,
-                'checkAccounts', -15,
+                'updateTracks', 30,
+                'checkAccounts', 25,
             ],
         ];
     }

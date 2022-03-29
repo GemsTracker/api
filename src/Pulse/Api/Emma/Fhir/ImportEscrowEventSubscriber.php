@@ -42,10 +42,10 @@ class ImportEscrowEventSubscriber implements EventSubscriberInterface
         return [
 
             'model.conditionModel.saved' => [
-                ['checkImportEscrowItems'],
+                ['checkImportEscrowItems', 40],
             ],
             'model.episodeOfCareModel.saved' => [
-                ['checkImportEscrowItems'],
+                ['checkImportEscrowItems', 40],
             ],
         ];
     }

@@ -53,48 +53,48 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
     {
         return [
             'emma.import.start' => [
-                ['logFileImportStart'],
+                ['logFileImportStart', -10],
             ],
             'model.appointmentModel.saved' => [
-                ['logFileImportSaved'],
-                ['logDbImportSaved'],
+                ['logFileImportSaved', -10],
+                ['logDbImportSaved', -10],
             ],
             'model.conditionModel.saved' => [
-                ['logFileImportSaved'],
-                ['logDbImportSaved'],
+                ['logFileImportSaved', -10],
+                ['logDbImportSaved', -10],
             ],
             'model.encounterModel.saved' => [
-                ['logFileImportSaved'],
-                ['logDbImportSaved'],
+                ['logFileImportSaved', -10],
+                ['logDbImportSaved', -10],
             ],
             'model.episodeOfCareModel.saved' => [
-                ['logFileImportSaved'],
-                ['logDbImportSaved'],
+                ['logFileImportSaved', -10],
+                ['logDbImportSaved', -10],
             ],
             'model.respondentModel.saved' => [
-                ['logFileImportSaved'],
-                ['logDbImportSaved'],
+                ['logFileImportSaved', -10],
+                ['logDbImportSaved', -10],
             ],
 
             'model.appointmentModel.save.error' => [
-                ['logFileImportErrors'],
-                ['logDbImportErrors'],
+                ['logFileImportErrors', -10],
+                ['logDbImportErrors', -10],
             ],
             'model.conditionModel.save.error' => [
-                ['logFileImportErrors'],
-                ['logDbImportErrors'],
+                ['logFileImportErrors', -10],
+                ['logDbImportErrors', -10],
             ],
             'model.encounterModel.save.error' => [
-                ['logFileImportErrors'],
-                ['logDbImportErrors'],
+                ['logFileImportErrors', -10],
+                ['logDbImportErrors', -10],
             ],
             'model.episodeOfCareModel.save.error' => [
-                ['logFileImportErrors'],
-                ['logDbImportErrors'],
+                ['logFileImportErrors', -10],
+                ['logDbImportErrors', -10],
             ],
             'model.respondentModel.save.error' => [
-                ['logFileImportErrors'],
-                ['logDbImportErrors'],
+                ['logFileImportErrors', -10],
+                ['logDbImportErrors', -10],
             ],
         ];
     }
