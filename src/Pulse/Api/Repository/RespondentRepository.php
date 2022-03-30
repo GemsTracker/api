@@ -39,7 +39,6 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
                 'gr2o_id_organization'
             ])
             ->where([
-                'grs_ssn' => null,
                 'gr2o_patient_nr' => $patientNr,
             ]);
 
@@ -53,9 +52,11 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
 
         $patients = iterator_to_array($result);
 
-        if (count($patients) === 0) {
-            return null;
+        if (count($patients)) {
+            return $patients;
         }
+
+        return null;
     }
 
     public function getPatientsFromSsn($ssn, $epd = null)
