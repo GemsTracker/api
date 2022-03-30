@@ -38,6 +38,8 @@ use Pulse\Api\Action\TokenController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
+use Pulse\Api\Model\ActivityDiagnosisModel;
+use Pulse\Api\Model\AgendaActivityModel;
 use Pulse\Api\Model\DossierTemplatesModel;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentRepository;
@@ -533,7 +535,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],*/
             'dossier-templates' => [
                 'model' => DossierTemplatesModel::class,
-                'methods' => ['GET', 'POST', 'PATCH'],
+                'methods' => ['GET', 'POST', 'PATCH', 'OPTIONS'],
                 'applySettings' => [
                     'applyApiSettings',
                     'applyDiagnosesTreatments',
@@ -568,7 +570,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'respondent-dossier-templates' => [
                 'model' => RespondentDossierTemplatesModel::class,
-                'methods' => ['GET', 'OPTIONS'],
+                'methods' => ['GET'],
                 'applySettings' => [
                     'applyBrowseSettings',
                     'applyDetailSettings',
@@ -590,6 +592,35 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'treatmentName',
                     'trackStartDate',
                     'patientFullName',
+                ],
+            ],
+            'agenda-activities' => [
+                'model' => AgendaActivityModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'id',
+                    'name',
+                    'organization',
+                    'active',
+                ],
+            ],
+            'activity-diagnosis' => [
+                'model' => ActivityDiagnosisModel::class,
+                'methods' => ['GET', 'POST', 'PATCH'],
+                'allowed_fields' => [
+                    'id',
+                    'activity',
+                    'medicalCategory',
+                    'diagnosis',
+                    'active',
+                    'order',
+                ],
+                'allowed_save_fields' => [
+                    'pa2d_id_activity2diagnosis',
+                    'pa2d_activity',
+                    'pa2d_id_diagnosis',
+                    'pa2d_active',
+                    'pa2d_order',
                 ],
             ],
         ];
