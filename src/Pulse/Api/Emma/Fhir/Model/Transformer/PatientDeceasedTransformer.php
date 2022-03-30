@@ -10,9 +10,15 @@ class PatientDeceasedTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row)
     {
-        if (isset($row['deceasedBoolean']) && $row['deceasedBoolean'] === true) {
-            $row['gr2o_reception_code'] = 'deceased';
+        if (isset($row['deceasedBoolean'])) {
+            if ($row['deceasedBoolean'] === true) {
+                $row['gr2o_reception_code'] = 'deceased';
+            }
+            if ($row['deceasedBoolean'] === false && $row['gr2o_reception_code'] === 'deceased') {
+                $row['gr2o_reception_code'] = 'OK';
+            }
         }
+
         return $row;
     }
 }
