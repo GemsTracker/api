@@ -238,7 +238,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $now = new \DateTimeImmutable();
 
         $isNew = 1;
-        if ($newValues['exists']) {
+        if (isset($newValues['exists']) && $newValues['exists'] === true) {
             $isNew = 0;
         }
 
@@ -292,7 +292,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $resourceId = $this->getResourceIdFromData($resourceName, $newValues);
 
         $isNew = 'new';
-        if ($newValues['exists']) {
+        if (isset($newValues['exists']) && $newValues['exists'] === true) {
             $isNew = 'existing';
         }
 
