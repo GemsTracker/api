@@ -59,6 +59,7 @@ class ExistingEncounterTransformerTest extends TestCase
         $expected['gap_id_appointment'] = 1;
         $expected['gap_id_organization'] = 1;
         $expected['exists'] = true;
+        $expected['existingOrganizationId'] = 1;
 
         $this->assertEquals($expected, $result);
     }

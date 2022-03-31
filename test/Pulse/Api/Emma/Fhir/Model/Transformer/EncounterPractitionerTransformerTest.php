@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Pulse\Api\Emma\Fhir\Model\Transformer\AppointmentPractitionerTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\EncounterPractitionerTransformer;
 use Pulse\Api\Emma\Fhir\Repository\AgendaStaffRepository;
+use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
 use PulseTest\Rest\Api\Emma\Fhir\Model\MockEncounterModel;
 
 class EncounterPractitionerTransformerTest extends TestCase
@@ -76,10 +77,11 @@ class EncounterPractitionerTransformerTest extends TestCase
     public function getTransformer()
     {
         $agendaStaffRepositoryProphecy = $this->prophesize(AgendaStaffRepository::class);
+        $agendaStaffRepositoryProphecy->matchStaffByNameOrSourceId('Jan Jansen', 'testEpd', '123', 1)->willReturn(12);
 
-        $agendaStaffRepositoryProphecy->matchStaff('Jan Jansen', 1)->willReturn(12);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
+        $epdRepositoryProphecy->getEpdName()->willReturn('testEpd');
 
-
-        return new EncounterPractitionerTransformer($agendaStaffRepositoryProphecy->reveal());
+        return new EncounterPractitionerTransformer($agendaStaffRepositoryProphecy->reveal(), $epdRepositoryProphecy->reveal());
     }
 }

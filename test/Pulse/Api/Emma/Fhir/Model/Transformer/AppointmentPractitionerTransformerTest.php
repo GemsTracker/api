@@ -10,6 +10,7 @@ use Gems\Rest\Exception\MissingDataException;
 use PHPUnit\Framework\TestCase;
 use Pulse\Api\Emma\Fhir\Model\Transformer\AppointmentPractitionerTransformer;
 use Pulse\Api\Emma\Fhir\Repository\AgendaStaffRepository;
+use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
 use PulseTest\Rest\Api\Emma\Fhir\Model\MockAppointmentModel;
 
 class AppointmentPractitionerTransformerTest extends TestCase
@@ -109,9 +110,12 @@ class AppointmentPractitionerTransformerTest extends TestCase
     {
         $agendaStaffRepositoryProphecy = $this->prophesize(AgendaStaffRepository::class);
 
-        $agendaStaffRepositoryProphecy->matchStaff('Jan Jansen', 1)->willReturn(12);
+        $agendaStaffRepositoryProphecy->matchStaffByNameOrSourceId('Jan Jansen', 'testEpd', '123', 1)->willReturn(12);
+
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
+        $epdRepositoryProphecy->getEpdName()->willReturn('testEpd');
 
 
-        return new AppointmentPractitionerTransformer($agendaStaffRepositoryProphecy->reveal());
+        return new AppointmentPractitionerTransformer($agendaStaffRepositoryProphecy->reveal(), $epdRepositoryProphecy->reveal());
     }
 }

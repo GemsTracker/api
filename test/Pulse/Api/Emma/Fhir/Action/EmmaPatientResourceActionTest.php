@@ -23,6 +23,8 @@ use Pulse\Api\Emma\Fhir\Action\PatientResourceAction;
 use Pulse\Api\Emma\Fhir\ExistingEpdPatientRepository;
 use Pulse\Api\Emma\Fhir\Model\RespondentModel;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
+use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
+use Pulse\Api\Repository\RespondentRepository;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Zalt\Loader\ProjectOverloader;
@@ -37,6 +39,8 @@ class EmmaPatientResourceActionTest extends TestCase
 
         $request = $this->prophesize(ServerRequestInterface::class);
 
+        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $eventDispatcherProphecy = $this->prophesize(EventDispatcher::class);
         $existingEpdPatientRepositoryProphecy = $this->prophesize(ExistingEpdPatientRepository::class);
@@ -45,6 +49,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $urlHelperProphecy  = $this->prophesize(UrlHelper::class);
         $legacyDb = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
         $action = new PatientResourceAction(
+            $respondentRepositoryProphecy->reveal(),
+            $epdRepositoryProphecy->reveal(),
             $currentUserRepositoryProphecy->reveal(),
             $eventDispatcherProphecy->reveal(),
             $existingEpdPatientRepositoryProphecy->reveal(),
@@ -71,6 +77,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $streamBodyProphecy->getContents()->willReturn(json_encode($data));
         $request->getBody()->willReturn($streamBodyProphecy->reveal());
 
+        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $eventDispatcherProphecy = $this->prophesize(EventDispatcher::class);
         $existingEpdPatientRepositoryProphecy = $this->prophesize(ExistingEpdPatientRepository::class);
@@ -79,6 +87,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $urlHelperProphecy  = $this->prophesize(UrlHelper::class);
         $legacyDb = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
         $action = new PatientResourceAction(
+            $respondentRepositoryProphecy->reveal(),
+            $epdRepositoryProphecy->reveal(),
             $currentUserRepositoryProphecy->reveal(),
             $eventDispatcherProphecy->reveal(),
             $existingEpdPatientRepositoryProphecy->reveal(),
@@ -117,6 +127,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $streamBodyProphecy->getContents()->willReturn(json_encode($data));
         $request->getBody()->willReturn($streamBodyProphecy->reveal());
 
+        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $eventDispatcherProphecy = $this->prophesize(EventDispatcher::class);
         $existingEpdPatientRepositoryProphecy = $this->prophesize(ExistingEpdPatientRepository::class);
@@ -125,6 +137,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $urlHelperProphecy  = $this->prophesize(UrlHelper::class);
         $legacyDb = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
         $action = new PatientResourceAction(
+            $respondentRepositoryProphecy->reveal(),
+            $epdRepositoryProphecy->reveal(),
             $currentUserRepositoryProphecy->reveal(),
             $eventDispatcherProphecy->reveal(),
             $existingEpdPatientRepositoryProphecy->reveal(),
@@ -186,6 +200,8 @@ class EmmaPatientResourceActionTest extends TestCase
             ]
         ]);
 
+        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $eventDispatcherProphecy = $this->prophesize(EventDispatcher::class);
         $accessLogRepositoryProphecy = $this->prophesize(AccesslogRepository::class);
@@ -193,6 +209,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $urlHelperProphecy  = $this->prophesize(UrlHelper::class);
         $legacyDb = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
         $action = new PatientResourceAction(
+            $respondentRepositoryProphecy->reveal(),
+            $epdRepositoryProphecy->reveal(),
             $currentUserRepositoryProphecy->reveal(),
             $eventDispatcherProphecy->reveal(),
             $existingEpdPatientRepositoryProphecy->reveal(),
@@ -253,6 +271,8 @@ class EmmaPatientResourceActionTest extends TestCase
             ]
         ]);
 
+        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $eventDispatcherProphecy = $this->prophesize(EventDispatcher::class);
         $accessLogRepositoryProphecy = $this->prophesize(AccesslogRepository::class);
@@ -260,6 +280,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $urlHelperProphecy  = $this->prophesize(UrlHelper::class);
         $legacyDb = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
         $action = new PatientResourceAction(
+            $respondentRepositoryProphecy->reveal(),
+            $epdRepositoryProphecy->reveal(),
             $currentUserRepositoryProphecy->reveal(),
             $eventDispatcherProphecy->reveal(),
             $existingEpdPatientRepositoryProphecy->reveal(),
@@ -317,6 +339,8 @@ class EmmaPatientResourceActionTest extends TestCase
             ]
         ]);
 
+        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $eventDispatcherProphecy = $this->prophesize(EventDispatcher::class);
         $accessLogRepositoryProphecy = $this->prophesize(AccesslogRepository::class);
@@ -324,6 +348,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $urlHelperProphecy  = $this->prophesize(UrlHelper::class);
         $legacyDb = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
         $action = new PatientResourceAction(
+            $respondentRepositoryProphecy->reveal(),
+            $epdRepositoryProphecy->reveal(),
             $currentUserRepositoryProphecy->reveal(),
             $eventDispatcherProphecy->reveal(),
             $existingEpdPatientRepositoryProphecy->reveal(),
@@ -381,6 +407,8 @@ class EmmaPatientResourceActionTest extends TestCase
             ]
         ]);
 
+        $respondentRepositoryProphecy = $this->prophesize(RespondentRepository::class);
+        $epdRepositoryProphecy = $this->prophesize(EpdRepository::class);
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $eventDispatcherProphecy = $this->prophesize(EventDispatcher::class);
         $accessLogRepositoryProphecy = $this->prophesize(AccesslogRepository::class);
@@ -388,6 +416,8 @@ class EmmaPatientResourceActionTest extends TestCase
         $urlHelperProphecy  = $this->prophesize(UrlHelper::class);
         $legacyDb = $this->prophesize(\Zend_Db_Adapter_Abstract::class);
         $action = new PatientResourceAction(
+            $respondentRepositoryProphecy->reveal(),
+            $epdRepositoryProphecy->reveal(),
             $currentUserRepositoryProphecy->reveal(),
             $eventDispatcherProphecy->reveal(),
             $existingEpdPatientRepositoryProphecy->reveal(),

@@ -57,10 +57,8 @@ class EncounterPatientTransformerTest extends TestCase
 
         $transformer = $this->getTransformer();
 
-        $result = $transformer->transformRowBeforeSave($model, $data);
-        $expected = $data;
-
-        $this->assertEquals($expected, $result);
+        $this->expectException(MissingDataException::class);
+        $transformer->transformRowBeforeSave($model, $data);
     }
 
     public function testPatientFound()

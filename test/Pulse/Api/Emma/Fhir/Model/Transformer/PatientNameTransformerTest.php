@@ -542,8 +542,10 @@ class PatientNameTransformerTest extends TestCase
                     '_given' => [
                         [
                             'extension' => [
-                                'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
-                                'valueCode' => 'BR',
+                                [
+                                    'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
+                                    'valueCode' => 'BR',
+                                ],
                             ],
                         ],
                     ],
@@ -578,8 +580,10 @@ class PatientNameTransformerTest extends TestCase
                     '_given' => [
                         [
                             'extension' => [
-                                'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
-                                'valueCode' => 'IN',
+                                [
+                                    'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
+                                    'valueCode' => 'IN',
+                                ],
                             ],
                         ],
                     ],
@@ -614,14 +618,18 @@ class PatientNameTransformerTest extends TestCase
                     '_given' => [
                         [
                             'extension' => [
-                                'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
-                                'valueCode' => 'BR',
+                                [
+                                    'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
+                                    'valueCode' => 'BR',
+                                ],
                             ],
                         ],
                         [
                             'extension' => [
-                                'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
-                                'valueCode' => 'IN',
+                                [
+                                    'url' => 'http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier',
+                                    'valueCode' => 'IN',
+                                ],
                             ],
                         ],
                     ],
