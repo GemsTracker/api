@@ -105,16 +105,17 @@ class PatientNameTransformer extends \MUtil_Model_ModelTransformerAbstract
                             $row['grs_last_name_order'] = 'partner name, surname';
                             if (isset($row['grs_partner_last_name'])) {
                                 $row['grs_last_name'] = $row['grs_partner_last_name'];
-                            }
-                            if (isset($row['grs_partner_surname_prefix'])) {
-                                $row['grs_surname_prefix'] = $row['grs_partner_surname_prefix'];
-                            }
-                            if (isset($row['grs_last_name'])) {
-                                $row['grs_last_name'] .= ' -';
-                                if (isset($row['grs_raw_surname_prefix'])) {
-                                    $row['grs_last_name'] .= ' ' . $row['grs_raw_surname_prefix'];
+
+                                if (isset($row['grs_partner_surname_prefix'])) {
+                                    $row['grs_surname_prefix'] = $row['grs_partner_surname_prefix'];
                                 }
-                                $row['grs_last_name'] .= ' ' . $row['grs_raw_last_name'];
+                                if (isset($row['grs_last_name'])) {
+                                    $row['grs_last_name'] .= ' -';
+                                    if (isset($row['grs_raw_surname_prefix'])) {
+                                        $row['grs_last_name'] .= ' ' . $row['grs_raw_surname_prefix'];
+                                    }
+                                    $row['grs_last_name'] .= ' ' . $row['grs_raw_last_name'];
+                                }
                             }
                             break;
                         case 'NL4':
@@ -153,9 +154,9 @@ class PatientNameTransformer extends \MUtil_Model_ModelTransformerAbstract
                 throw new IncorrectDataException('No given name helpers found while given is an array');
             }
             foreach($name['_given'] as $helperIndex => $givenNameHelper) {
-                if (isset($givenNameHelper['extension'], $givenNameHelper['extension']['url'], $givenNameHelper['extension']['valueCode'], $name['given'][$helperIndex])) {
-                    if ($givenNameHelper['extension']['url'] === $this->humanNameQualifierUrl) {
-                        switch($givenNameHelper['extension']['valueCode']) {
+                if (isset($givenNameHelper['extension'], $givenNameHelper['extension'][0], $givenNameHelper['extension'][0]['url'], $givenNameHelper['extension'][0]['valueCode'], $name['given'][$helperIndex])) {
+                    if ($givenNameHelper['extension'][0]['url'] === $this->humanNameQualifierUrl) {
+                        switch($givenNameHelper['extension'][0]['valueCode']) {
                             case 'BR':
                                 $row['grs_first_name'] = $name['given'][$helperIndex];
                                 break;
