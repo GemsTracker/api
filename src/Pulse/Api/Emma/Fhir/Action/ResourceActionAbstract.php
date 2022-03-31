@@ -11,6 +11,8 @@ use Gems\Rest\Action\ModelRestControllerAbstract;
 use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelValidationException;
 use Gems\Rest\Repository\AccesslogRepository;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Helper\UrlHelper;
@@ -18,6 +20,8 @@ use Mezzio\Router\Exception\InvalidArgumentException;
 use Mezzio\Router\RouteResult;
 use Psr\Http\Message\ServerRequestInterface;
 use Pulse\Api\Emma\Fhir\Event\BeforeSaveModel;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceFailedEvent;
 use Pulse\Api\Emma\Fhir\Event\ModelImport;
 use Pulse\Api\Emma\Fhir\Event\SavedModel;
 use Pulse\Api\Emma\Fhir\Event\SaveFailedModel;
@@ -72,6 +76,49 @@ class ResourceActionAbstract extends ModelRestControllerAbstract
             throw new ModelException('No model set in action');
         }
         return $this->model;
+    }
+
+    /**
+     * Delete a row from the model
+     *
+     * @param ServerRequestInterface $request
+     * @param DelegateInterface $delegate
+     * @return Response
+     */
+    public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
+    {
+        $this->requestStart = microtime(true);
+        $id = $request->getAttribute('id');
+        if ($id === null) {
+            return new EmptyResponse(404);
+        }
+
+        $this->currentUserRepository->setRequest($request);
+
+        $event = new DeleteResourceEvent($this->model, $id);
+        $event->setStart($this->requestStart);
+        $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.delete');
+
+        try {
+            $changedRows = $this->deleteResourceFromSourceId($id);
+        } catch (\Exception $e) {
+            $failedEvent = new DeleteResourceFailedEvent($this->model, $e, $id);
+            $this->event->dispatch($failedEvent, 'resource.' . $this->model->getName() . '.delete.error');
+            return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
+        }
+
+        if ($changedRows == 0) {
+            return new EmptyResponse(404);
+        }
+
+        $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.deleted');
+
+        return new EmptyResponse(204);
+    }
+
+    public function deleteResourceFromSourceId($sourceId)
+    {
+        return 0;
     }
 
     public function put(ServerRequestInterface $request)

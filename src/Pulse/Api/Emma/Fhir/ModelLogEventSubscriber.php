@@ -7,6 +7,8 @@ namespace Pulse\Api\Emma\Fhir;
 
 
 use Gems\Rest\Model\ModelValidationException;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceFailedEvent;
 use Pulse\Api\Emma\Fhir\Event\ModelImport;
 use Pulse\Api\Emma\Fhir\Event\SavedModel;
 use Pulse\Api\Emma\Fhir\Event\SaveFailedModel;
@@ -95,6 +97,20 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'model.respondentModel.save.error' => [
                 ['logFileImportErrors', -10],
                 ['logDbImportErrors', -10],
+            ],
+
+            'resource.appointmentModel.delete' => [
+                ['logFileImportDeleteStart', -10],
+            ],
+
+            'resource.appointmentModel.deleted' => [
+                ['logFileImportDeleted', -10],
+                ['logDbImportDeleted', -10],
+            ],
+
+            'resource.appointmentModel.delete.error' => [
+                ['logFileImportDeleteError', -10],
+                ['logDbImportDeleteError', -10],
             ],
         ];
     }
@@ -260,6 +276,96 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $this->importDbLogRepository->logImportResource($data);
     }
 
+    public function logDbImportDeleted(DeleteResourceEvent $event)
+    {
+        $model = $event->getModel();
+        $resourceName = strtolower(str_replace('Model', '', $model->getName()));
+
+        $resourceId = $event->getResourceId();
+
+        $now = new \DateTimeImmutable();
+
+        $data = [
+            'geir_source' => $this->epdRepository->getEpdName(),
+            'geir_resource_id' => $resourceId,
+            'geir_type' => $resourceName,
+            'geir_status' => 'deleted',
+            'geir_duration' => $event->getDurationInSeconds(),
+            'geir_new' => 0,
+            'geir_changed' => $now->format('Y-m-d H:i:s'),
+            'geir_changed_by' => $this->currentUserRepository->getUserId(),
+            'geir_created' => $now->format('Y-m-d H:i:s'),
+            'geir_created_by' => $this->currentUserRepository->getUserId(),
+        ];
+
+        $this->importDbLogRepository->logImportResource($data);
+    }
+
+    public function logDbImportDeleteError(DeleteResourceFailedEvent $event)
+    {
+        $model = $event->getModel();
+        $resourceName = strtolower(str_replace('Model', '', $model->getName()));
+
+        $resourceId = $event->getResourceId();
+
+        $exception = $event->getException();
+        $errors = $exception->getMessage();
+
+        $now = new \DateTimeImmutable();
+
+        $data = [
+            'geir_source' => $this->epdRepository->getEpdName(),
+            'geir_resource_id' => $resourceId,
+            'geir_type' => $resourceName,
+            'geir_status' => 'deleteFailed',
+            'geir_errors' => $errors,
+            'geir_new' => 0,
+            'geir_changed' => $now->format('Y-m-d H:i:s'),
+            'geir_changed_by' => $this->currentUserRepository->getUserId(),
+            'geir_created' => $now->format('Y-m-d H:i:s'),
+            'geir_created_by' => $this->currentUserRepository->getUserId(),
+        ];
+
+        $this->importDbLogRepository->logImportResource($data);
+    }
+
+    public function logFileImportDeleteStart(DeleteResourceEvent $event)
+    {
+        $resourceId = $event->getResourceId();
+        $model = $event->getModel();
+        $resourceName = strtolower(str_replace('Model', '', $model->getName()));
+
+        $importLogger = $this->importLogRepository->getImportLogger();
+        $message = sprintf('Starting deletion of %s with ID %s', $resourceName, $resourceId);
+        $importLogger->notice($message);
+    }
+
+    public function logFileImportDeleted(DeleteResourceEvent $event)
+    {
+        $resourceId = $event->getResourceId();
+        $model = $event->getModel();
+        $resourceName = strtolower(str_replace('Model', '', $model->getName()));
+
+        $importLogger = $this->importLogRepository->getImportLogger();
+        $message = sprintf('Finished deletion of %s with ID %s', $resourceName, $resourceId);
+        $importLogger->notice($message);
+    }
+
+    public function logFileImportDeleteError(DeleteResourceFailedEvent $event)
+    {
+        $resourceId = $event->getResourceId();
+        $model = $event->getModel();
+        $resourceName = strtolower(str_replace('Model', '', $model->getName()));
+
+        $exception = $event->getException();
+
+        $importLogger = $this->importLogRepository->getImportLogger();
+        $message = sprintf('Deleting %s [%s] failed: %s', $resourceName, $resourceId, $exception->getMessage());
+
+        $importLogger->error($message);
+    }
+
+
     public function logFileImportErrors(SaveFailedModel $event)
     {
         $model = $event->getModel();
@@ -273,7 +379,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $exception = $event->getException();
 
         $importLogger = $this->importLogRepository->getImportLogger();
-        $message = sprintf('%s: %s', $resourceId, $exception->getMessage());
+        $message = sprintf('Saving %s [%s] failed: %s', $resourceName, $resourceId, $exception->getMessage());
 
         $errors = [];
         if ($exception instanceof ModelValidationException) {

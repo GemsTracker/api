@@ -14,6 +14,7 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
 use Pulse\Api\Emma\Fhir\Model\AppointmentModel;
 use Pulse\Api\Emma\Fhir\Repository\AppointmentRepository;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
@@ -46,30 +47,8 @@ class AppointmentResourceAction extends ResourceActionAbstract
         parent::__construct($currentUser, $event, $accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
-    /**
-     * Delete a row from the model
-     *
-     * @param ServerRequestInterface $request
-     * @param DelegateInterface $delegate
-     * @return Response
-     */
-    public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
+    public function deleteResourceFromSourceId($sourceId)
     {
-        $id = $request->getAttribute('id');
-        if ($id === null) {
-            return new EmptyResponse(404);
-        }
-
-        try {
-            $changedRows = $this->appointmentRepository->softDeleteAppointmentFromSourceId($id, $this->epdRepository->getEpdName());
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
-        }
-
-        if ($changedRows == 0) {
-            return new EmptyResponse(404);
-        }
-
-        return new EmptyResponse(204);
+        return $this->appointmentRepository->softDeleteAppointmentFromSourceId($sourceId, $this->epdRepository->getEpdName());
     }
 }

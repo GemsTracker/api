@@ -20,6 +20,8 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
 use Pulse\Api\Emma\Fhir\Event\BeforeSaveModel;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceFailedEvent;
 use Pulse\Api\Emma\Fhir\Event\ModelImport;
 use Pulse\Api\Emma\Fhir\Event\SavedModel;
 use Pulse\Api\Emma\Fhir\Event\SaveFailedModel;
@@ -223,15 +225,25 @@ class PatientResourceAction extends ModelRestController
             return new EmptyResponse(404);
         }
 
+        $this->currentUserRepository->setRequest($request);
+
+        $event = new DeleteResourceEvent($this->model, $id);
+        $event->setStart($this->requestStart);
+        $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.delete');
+
         try {
             $changedRows = $this->respondentRepository->softDeletePatientFromSourceId($id, $this->epdRepository->getEpdName());
         } catch (\Exception $e) {
+            $failedEvent = new DeleteResourceFailedEvent($this->model, $e, $id);
+            $this->event->dispatch($failedEvent, 'resource.' . $this->model->getName() . '.delete.error');
             return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
         }
 
         if ($changedRows == 0) {
             return new EmptyResponse(404);
         }
+
+        $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.deleted');
 
         return new EmptyResponse(204);
     }

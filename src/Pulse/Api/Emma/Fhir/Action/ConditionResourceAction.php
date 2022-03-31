@@ -48,30 +48,8 @@ class ConditionResourceAction extends ResourceActionAbstract
         parent::__construct($currentUser, $event, $accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
-    /**
-     * Delete a row from the model
-     *
-     * @param ServerRequestInterface $request
-     * @param DelegateInterface $delegate
-     * @return Response
-     */
-    public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
+    public function deleteResourceFromSourceId($sourceId)
     {
-        $id = $request->getAttribute('id');
-        if ($id === null) {
-            return new EmptyResponse(404);
-        }
-
-        try {
-            $changedRows = $this->conditionRepository->softDeleteConditionFromSourceId($id, $this->epdRepository->getEpdName());
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
-        }
-
-        if ($changedRows == 0) {
-            return new EmptyResponse(404);
-        }
-
-        return new EmptyResponse(204);
+        return $this->conditionRepository->softDeleteConditionFromSourceId($sourceId, $this->epdRepository->getEpdName());
     }
 }
