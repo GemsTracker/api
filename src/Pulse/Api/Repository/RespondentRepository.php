@@ -175,4 +175,20 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         }
         return false;
     }
+
+    public function softDeletePatientFromSourceId($sourceId, $source)
+    {
+        $sql = new Sql($this->db);
+        $update = $sql->update();
+        return $update->table('gems__respondent2org')
+            ->join('gems__respondents', 'gr2o_id_user = grs_id_user')
+            ->join('gems__organizations', 'gr2o_id_organization = gor_id_organization')
+            ->set([
+                'grs_ssn' => null,
+                'gr2o_reception_code' => 'deleted'])
+            ->where([
+                'gr2o_epd_id' => $sourceId,
+                'gor_epd' => $source,
+            ]);
+    }
 }

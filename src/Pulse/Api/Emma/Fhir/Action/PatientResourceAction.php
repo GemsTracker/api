@@ -13,6 +13,8 @@ use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
 use Gems\Rest\Model\ModelValidationException;
 use Gems\Rest\Repository\AccesslogRepository;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Helper\UrlHelper;
@@ -26,6 +28,8 @@ use Pulse\Api\Emma\Fhir\Model\Transformer\CreatedChangedByTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\PatientIdentifierTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\ValidateFieldsTransformer;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
+use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
+use Pulse\Api\Repository\RespondentRepository;
 use Zalt\Loader\ProjectOverloader;
 
 class PatientResourceAction extends ModelRestController
@@ -47,14 +51,24 @@ class PatientResourceAction extends ModelRestController
      * @var CurrentUserRepository
      */
     protected $currentUserRepository;
+    /**
+     * @var RespondentRepository
+     */
+    protected $respondentRepository;
+    /**
+     * @var EpdRepository
+     */
+    protected $epdRepository;
 
 
-    public function __construct(CurrentUserRepository $currentUserRepository, EventDispatcher $event, ExistingEpdPatientRepository $existingEpdPatientRepository, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
+    public function __construct(RespondentRepository $respondentRepository, EpdRepository $epdRepository, CurrentUserRepository $currentUserRepository, EventDispatcher $event, ExistingEpdPatientRepository $existingEpdPatientRepository, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
     {
         $this->existingEpdPatientRepository = $existingEpdPatientRepository;
         parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
         $this->event = $event;
         $this->currentUserRepository = $currentUserRepository;
+        $this->respondentRepository = $respondentRepository;
+        $this->epdRepository = $epdRepository;
     }
 
     protected function afterSaveRow($newRow)
@@ -193,5 +207,32 @@ class PatientResourceAction extends ModelRestController
             return new EmptyResponse(200);
         }
         return new EmptyResponse(201);
+    }
+
+    /**
+     * Delete a row from the model
+     *
+     * @param ServerRequestInterface $request
+     * @param DelegateInterface $delegate
+     * @return Response
+     */
+    public function delete(ServerRequestInterface $request, DelegateInterface $delegate)
+    {
+        $id = $request->getAttribute('id');
+        if ($id === null) {
+            return new EmptyResponse(404);
+        }
+
+        try {
+            $changedRows = $this->respondentRepository->softDeletePatientFromSourceId($id, $this->epdRepository->getEpdName());
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
+        }
+
+        if ($changedRows == 0) {
+            return new EmptyResponse(404);
+        }
+
+        return new EmptyResponse(204);
     }
 }

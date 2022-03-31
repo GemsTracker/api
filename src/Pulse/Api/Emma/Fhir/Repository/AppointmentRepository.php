@@ -41,6 +41,7 @@ class AppointmentRepository
                 'gap_source' => $epd,
             ]);
         }
+
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
 
@@ -52,10 +53,27 @@ class AppointmentRepository
 
     public function addEpisodeOfCareIdToAppointmentSourceId($sourceId, $source, $episodeOfCareId)
     {
-        $table = new TableGateway('gems__appointments');
+        $table = new TableGateway('gems__appointments', $this->db);
 
         return $table->update([
             'gap_id_episode' => $episodeOfCareId,
+        ], [
+            'gap_source' => $source,
+            'gap_id_in_source' => $sourceId,
+        ]);
+    }
+
+    /**
+     * @param $sourceId
+     * @param $source
+     * @return int changed rows
+     */
+    public function softDeleteAppointmentFromSourceId($sourceId, $source)
+    {
+        $table = new TableGateway('gems__appointments', $this->db);
+
+        return $table->update([
+            'gap_status' => 'CA',
         ], [
             'gap_source' => $source,
             'gap_id_in_source' => $sourceId,

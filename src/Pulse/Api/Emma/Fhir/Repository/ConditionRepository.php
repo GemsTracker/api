@@ -74,4 +74,21 @@ class ConditionRepository
             'gmco_source' => $source,
         ]);
     }
+
+    /**
+     * @param $sourceId
+     * @param $source
+     * @return int changed rows
+     */
+    public function softDeleteConditionFromSourceId($sourceId, $source)
+    {
+        $table = new TableGateway('gems__medical_conditions', $this->db);
+
+        return $table->update([
+            'gmco_active' => 0,
+        ], [
+            'gmco_source' => $source,
+            'gmco_id_source' => $sourceId,
+        ]);
+    }
 }

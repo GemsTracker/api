@@ -40,6 +40,7 @@ class GemsMedicalConditions extends AbstractMigration
                 ->addColumn('gmco_id_user', 'biginteger', ['signed' => false])
                 ->addColumn('gmco_id_episode_of_care', 'biginteger', ['signed' => false, 'null' => true])
                 ->addColumn('gmco_status', 'string', ['limit' => 32])
+                ->addColumn('gmco_active', 'boolean', ['default' => 1])
                 ->addColumn('gmco_code', 'string', ['limit' => 32, 'null' => true])
                 ->addColumn('gmco_name', 'string', ['limit' => 255, 'null' => true])
                 ->addColumn('gmco_onset_date', 'date', ['null' => true])

@@ -8,6 +8,7 @@ namespace Pulse\Api\Emma\Fhir\Repository;
 
 use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Sql;
+use Laminas\Db\TableGateway\TableGateway;
 
 class EpisodeOfCareRepository
 {
@@ -47,5 +48,22 @@ class EpisodeOfCareRepository
             }
         }
         return null;
+    }
+
+    /**
+     * @param $sourceId
+     * @param $source
+     * @return int changed rows
+     */
+    public function softDeleteEpisodeFromSourceId($sourceId, $source)
+    {
+        $table = new TableGateway('gems__episodes_of_care', $this->db);
+
+        return $table->update([
+            'gec_status' => 'C',
+        ], [
+            'gec_source' => $source,
+            'gec_id_in_source' => $sourceId,
+        ]);
     }
 }
