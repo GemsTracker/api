@@ -6,13 +6,17 @@ declare(strict_types=1);
 namespace Pulse\Api\Emma\Fhir\Repository;
 
 
+use Gems\Rest\Cache\Psr6CacheHelpers;
 use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\TableGateway\TableGateway;
+use Psr\Cache\CacheItemPoolInterface;
 
 class AgendaStaffRepository
 {
+    use Psr6CacheHelpers;
+
     /**
      * @var Adapter
      */
@@ -20,12 +24,23 @@ class AgendaStaffRepository
     /**
      * @var CurrentUserRepository
      */
+
     protected $currentUserRepository;
 
-    public function __construct(Adapter $db, CurrentUserRepository $currentUserRepository)
+    /**
+     * @var CacheItemPoolInterface
+     */
+    protected $cache;
+
+    protected $staffMembers;
+
+    protected $staffMembersCacheItemKey = 'api.pulse.emma.fhir.staffMembers';
+
+    public function __construct(Adapter $db, CacheItemPoolInterface $cache, CurrentUserRepository $currentUserRepository)
     {
         $this->db = $db;
         $this->currentUserRepository = $currentUserRepository;
+        $this->cache = $cache;
     }
 
     protected function addSourceToStaff($staffId, $source, $sourceId)
@@ -69,6 +84,37 @@ class AgendaStaffRepository
         return null;
     }
 
+    protected function getStaffMembers()
+    {
+        if (!$this->staffMembers) {
+            if ($staffMembers = $this->getCacheItem($this->staffMembersCacheItemKey)) {
+                $this->staffMembers = $staffMembers;
+                return $this->staffMembers;
+            }
+
+            $sql = new Sql($this->db);
+            $select = $sql->select();
+            $select->from('gems__agenda_staff')
+                ->columns(['gas_id_staff', 'gas_match_to', 'gas_id_organization'])
+                ->where(['gas_active' => 1]);
+
+            $statement = $sql->prepareStatementForSqlObject($select);
+            $result = $statement->execute();
+            $staffOptions = iterator_to_array($result);
+            $sortedStaff = [];
+
+            foreach ($staffOptions as $row) {
+                foreach (explode('|', $row['gas_match_to']) as $match) {
+                    $sortedStaff[$match][$row['gas_id_organization']] = $row['gas_id_staff'];
+                }
+            }
+
+            $this->setCacheItem($this->staffMembersCacheItemKey, $sortedStaff, ['staff']);
+            $this->staffMembers = $sortedStaff;
+        }
+        return $this->staffMembers;
+    }
+
     /**
      * @param $name string Staff member name
      * @param $organizationId int Organization ID
@@ -77,32 +123,10 @@ class AgendaStaffRepository
      */
     public function matchStaff($name, $organizationId, $create=true)
     {
-        $sql = new Sql($this->db);
-        $select = $sql->select();
-        $select->from('gems__agenda_staff')
-            ->columns(['gas_id_staff']);
+        $staffMembers = $this->getStaffMembers();
 
-        $select->where
-            ->nest()
-                ->equalTo('gas_match_to', $name)
-                ->or
-                ->like('gas_match_to', '%|'.$name.'|%')
-                ->or
-                ->like('gas_match_to', $name.'|%')
-                ->or
-                ->like('gas_match_to', '%|'.$name)
-            ->unnest()
-            ->and
-            ->equalTo('gas_active', 1)
-            ->and
-            ->equalTo('gas_id_organization', $organizationId);
-
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-
-        if ($result->valid() && $result->current()) {
-            $match = $result->current();
-            return (int)$match['gas_id_staff'];
+        if (isset($staffMembers[$name], $staffMembers[$name][$organizationId])) {
+            return (int)$staffMembers[$name][$organizationId];
         }
 
         if ($create) {

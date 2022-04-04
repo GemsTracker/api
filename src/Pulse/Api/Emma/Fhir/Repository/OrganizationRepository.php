@@ -10,6 +10,7 @@ use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\TableGateway\TableGateway;
+use Psr\Cache\CacheItemPoolInterface;
 
 class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepository
 {
@@ -18,10 +19,31 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
      */
     protected $currentUser;
 
-    public function __construct(Adapter $db, CurrentUserRepository $currentUser)
+    /**
+     * @var array List of Locations and matches
+     */
+    protected $locations;
+
+    protected $locationCacheItemKey = 'api.pulse.emma.fhir.locations';
+
+    public function __construct(Adapter $db, CacheItemPoolInterface $cache, CurrentUserRepository $currentUser)
     {
-        parent::__construct($db, $currentUser);
+        parent::__construct($db, $cache);
         $this->currentUser = $currentUser;
+    }
+
+    public function addOrganizationToLocation($location, $organizationId)
+    {
+        $organizations = $location['glo_organizations'] . $organizationId . ':';
+
+        $locationTable = new TableGateway('gems__locations', $this->db);
+        $result = $locationTable->update([
+            'glo_organizations' => $organizations,
+        ], [
+            'glo_id_location' => $location['glo_id_location'],
+        ]);
+
+        return (bool)$result;
     }
 
     /**
@@ -60,34 +82,51 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
         return $this->currentUser->getUserId();
     }
 
+    protected function getLocations()
+    {
+        if (!$this->locations) {
+            if ($locations = $this->getCacheItem($this->locationCacheItemKey)) {
+                $this->locations = $locations;
+                return $this->locations;
+            }
+
+            $sql = new Sql($this->db);
+            $select = $sql->select();
+            $select->from('gems__locations')
+                ->columns(['glo_id_location', 'glo_match_to', 'glo_organizations'])
+                ->where(['glo_active' => 1]);
+
+            $statement = $sql->prepareStatementForSqlObject($select);
+            $result = $statement->execute();
+            $locationOptions = iterator_to_array($result);
+            $sortedLocations = [];
+
+            foreach ($locationOptions as $row) {
+                if ($row['glo_match_to'] !== null) {
+                    foreach (explode('|', $row['glo_match_to']) as $match) {
+                        foreach (explode(':', trim($row['glo_organizations'], ':')) as $subOrg) {
+                            $sortedLocations[$match][$subOrg] = $row;
+                        }
+                    }
+                }
+            }
+            $this->setCacheItem($this->locationCacheItemKey, $sortedLocations, ['locations']);
+            $this->locations = $sortedLocations;
+        }
+        return $this->locations;
+    }
+
     public function matchLocation($name, $organizationId, $create = true)
     {
-        $sql = new Sql($this->db);
-        $select = $sql->select();
-        $select->from('gems__locations')
-            ->columns(['glo_id_location']);
+        $locations = $this->getLocations();
 
-        $select->where
-            ->nest()
-                ->equalTo('glo_match_to', $name)
-                ->or
-                ->like('glo_match_to', '%|'.$name.'|%')
-                ->or
-                ->like('glo_match_to', $name.'|%')
-                ->or
-                ->like('glo_match_to', '%|'.$name)
-            ->unnest()
-            ->and
-            ->equalTo('glo_active', 1)
-            ->and
-            ->equalTo('glo_organizations', ':'.$organizationId.':');
-
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-
-        if ($result->valid() && $result->current()) {
-            $match = $result->current();
-            return (int)$match['glo_id_location'];
+        if (isset($locations[$name])) {
+            if (isset($locations[$name][$organizationId])) {
+                return (int)$locations[$name][$organizationId]['glo_id_location'];
+            }
+            $location = (int)reset($locations[$name]);
+            $this->addOrganizationToLocation($location, $organizationId);
+            return $location['glo_id_location'];
         }
 
         if ($create) {

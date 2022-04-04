@@ -3,12 +3,16 @@
 
 namespace Pulse\Api\Model\Emma;
 
+use Gems\Rest\Cache\Psr6CacheHelpers;
 use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
+use Psr\Cache\CacheItemPoolInterface;
 
 class OrganizationRepository
 {
+    use Psr6CacheHelpers;
+
     /**
      * @var int UserId
      */
@@ -21,9 +25,17 @@ class OrganizationRepository
 
     protected $localOrganizations;
 
-    public function __construct(Adapter $db)
+    /**
+     * @var CacheItemPoolInterface
+     */
+    protected $cache;
+
+    protected $organizationCacheItemKey = 'api.pulse.emma.fhir.organizations';
+
+    public function __construct(Adapter $db, CacheItemPoolInterface $cache)
     {
         $this->db = $db;
+        $this->cache = $cache;
     }
 
     public function getCurrentUserId()
@@ -34,6 +46,11 @@ class OrganizationRepository
     protected function getLocalOrganizations()
     {
         if (!$this->localOrganizations) {
+            if ($localOrganizations = $this->getCacheItem($this->organizationCacheItemKey)) {
+                $this->localOrganizations = $localOrganizations;
+                return $this->localOrganizations;
+            }
+
             $sql = new Sql($this->db);
             $select = $sql->select();
             $select->from('gems__organizations')
@@ -49,6 +66,8 @@ class OrganizationRepository
             foreach ($organizations as $organization) {
                 $filteredOrganizations[$organization['gor_id_organization']] = $organization['gor_name'];
             }
+
+            $this->setCacheItem($this->organizationCacheItemKey, $filteredOrganizations, ['organizations']);
 
             $this->localOrganizations = $filteredOrganizations;
         }

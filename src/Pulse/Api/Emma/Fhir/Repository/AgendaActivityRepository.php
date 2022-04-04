@@ -6,13 +6,24 @@ declare(strict_types=1);
 namespace Pulse\Api\Emma\Fhir\Repository;
 
 
+use Gems\Rest\Cache\Psr6CacheHelpers;
 use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\TableGateway\TableGateway;
+use Psr\Cache\CacheItemPoolInterface;
 
 class AgendaActivityRepository
 {
+    use Psr6CacheHelpers;
+
+    /**
+     * @var array Activities
+     */
+    protected $activities;
+
+    protected $activitiesCacheItemKey = 'api.pulse.emma.fhir.activities';
+
     /**
      * @var CurrentUserRepository UserId
      */
@@ -22,11 +33,16 @@ class AgendaActivityRepository
      * @var Adapter
      */
     protected $db;
+    /**
+     * @var CacheItemPoolInterface
+     */
+    protected $cache;
 
-    public function __construct(Adapter $db, CurrentUserRepository $currentUserRepository)
+    public function __construct(Adapter $db, CacheItemPoolInterface $cache, CurrentUserRepository $currentUserRepository)
     {
         $this->db = $db;
         $this->currentUserRepository = $currentUserRepository;
+        $this->cache = $cache;
     }
 
     public function changeActivityOrganization($oldActivityId, $newOrganizationId)
@@ -65,6 +81,38 @@ class AgendaActivityRepository
         return null;
     }
 
+    public function getActivities()
+    {
+        if (!$this->activities) {
+            if ($activities = $this->getCacheItem($this->activitiesCacheItemKey)) {
+                $this->activities = $activities;
+                return $this->activities;
+            }
+
+            $sql = new Sql($this->db);
+            $select = $sql->select();
+            $select->from('gems__agenda_activities')
+                ->columns(['gaa_id_activity', 'gaa_match_to', 'gaa_id_organization'])
+                ->where(['gaa_active' => 1]);
+
+            $statement = $sql->prepareStatementForSqlObject($select);
+            $result = $statement->execute();
+            $activityOptions = iterator_to_array($result);
+            $sortedActivities = [];
+
+            foreach ($activityOptions as $row) {
+                foreach (explode('|', $row['gaa_match_to']) as $match) {
+                    $sortedActivities[$match][$row['gaa_id_organization']] = $row['gaa_id_activity'];
+                }
+            }
+
+            $this->setCacheItem($this->activitiesCacheItemKey, $sortedActivities, ['activities']);
+            $this->activities = $sortedActivities;
+        }
+
+        return $this->activities;
+    }
+
     public function getActivityNameById($activityId)
     {
         $sql = new Sql($this->db);
@@ -95,32 +143,10 @@ class AgendaActivityRepository
      */
     public function matchActivity($name, $organizationId, $create = true)
     {
-        $sql = new Sql($this->db);
-        $select = $sql->select();
-        $select->from('gems__agenda_activities')
-            ->columns(['gaa_id_activity']);
+        $activities = $this->getActivities();
 
-        $select->where
-            ->nest()
-                ->equalTo('gaa_match_to', $name)
-                ->or
-                ->like('gaa_match_to', '%|'.$name.'|%')
-                ->or
-                ->like('gaa_match_to', $name.'|%')
-                ->or
-                ->like('gaa_match_to', '%|'.$name)
-            ->unnest()
-            ->and
-            ->equalTo('gaa_active', 1)
-            ->and
-            ->equalTo('gaa_id_organization', $organizationId);
-
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-
-        if ($result->valid() && $result->current()) {
-            $match = $result->current();
-            return (int)$match['gaa_id_activity'];
+        if (isset($activities[$name], $activities[$name][$organizationId])) {
+            return (int)$activities[$name][$organizationId];
         }
 
         if ($create) {
