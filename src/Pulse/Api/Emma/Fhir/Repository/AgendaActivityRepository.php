@@ -101,8 +101,10 @@ class AgendaActivityRepository
             $sortedActivities = [];
 
             foreach ($activityOptions as $row) {
-                foreach (explode('|', $row['gaa_match_to']) as $match) {
-                    $sortedActivities[$match][$row['gaa_id_organization']] = $row['gaa_id_activity'];
+                if ($row['gaa_match_to'] !== null) {
+                    foreach (explode('|', $row['gaa_match_to']) as $match) {
+                        $sortedActivities[$match][$row['gaa_id_organization']] = $row['gaa_id_activity'];
+                    }
                 }
             }
 

@@ -104,8 +104,10 @@ class AgendaStaffRepository
             $sortedStaff = [];
 
             foreach ($staffOptions as $row) {
-                foreach (explode('|', $row['gas_match_to']) as $match) {
-                    $sortedStaff[$match][$row['gas_id_organization']] = $row['gas_id_staff'];
+                if ($row['gas_match_to'] !== null) {
+                    foreach (explode('|', $row['gas_match_to']) as $match) {
+                        $sortedStaff[$match][$row['gas_id_organization']] = $row['gas_id_staff'];
+                    }
                 }
             }
 
