@@ -11,6 +11,7 @@ use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\TableGateway\TableGateway;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepository
 {
@@ -25,6 +26,8 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
     protected $locations;
 
     protected $locationCacheItemKey = 'api.pulse.emma.fhir.locations';
+
+    protected $locationCacheTags = ['locations'];
 
     public function __construct(Adapter $db, CacheItemPoolInterface $cache, CurrentUserRepository $currentUser)
     {
@@ -42,6 +45,10 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
         ], [
             'glo_id_location' => $location['glo_id_location'],
         ]);
+
+        if ($this->cache instanceof TagAwareAdapterInterface) {
+            $this->cache->invalidateTags($this->locationCacheTags);
+        }
 
         return (bool)$result;
     }
@@ -67,6 +74,10 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
             'glo_created' => new Expression('NOW()'),
             'glo_created_by' => $this->currentUser->getUserId(),
         ]);
+
+        if ($this->cache instanceof TagAwareAdapterInterface) {
+            $this->cache->invalidateTags($this->locationCacheTags);
+        }
 
         if ($result) {
             return (int)$locationTable->getLastInsertValue();
@@ -110,7 +121,7 @@ class OrganizationRepository extends \Pulse\Api\Model\Emma\OrganizationRepositor
                     }
                 }
             }
-            $this->setCacheItem($this->locationCacheItemKey, $sortedLocations, ['locations']);
+            $this->setCacheItem($this->locationCacheItemKey, $sortedLocations, $this->locationCacheTags);
             $this->locations = $sortedLocations;
         }
         return $this->locations;

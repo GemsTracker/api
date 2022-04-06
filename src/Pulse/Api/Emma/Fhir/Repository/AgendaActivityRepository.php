@@ -12,6 +12,7 @@ use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\TableGateway\TableGateway;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class AgendaActivityRepository
 {
@@ -23,6 +24,8 @@ class AgendaActivityRepository
     protected $activities;
 
     protected $activitiesCacheItemKey = 'api.pulse.emma.fhir.activities';
+
+    protected $activitiesCacheTags = ['activities'];
 
     /**
      * @var CurrentUserRepository UserId
@@ -74,6 +77,10 @@ class AgendaActivityRepository
             'gaa_created' => new Expression('NOW()'),
             'gaa_created_by' => $this->currentUserRepository->getUserId(),
         ]);
+
+        if ($this->cache instanceof TagAwareAdapterInterface) {
+            $this->cache->invalidateTags($this->activitiesCacheTags);
+        }
 
         if ($result) {
             return (int)$locationTable->getLastInsertValue();

@@ -12,6 +12,7 @@ use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Laminas\Db\TableGateway\TableGateway;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class AgendaStaffRepository
 {
@@ -36,6 +37,8 @@ class AgendaStaffRepository
 
     protected $staffMembersCacheItemKey = 'api.pulse.emma.fhir.staffMembers';
 
+    protected $staffMembersCacheTags = ['staff'];
+
     public function __construct(Adapter $db, CacheItemPoolInterface $cache, CurrentUserRepository $currentUserRepository)
     {
         $this->db = $db;
@@ -52,6 +55,10 @@ class AgendaStaffRepository
         ], [
             'gas_id_staff' => $staffId,
         ]);
+
+        if ($this->cache instanceof TagAwareAdapterInterface) {
+            $this->cache->invalidateTags($this->staffMembersCacheTags);
+        }
     }
 
     /**
@@ -77,6 +84,10 @@ class AgendaStaffRepository
             'gas_created' => new Expression('NOW()'),
             'gas_created_by' => $this->currentUserRepository->getUserId(),
         ]);
+
+        if ($this->cache instanceof TagAwareAdapterInterface) {
+            $this->cache->invalidateTags($this->staffMembersCacheTags);
+        }
 
         if ($result) {
             return (int)$agendaStaffTable->getLastInsertValue();
@@ -111,7 +122,7 @@ class AgendaStaffRepository
                 }
             }
 
-            $this->setCacheItem($this->staffMembersCacheItemKey, $sortedStaff, ['staff']);
+            $this->setCacheItem($this->staffMembersCacheItemKey, $sortedStaff, $this->staffMembersCacheTags);
             $this->staffMembers = $sortedStaff;
         }
         return $this->staffMembers;
