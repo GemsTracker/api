@@ -13,6 +13,7 @@ use Pulse\Api\Emma\Fhir\Model\Transformer\AppointmentPatientTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\AppointmentPractitionerTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\AppointmentStatusTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\ExistingAppointmentTransformer;
+use Pulse\Api\Emma\Fhir\Model\Transformer\JsonFieldTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\ResourceTypeTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\SourceIdTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\SourceTransformer;
@@ -54,6 +55,7 @@ class AppointmentModel extends \Gems_Model_JoinModel
         $this->addTransformer(new AppointmentStatusTransformer());
         $this->addTransformer(new AppointmentActivityTransformer($agendaActivityRepository));
         $this->addTransformer(new AppointmentConditionTransformer($conditionRepository, $epdRepository, $importEscrowLinkRepository));
+        $this->addTransformer(new JsonFieldTransformer(['gap_info']));
     }
 
     public function afterRegistry()
