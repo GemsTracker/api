@@ -231,7 +231,7 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
     protected function getTrackfieldsPerTrack($patientNr, $organizationId)
     {
         $trackFieldStructure = [];
-        $tracks = $this->getDiagnosisTracks();
+        $tracks = $this->getDiagnosisTracks($organizationId);
 
         $skipFields = ['diagnosis', 'treatment'];
 
