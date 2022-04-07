@@ -15,6 +15,7 @@ class PatientTelecomTransformer extends \MUtil_Model_ModelTransformerAbstract
 
     public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row)
     {
+        $this->currentEmailUse = null;
         if (isset($row['telecom']) && is_array($row['telecom'])) {
             foreach($row['telecom'] as $telecomItem) {
                 if (isset($telecomItem['system'], $telecomItem['value'], $telecomItem['use'])) {
@@ -23,7 +24,7 @@ class PatientTelecomTransformer extends \MUtil_Model_ModelTransformerAbstract
                         if (!$validator->isValid($telecomItem['value'])) {
                             continue;
                         }
-                        if ($this->currentEmailUse !== 'home') {
+                        if ($this->currentEmailUse !== $this->preferredEmailUse) {
                             $row['gr2o_email'] = $telecomItem['value'];
                             $this->currentEmailUse = $telecomItem['use'];
                         }

@@ -22,6 +22,7 @@ class PatientAddressTransformer extends \MUtil_Model_ModelTransformerAbstract
 
     public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row)
     {
+        $this->currentAddressUse = null;
         if (isset($row['address']) && is_array($row['address'])) {
             foreach($row['address']  as $addressItem) {
                 if ($this->currentAddressUse !== $this->preferredAddressUse) {
