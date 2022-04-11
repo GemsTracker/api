@@ -20,6 +20,8 @@ class PatientAddressTransformer extends \MUtil_Model_ModelTransformerAbstract
 
     protected $addressLineHouseNumber = 'http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber';
 
+    protected $addressLineBuildingNumberSuffix = 'http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-buildingNumberSuffix';
+
     public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row)
     {
         $this->currentAddressUse = null;
@@ -60,10 +62,16 @@ class PatientAddressTransformer extends \MUtil_Model_ModelTransformerAbstract
                                         if ($addressLinePart['url'] === $this->addressLineHouseNumber) {
                                             $addressParts['houseNumber'] = $addressLinePart['valueString'];
                                         }
+                                        if ($addressLinePart['url'] === $this->addressLineBuildingNumberSuffix) {
+                                            $addressParts['houseNumberSuffix'] = $addressLinePart['valueString'];
+                                        }
                                     }
                                 }
                                 if (isset($addressParts['streetName'], $addressParts['houseNumber'])) {
                                     $row['grs_address_1'] = $addressParts['streetName'] . ' ' . $addressParts['houseNumber'];
+                                    if (isset($addressParts['houseNumberSuffix'])) {
+                                        $row['grs_address_1'] .= ' ' . $addressParts['houseNumberSuffix'];
+                                    }
                                 }
                             }
                         }
