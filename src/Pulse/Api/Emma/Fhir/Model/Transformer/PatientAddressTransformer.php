@@ -70,7 +70,10 @@ class PatientAddressTransformer extends \MUtil_Model_ModelTransformerAbstract
                                 if (isset($addressParts['streetName'], $addressParts['houseNumber'])) {
                                     $row['grs_address_1'] = $addressParts['streetName'] . ' ' . $addressParts['houseNumber'];
                                     if (isset($addressParts['houseNumberSuffix'])) {
-                                        $row['grs_address_1'] .= ' ' . $addressParts['houseNumberSuffix'];
+                                        if (strlen($addressParts['houseNumberSuffix']) > 1) {
+                                            $row['grs_address_1'] .= ' ';
+                                        }
+                                        $row['grs_address_1'] .= $addressParts['houseNumberSuffix'];
                                     }
                                 }
                             }
