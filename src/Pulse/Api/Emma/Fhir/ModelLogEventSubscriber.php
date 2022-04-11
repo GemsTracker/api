@@ -60,6 +60,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'model.appointmentModel.saved' => [
                 ['logFileImportSaved', -10],
                 ['logDbImportSaved', -10],
+                ['logDbEpdLogSaved', -10],
             ],
             'model.conditionModel.saved' => [
                 ['logFileImportSaved', -10],
@@ -68,6 +69,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'model.encounterModel.saved' => [
                 ['logFileImportSaved', -10],
                 ['logDbImportSaved', -10],
+                ['logDbEpdLogSaved', -10],
             ],
             'model.episodeOfCareModel.saved' => [
                 ['logFileImportSaved', -10],
@@ -199,6 +201,49 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
                 return null;
         }
         return null;
+    }
+
+    public function logDbEpdLogSaved(SavedModel $event)
+    {
+        $model = $event->getModel();
+        $resourceName = strtolower(str_replace('Model', '', $model->getName()));
+
+        $newValues = $event->getNewData();
+
+        $userId = $this->getUserIdFromData($resourceName, $newValues);
+        $organizationId = $this->getOrganizationIdFromData($resourceName, $newValues);
+
+        $now = new \DateTimeImmutable();
+
+        $isChange = 0;
+        if (isset($newValues['exists']) && $newValues['exists'] === true) {
+            $isChange = 1;
+        }
+
+        $admissionTime = $newValues['gap_admission_time'];
+        if ($admissionTime instanceof \MUtil_Date) {
+            $admissionTime = $admissionTime->toString('yyyy-MM-dd HH:mm:ss');
+        }
+
+        $description = $isChange ? 'Changed' : 'Created';
+        $description .= ' appointment for ';
+        $description .= $userId;
+        $description .= ' with ';
+        $description .= $organizationId;
+        $description .= ' on ';
+        $description .= $admissionTime;
+
+        $data = [
+            'pls_appointment_id' => $newValues['gap_id_appointment'],
+            'pls_id_respondent' => $newValues['gap_id_user'],
+            'pls_patient_nr' => '',
+            'pls_id_organization' => $newValues['gap_id_organization'],
+            'pls_is_change' => $isChange,
+            'pls_description' => $description,
+            'pls_created' => $now->format('Y-m-d H:i:s'),
+        ];
+
+        $this->importDbLogRepository->logEpdChange($data);
     }
 
     public function logDbImportErrors(SaveFailedModel $event)

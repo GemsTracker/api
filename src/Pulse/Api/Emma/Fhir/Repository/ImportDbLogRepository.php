@@ -32,4 +32,10 @@ class ImportDbLogRepository
         $table = new TableGateway('gems__epd_import_resource', $this->db);
         return $table->insert($data);
     }
+
+    public function logEpdChange(array $data)
+    {
+        $table = new TableGateway('pulse__log_skalpell', $this->db);
+        return $table->insert($data);
+    }
 }
