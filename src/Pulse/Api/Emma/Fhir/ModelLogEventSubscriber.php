@@ -256,6 +256,11 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $userId = $this->getUserIdFromData($resourceName, $saveData);
         $organizationId = $this->getOrganizationIdFromData($resourceName, $saveData);
 
+        $resourceId = $this->getResourceIdFromData($resourceName, $saveData);
+        if($resourceId === null && isset($saveData['id'])) {
+            $resourceId = $saveData['id'];
+        }
+
         $exception = $event->getException();
         $errors = $exception->getMessage();
         if ($exception instanceof ModelValidationException) {
@@ -273,6 +278,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'geir_source' => $this->epdRepository->getEpdName(),
             'geir_type' => $resourceName,
             'geir_id_user' => $userId,
+            'geir_resource_id' => $resourceId,
             'geir_id_organization' => $organizationId,
             'geir_status' => 'failed',
             'geir_errors' => $errors,
@@ -295,6 +301,9 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $userId = $this->getUserIdFromData($resourceName, $newValues);
         $organizationId = $this->getOrganizationIdFromData($resourceName, $newValues);
         $resourceId = $this->getResourceIdFromData($resourceName, $newValues);
+        if($resourceId === null && isset($saveData['id'])) {
+            $resourceId = $saveData['id'];
+        }
 
         $now = new \DateTimeImmutable();
 
@@ -327,6 +336,9 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $resourceName = strtolower(str_replace('Model', '', $model->getName()));
 
         $resourceId = $event->getResourceId();
+        if($resourceId === null && isset($saveData['id'])) {
+            $resourceId = $saveData['id'];
+        }
 
         $now = new \DateTimeImmutable();
 
@@ -352,6 +364,9 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $resourceName = strtolower(str_replace('Model', '', $model->getName()));
 
         $resourceId = $event->getResourceId();
+        if($resourceId === null && isset($saveData['id'])) {
+            $resourceId = $saveData['id'];
+        }
 
         $exception = $event->getException();
         $errors = $exception->getMessage();
@@ -416,8 +431,10 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $model = $event->getModel();
         $resourceName = strtolower(str_replace('Model', '', $model->getName()));
 
+
         $saveData = $event->getSaveData();
-        if(isset($saveData['id'])) {
+        $resourceId = $this->getResourceIdFromData($resourceName, $saveData);
+        if($resourceId === null && isset($saveData['id'])) {
             $resourceId = $saveData['id'];
         }
 

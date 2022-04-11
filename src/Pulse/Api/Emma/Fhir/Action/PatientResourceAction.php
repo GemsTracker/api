@@ -11,6 +11,7 @@ use Gems\Rest\Action\ModelRestController;
 use Gems\Rest\Exception\MissingDataException;
 use Gems\Rest\Model\ModelException;
 use Gems\Rest\Model\ModelProcessor;
+use Gems\Rest\Model\ModelTranslateException;
 use Gems\Rest\Model\ModelValidationException;
 use Gems\Rest\Repository\AccesslogRepository;
 use Interop\Http\ServerMiddleware\DelegateInterface;
@@ -117,10 +118,23 @@ class PatientResourceAction extends ModelRestController
 
         try {
             $patientRows = $this->getPatients($translatedRow);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'missing_data', 'message' => $e->getMessage()], 400);
-        }
+        } catch(\Exception $e) {
+            // Row could not be saved.
+            // return JsonResponse
 
+            $event = new SaveFailedModel($this->model);
+            $event->setException($e);
+            $event->setSaveData($translatedRow);
+
+            $this->event->dispatch($event, 'model.' . $this->model->getName() . '.save.error');
+
+            if ($e instanceof ModelException) {
+                return new JsonResponse(['error' => 'model_error', 'message' => $e->getMessage()], 400);
+            }
+
+            // Unknown exception!
+            return new JsonResponse(['error' => 'unknown_error', 'message' => $e->getMessage()], 400);
+        }
 
         if (count($patientRows) === 0) {
             return new JsonResponse(['error' => 'missing_data', 'message' => 'Patient not found'], 400);
