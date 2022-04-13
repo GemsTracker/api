@@ -580,11 +580,13 @@ class ChartRepository
             $tokenSelect = $sql->select();
             $tokenSelect
                 ->from('gems__tokens')
+                ->join('gems__reception_codes', 'grc_id_reception_code = gto_reception_code')
                 ->where(
                     [
                         'gto_id_respondent_track' => $respondentTrackId,
                         'gto_id_track' => $this->trackId,
                         'gto_id_survey' => $this->surveyId,
+                        'grc_success' => 1,
                     ])
                 ->order('gto_round_order')
                 ->where->notEqualTo('gto_round_description', 'Stand-alone survey');
