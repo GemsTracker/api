@@ -615,7 +615,7 @@ class ChartRepository
                             && is_array($questionInformation[$questionCode]['answers'])
                             && isset($questionInformation[$questionCode]['answers'][$answer])
                         ) {
-                            $answer = $questionInformation[$questionCode]['answers'][$answer];
+                            $answer = (float) filter_var($questionInformation[$questionCode]['answers'][$answer],FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
                         }
 
                         if (is_numeric($answer)) {
