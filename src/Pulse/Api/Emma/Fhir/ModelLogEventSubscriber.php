@@ -173,6 +173,80 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         return null;
     }
 
+    protected function getSaveTablePrefixesFromResourceName($resourceName)
+    {
+        switch($resourceName) {
+            case 'appointment':
+            case 'encounter':
+                return [
+                    'gap',
+                ];
+            case 'condition':
+                return [
+                    'gmco',
+                ];
+            case 'episodeofcare':
+                return [
+                    'gec',
+                ];
+            case 'respondent':
+                return [
+                    'gr2o',
+                    'grs',
+                ];
+            default:
+                return null;
+        }
+    }
+
+    protected function getImportInfoFromEvent(SavedModel $event, $resourceName)
+    {
+        $info = null;
+        $newValues = $event->getNewData();
+        if (isset($newValues['importInfo'])) {
+            $info .= $newValues['importInfo'];
+        }
+
+        $isNew = 1;
+        if (isset($newValues['exists']) && $newValues['exists'] === true) {
+            $isNew = 0;
+        }
+
+        if ($isNew === 0) {
+            $updateDiffs = $event->getUpdateDiffs();
+
+            if (count($updateDiffs) === 0) {
+                return $info;
+            }
+            $info .= "Changed data:\n";
+            $saveTablePrefixes = $this->getSaveTablePrefixesFromResourceName($resourceName);
+            foreach($updateDiffs as $field=>$newValue) {
+                if (is_array($newValue)) {
+                    continue;
+                }
+                $saveTableField = false;
+                foreach($saveTablePrefixes as $saveTablePrefix) {
+                    if (str_starts_with($field, $saveTablePrefix)) {
+                        $saveTableField = true;
+                        break;
+                    }
+                }
+                if ($saveTableField === false) {
+                    continue;
+                }
+                if ($newValue instanceof \MUtil_Db_Expr_CurrentTimestamp) {
+                    continue;
+                }
+                if (str_ends_with($field, 'changed') || str_ends_with($field, 'changed_by')) {
+                    continue;
+                }
+                $info .= sprintf("%s: %s\n", $field, $newValue);
+            }
+        }
+
+        return $info;
+    }
+
     protected function getUserIdFromData(string $resourceName, array $data)
     {
         switch($resourceName) {
@@ -281,7 +355,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'geir_resource_id' => $resourceId,
             'geir_id_organization' => $organizationId,
             'geir_status' => 'failed',
-            'geir_errors' => $errors,
+            'geir_info' => $errors,
             'geir_changed' => $now->format('Y-m-d H:i:s'),
             'geir_changed_by' => $this->currentUserRepository->getUserId(),
             'geir_created' => $now->format('Y-m-d H:i:s'),
@@ -312,6 +386,8 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             $isNew = 0;
         }
 
+        $info = $this->getImportInfoFromEvent($event, $resourceName);
+
         $data = [
             'geir_source' => $this->epdRepository->getEpdName(),
             'geir_resource_id' => $resourceId,
@@ -320,6 +396,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'geir_id_organization' => $organizationId,
             'geir_status' => 'saved',
             'geir_duration' => $event->getDurationInSeconds(),
+            'geir_info' => $info,
             'geir_new' => $isNew,
             'geir_changed' => $now->format('Y-m-d H:i:s'),
             'geir_changed_by' => $this->currentUserRepository->getUserId(),
@@ -378,7 +455,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'geir_resource_id' => $resourceId,
             'geir_type' => $resourceName,
             'geir_status' => 'deleteFailed',
-            'geir_errors' => $errors,
+            'geir_info' => $errors,
             'geir_new' => 0,
             'geir_changed' => $now->format('Y-m-d H:i:s'),
             'geir_changed_by' => $this->currentUserRepository->getUserId(),
@@ -467,10 +544,8 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         $importLogger = $this->importLogRepository->getImportLogger();
         $message = sprintf('Finished import of %s %s with ID %s', $isNew, $resourceName, $resourceId);
 
-        $updateData = [];
-        if (method_exists($model, 'getUpdateDiffFields')) {
-            $updateData = $model->getUpdateDiffFields();
-        }
+        $updateData = $event->getUpdateDiffs();
+
         $importLogger->notice($message, $updateData);
     }
 

@@ -42,7 +42,7 @@ class GemsEpdImportResource extends AbstractMigration
                 ->addColumn('geir_id_organization', 'biginteger', ['signed' => false, 'null' => true])
 
                 ->addColumn('geir_status', 'string', ['limit' => 32])
-                ->addColumn('geir_errors', 'text', ['null' => true])
+                ->addColumn('geir_info', 'text', ['null' => true])
                 ->addColumn('geir_duration', 'float', ['null' => true])
                 ->addColumn('geir_new', 'boolean', ['default' => 1])
                 ->addColumn('geir_changed', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
