@@ -36,7 +36,7 @@ class PatientTelecomTransformer extends \MUtil_Model_ModelTransformerAbstract
                         continue;
                     }
                     if ($telecomItem['system'] === 'phone') {
-                        $validator = new Regex(['pattern' => '/^(\+|\d)[0-9]{7,16}$/']);
+                        $validator = new Regex(['pattern' => '/^(\+|\d)[0-9\s]{7,20}$/']);
 
                         /*
                          * specific phone number validation can only occur if country is known. Even then, a phone number isn't guaranteed
