@@ -7,6 +7,7 @@ use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\Sql\Sql;
 use Pulse\Api\Emma\Fhir\Model\Transformer\PatientAddressTransformer;
+use Pulse\Api\Emma\Fhir\Model\Transformer\PatientDeceasedTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\PatientNameTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\PatientOtherFieldsTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\PatientTelecomTransformer;
@@ -39,6 +40,7 @@ class RespondentModel extends \Gems_Model_JoinModel
         $this->addTransformer(new PatientAddressTransformer());
         $this->addTransformer(new PatientTelecomTransformer());
         $this->addTransformer(new PatientOtherFieldsTransformer());
+        $this->addTransformer(new PatientDeceasedTransformer());
     }
 
 
