@@ -36,6 +36,10 @@ class EpisodeOfCareOrganizationTransformer extends \MUtil_Model_ModelTransformer
         if ($organizationId === null) {
             throw new ModelException(sprintf('Organization %s not found', $organizationName));
         }
+
+        $locationName = $this->organizationRepository->getLocationFromOrganizationName($organizationName);
+        $row['locationId'] = $this->organizationRepository->matchLocation($locationName, $organizationId, true);
+
         $row['gec_id_organization'] = $organizationId;
 
         return $row;

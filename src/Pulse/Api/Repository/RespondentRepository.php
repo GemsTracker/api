@@ -14,12 +14,25 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
 {
     public function copyRespondentToOrganization($respondentId, $newOrganizationId, $epdName)
     {
-        $patientInfo = $this->getPatientInfoFromRespondentInEpd($respondentId, $epdName);
+        $patientInfo = $this->getPatientInfoFromRespondentInEpd($respondentId, $epdName, $locationId = null);
+        $copy = true;
+        if ($patientInfo['gr2o_id_organization'] == 81) {
+            $copy = false;
+            $patientInfo = [];
+        }
         $patientInfo['gr2o_id_organization'] = $newOrganizationId;
+        $patientInfo['gr2o_id_location'] = $locationId;
 
         $table = new TableGateway('gems__respondent2org', $this->db);
         try {
-            $table->insert($patientInfo);
+            if ($copy) {
+                $table->insert($patientInfo);
+            } else {
+                $table->update($patientInfo, [
+                    'gr2o_id_user' => $respondentId,
+                    'gr2o_id_organization' => 81,
+                ]);
+            }
         } catch(\Exception $e) {
             return false;
         }
@@ -32,7 +45,7 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         $select = $sql->select();
         $select->from('gems__respondent2org')
             ->join('gems__respondents', 'grs_id_user = gr2o_id_user', ['grs_ssn'])
-            ->join('gems__organizations', 'gor_id_organization = gr2o_id_organization')
+            ->join('gems__organizations', 'gor_id_organization = gr2o_id_organization', [])
             ->columns([
                 'gr2o_id_user',
                 'gr2o_patient_nr',
@@ -95,7 +108,8 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
             ->where([
                 'gr2o_id_user' => $respondentId,
                 'gor_epd' => $epdName,
-            ]);
+            ])
+            ->order(['gr2o_created']);
 
         $test = $sql->buildSqlString($select);
 

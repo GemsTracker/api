@@ -65,20 +65,23 @@ class CheckRespondentOrganizationEventSubscriber implements EventSubscriberInter
         $newData = $event->getNewData();
         $respondentId = null;
         $organizationId = null;
+        $locationId = null;
         if (isset($newData['gap_id_user'], $newData['gap_id_organization'])) {
             $respondentId = $newData['gap_id_user'];
             $organizationId = $newData['gap_id_organization'];
+            $locationId = $newData['gap_id_location'];
         }
         if (isset($newData['gec_id_user'], $newData['gec_id_organization'])) {
             $respondentId = $newData['gec_id_user'];
             $organizationId = $newData['gec_id_organization'];
+            $locationId = $newData['locationId'];
         }
 
         if ($respondentId !== null && $organizationId !== null) {
             if ($this->respondentRepository->respondentExistsInOrganization($respondentId, $organizationId)) {
                 return;
             }
-            $this->respondentRepository->copyRespondentToOrganization($respondentId, $organizationId, $this->epdRepository->getEpdName());
+            $this->respondentRepository->copyRespondentToOrganization($respondentId, $organizationId, $this->epdRepository->getEpdName(), $locationId);
 
         }
     }
