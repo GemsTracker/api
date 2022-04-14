@@ -42,6 +42,7 @@ class AppointmentConditionTransformer extends \MUtil_Model_ModelTransformerAbstr
             return $row;
         }
 
+        $row['gap_id_episode'] = null;
         foreach($row['indication'] as $indication) {
             if (isset($indication['reference']) && strpos($indication['reference'], 'Condition/') === 0) {
                 $conditionId = str_replace('Condition/', '', $indication['reference']);

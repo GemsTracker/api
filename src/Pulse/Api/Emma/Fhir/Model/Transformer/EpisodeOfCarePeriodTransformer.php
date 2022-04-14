@@ -20,6 +20,7 @@ class EpisodeOfCarePeriodTransformer extends \MUtil_Model_ModelTransformerAbstra
         }
 
         $row['gec_startdate'] = $row['period']['start'];
+        $row['gec_enddate'] = null;
         if (isset($row['period']['end'])) {
             $row['gec_enddate'] = $row['period']['end'];
         }

@@ -24,6 +24,7 @@ class PatientOtherFieldsTransformer extends \MUtil_Model_ModelTransformerAbstrac
         }
 
         // Birthday
+        $row['grs_birthday'] = null;
         if (isset($row['birthDate'])) {
             $birthDate = \DateTime::createFromFormat('Y-m-d', $row['birthDate']);
             if ($birthDate !== false) {

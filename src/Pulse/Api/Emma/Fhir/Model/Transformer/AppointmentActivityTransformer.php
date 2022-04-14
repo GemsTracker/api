@@ -62,6 +62,7 @@ class AppointmentActivityTransformer extends \MUtil_Model_ModelTransformerAbstra
             $organizatonId = $row['gap_id_organization'];
         }
 
+        $row['gap_id_activity'] = null;
         $activityParts = $this->getActivityParts($row['description']);
         if ($activityParts !== null && isset($activityParts['activity'])) {
             $activityId = $this->activityRepository->matchActivity($activityParts['activity'], $organizatonId);

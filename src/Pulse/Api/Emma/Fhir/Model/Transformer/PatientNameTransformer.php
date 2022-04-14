@@ -35,6 +35,17 @@ class PatientNameTransformer extends \MUtil_Model_ModelTransformerAbstract
                 throw new MissingDataException('family name is missing');
             }
 
+            $row['grs_raw_last_name'] = null;
+            $row['grs_raw_surname_prefix'] = null;
+            $row['grs_partner_last_name'] = null;
+            $row['grs_partner_surname_prefix'] = null;
+            $row['grs_last_name_order'] = null;
+            $row['grs_surname_prefix'] = null;
+            $row['grs_last_name'] = null;
+            $row['grs_first_name'] = null;
+            $row['grs_initials_name'] = null;
+
+
             $familyNameData = $this->getFamilyName($name);
             $row += $familyNameData;
 

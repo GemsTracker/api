@@ -13,6 +13,8 @@ class ConditionCodeAndNameTransformer extends \MUtil_Model_ModelTransformerAbstr
 {
     public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row)
     {
+        $row['gmco_code'] = null;
+        $row['gmco_name'] = null;
         if (isset($row['code'], $row['code']['coding'], $row['code']['coding']) && is_array($row['code']['coding'])) {
             foreach($row['code']['coding'] as $code) {
                 if (isset($code['code'])) {

@@ -20,6 +20,7 @@ class EncounterPeriodTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         $row['gap_admission_time'] = $row['period']['start'];
+        $row['gap_discharge_time'] = null;
         if (isset($row['period']['end'])) {
             $row['gap_discharge_time'] = $row['period']['end'];
         }

@@ -37,6 +37,7 @@ class EncounterPractitionerTransformer extends \MUtil_Model_ModelTransformerAbst
             return $row;
         }
 
+        $row['gap_id_attended_by'] = null;
         foreach($row['participant'] as $participant) {
             if (isset($participant['individual'], $participant['individual']['reference']) && strpos($participant['individual']['reference'], 'Practitioner/') === 0) {
                 $staffName = $participant['individual']['display'];

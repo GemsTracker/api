@@ -16,6 +16,11 @@ class PatientTelecomTransformer extends \MUtil_Model_ModelTransformerAbstract
     public function transformRowBeforeSave(\MUtil_Model_ModelAbstract $model, array $row)
     {
         $this->currentEmailUse = null;
+        $row['gr2o_email'] = null;
+        $row['grs_phone_1'] = null;
+        $row['grs_phone_2'] = null;
+        $row['grs_phone_3'] = null;
+
         if (isset($row['telecom']) && is_array($row['telecom'])) {
             foreach($row['telecom'] as $telecomItem) {
                 if (isset($telecomItem['system'], $telecomItem['value'], $telecomItem['use'])) {

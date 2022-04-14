@@ -41,6 +41,7 @@ class EncounterConditionTransformer extends \MUtil_Model_ModelTransformerAbstrac
             return $row;
         }
 
+        $row['gap_id_episode'] = null;
         foreach($row['diagnosis'] as $condition) {
             if (isset($condition['condition']['reference']) && strpos($condition['condition']['reference'], 'Condition/') === 0) {
                 $conditionId = str_replace('Condition/', '', $condition['condition']['reference']);
