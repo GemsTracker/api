@@ -27,6 +27,11 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
      * @var EpdRepository
      */
     protected $epdRepository;
+
+    protected $excludeDiffFields = [
+        'gr2o_opened_by',
+    ];
+
     /**
      * @var ImportLogRepository
      */
@@ -238,6 +243,9 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
                     continue;
                 }
                 if (str_ends_with($field, 'changed') || str_ends_with($field, 'changed_by')) {
+                    continue;
+                }
+                if (in_array($field, $this->excludeDiffFields)) {
                     continue;
                 }
                 $info .= sprintf("%s: %s\n", $field, $newValue);
