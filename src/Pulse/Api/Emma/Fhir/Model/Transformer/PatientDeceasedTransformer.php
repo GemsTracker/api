@@ -14,7 +14,7 @@ class PatientDeceasedTransformer extends \MUtil_Model_ModelTransformerAbstract
             if ($row['deceasedBoolean'] === true) {
                 $row['gr2o_reception_code'] = 'deceased';
             }
-            if ($row['deceasedBoolean'] === false && $row['gr2o_reception_code'] === 'deceased') {
+            if ($row['deceasedBoolean'] === false) {
                 $row['gr2o_reception_code'] = 'OK';
             }
         }
