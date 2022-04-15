@@ -33,6 +33,9 @@ class PatientOtherFieldsTransformer extends \MUtil_Model_ModelTransformerAbstrac
             }
         }
 
+        // Default language
+        $row['grs_iso_lang'] = 'nl';
+
         return $row;
     }
 }
