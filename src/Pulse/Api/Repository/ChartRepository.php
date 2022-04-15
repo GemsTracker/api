@@ -130,7 +130,7 @@ class ChartRepository
     protected function addChartDataFromScores($norms, $normType='')
     {
         $firstNorm = reset($norms);
-        if ($firstNorm['pt2o_graph'] == 'errorbar') {
+        if ($firstNorm && $firstNorm['pt2o_graph'] == 'errorbar') {
             $errorData = $this->getErrorData($norms);
             if (isset($errorData['error_y'])) {
                 $norms = $errorData['norms'];
