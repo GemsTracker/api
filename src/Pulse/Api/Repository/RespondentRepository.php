@@ -12,9 +12,9 @@ use Laminas\Db\TableGateway\TableGateway;
 
 class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
 {
-    public function copyRespondentToOrganization($respondentId, $newOrganizationId, $epdName)
+    public function copyRespondentToOrganization($respondentId, $newOrganizationId, $epdName, $locationId = null)
     {
-        $patientInfo = $this->getPatientInfoFromRespondentInEpd($respondentId, $epdName, $locationId = null);
+        $patientInfo = $this->getPatientInfoFromRespondentInEpd($respondentId, $epdName);
         $copy = true;
         if ($patientInfo['gr2o_id_organization'] == 81) {
             $copy = false;
