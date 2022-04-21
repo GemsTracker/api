@@ -238,6 +238,7 @@ class PatientResourceAction extends ModelRestController
         if ($id === null) {
             return new EmptyResponse(404);
         }
+        $this->requestStart = microtime(true);
 
         $this->currentUserRepository->setRequest($request);
 

@@ -129,7 +129,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         return [
             'emma/Patient' => [
                 'model' => RespondentModel::class,
-                'methods' => ['PUT'],
+                'methods' => ['PUT', 'DELETE'],
                 'idFieldRegex' => '[A-Za-z0-9\-]+',
                 'customAction' => PatientResourceAction::class,
             ],
