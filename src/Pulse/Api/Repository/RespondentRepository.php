@@ -84,6 +84,7 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
                 'gr2o_patient_nr',
                 'gr2o_id_organization',
                 'gr2o_reception_code',
+                'gr2o_comments',
             ])
             ->where(['grs_ssn' => $ssn,]);
 
@@ -196,13 +197,21 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         return false;
     }
 
-    public function removeSsnFromRespondent($respondentId)
+    public function removeSsnFromRespondent($respondentId, $comment = null)
     {
+        $newValues = [
+            'grs_ssn' => null,
+        ];
+
+        if ($comment !== null) {
+            $newValues['gr2o_comments'] = $comment;
+        }
+
         $sql = new Sql($this->db);
         $update = $sql->update();
         $update->table('gems__respondents')
-            ->set([
-                'grs_ssn' => null])
+            ->join('gems__respondent2org', 'grs_id_user = gr2o_id_user')
+            ->set($newValues)
             ->where([
                 'grs_id_user' => $respondentId,
             ]);

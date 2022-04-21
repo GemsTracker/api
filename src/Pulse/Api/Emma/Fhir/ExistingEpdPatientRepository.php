@@ -60,22 +60,29 @@ class ExistingEpdPatientRepository
                                 $log->error($message);
                                 throw new ModelTranslateException($message);
                             }
-                            $this->respondentRepository->removeSsnFromRespondent($existingPatient['gr2o_id_user']);
+
+                            $comment = $existingPatient['gr2o_comments'] .= sprintf("\nSSN %s removed in favor of patientnr %s", $ssn, $patientNr);
+                            $this->respondentRepository->removeSsnFromRespondent($existingPatient['gr2o_id_user'], $comment);
                             $log->alert(
                                 sprintf(
                                     'Existing patient nr %s was deleted. Its ssn has been removed. It can be merged with %s',
                                     $existingPatient['gr2o_patient_nr'],
                                     $patientNr
                                 ));
+                            $deletedExistingPatient = true;
                         }
+                        unset($existingPatients[$key]);
+                    } else {
+                        $copyKey = $this->getKeyCopyName('gr2o_patient_nr');
+                        $existingPatients[$key][$copyKey] = $existingPatient['gr2o_patient_nr'];
+                        $existingPatients[$key]['gr2o_patient_nr'] = $patientNr;
                     }
 
-                    $copyKey = $this->getKeyCopyName('gr2o_patient_nr');
-                    $existingPatients[$key][$copyKey] = $existingPatient['gr2o_patient_nr'];
-                    $existingPatients[$key]['gr2o_patient_nr'] = $patientNr;
                 }
             }
-        } else {
+        }
+
+        if ($existingPatients === null || count($existingPatients) === 0) {
             $existingPatients = $this->respondentRepository->getPatientsFromPatientNr($patientNr, $this->currentEpd);
             if ($existingPatients) {
                 foreach ($existingPatients as $key => $existingPatient) {
