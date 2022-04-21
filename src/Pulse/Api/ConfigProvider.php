@@ -10,6 +10,7 @@ use Gems\Rest\Log\Formatter\SimpleMulti;
 
 use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Gems\Rest\RestModelConfigProviderAbstract;
+use Pulse\Api\Action\ActivityLogAction;
 use Pulse\Api\Action\ActivityMatcher;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
@@ -39,6 +40,7 @@ use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
 use Pulse\Api\Model\ActivityDiagnosisModel;
+use Pulse\Api\Model\ActivityLogModel;
 use Pulse\Api\Model\AgendaActivityModel;
 use Pulse\Api\Model\DossierTemplatesModel;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
@@ -49,8 +51,10 @@ use Pulse\Api\Model\OutcomeVariableModel;
 use Pulse\Api\Model\RespondentDossierTemplatesModel;
 use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
+use Pulse\Api\Repository\ActivityActionRepository;
 use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\IntakeAnesthesiaCheckRepository;
+use Pulse\Api\Repository\RequestRepository;
 use Pulse\Api\Repository\SelectTranslator;
 use Pulse\Api\Repository\RespondentResults;
 use Pulse\Api\Repository\RespondentTrackfieldsRepository;
@@ -164,6 +168,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 \Pulse\Api\Repository\RespondentRepository::class => ReflectionFactory::class,
 
+                ActivityLogAction::class => ReflectionFactory::class,
+                ActivityLogModel::class => ReflectionFactory::class,
+                ActivityActionRepository::class => ReflectionFactory::class,
+                RequestRepository::class => ReflectionFactory::class,
             ]
         ];
     }
@@ -622,6 +630,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'pa2d_active',
                     'pa2d_order',
                 ],
+            ],
+            'activity-log' => [
+                'model' => ActivityLogModel::class,
+                'methods' => ['POST'],
+                'idFieldRegex' => '[A-Za-z0-9\-]+',
+                'customAction' => ActivityLogAction::class,
             ],
         ];
     }

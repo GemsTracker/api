@@ -33,7 +33,7 @@ class CurrentUserRepository
      */
     public function getUserId()
     {
-        return $this->request->getAttribute('user_id');
+        return (int)$this->request->getAttribute('user_id');
     }
 
     /**
@@ -44,5 +44,15 @@ class CurrentUserRepository
     public function getUserName()
     {
         return $this->request->getAttribute('user_name');
+    }
+
+    /**
+     * Get the role from the request attribute
+     *
+     * @return string role
+     */
+    public function getUserRole()
+    {
+        return $this->request->getAttribute('user_role');
     }
 }
