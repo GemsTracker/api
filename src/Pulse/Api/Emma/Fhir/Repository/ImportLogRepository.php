@@ -42,10 +42,10 @@ class ImportLogRepository
      * @param $epdName string epd name
      * @return PsrLoggerAdapter Logger
      */
-    protected function createImportLogger($epdName)
+    protected function createImportLogger($logName)
     {
         $logger = new Logger();
-        $importWriter = new Stream($this->logDir . DIRECTORY_SEPARATOR . $epdName . '-import.log');
+        $importWriter = new Stream($this->logDir . DIRECTORY_SEPARATOR . $logName . '.log');
         $importWriter->setFormatter(new SimpleMulti());
 
         $logger->addWriter($importWriter);
@@ -57,12 +57,20 @@ class ImportLogRepository
      *
      * @return PsrLoggerAdapter|null
      */
-    public function getImportLogger()
+    public function getImportLogger($name = null)
+    {
+        if ($name === null) {
+            $name = $this->getDefaultName();
+        }
+        if (!isset($this->loggers[$name])) {
+            $this->loggers[$name] = $this->createImportLogger($name);
+        }
+        return $this->loggers[$name];
+    }
+
+    protected function getDefaultName()
     {
         $epdName = $this->epdRepository->getEpdName();
-        if (!isset($this->loggers[$epdName])) {
-            $this->loggers[$epdName] = $this->createImportLogger($epdName);
-        }
-        return $this->loggers[$epdName];
+        return $epdName . '-import';
     }
 }

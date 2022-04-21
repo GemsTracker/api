@@ -49,7 +49,8 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
             ->columns([
                 'gr2o_id_user',
                 'gr2o_patient_nr',
-                'gr2o_id_organization'
+                'gr2o_id_organization',
+                'gr2o_reception_code',
             ])
             ->where([
                 'gr2o_patient_nr' => $patientNr,
@@ -78,7 +79,12 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         $select = $sql->select();
         $select->from('gems__respondent2org')
             ->join('gems__respondents', 'grs_id_user = gr2o_id_user', ['grs_ssn'])
-            ->columns(['gr2o_id_user', 'gr2o_patient_nr', 'gr2o_id_organization'])
+            ->columns([
+                'gr2o_id_user',
+                'gr2o_patient_nr',
+                'gr2o_id_organization',
+                'gr2o_reception_code',
+            ])
             ->where(['grs_ssn' => $ssn,]);
 
         if ($epd !== null) {
