@@ -186,7 +186,7 @@ class PatientResourceAction extends ModelRestController
             if (isset($row['gr2o_patient_nr'])) {
                 $row['patientNr'] = $row['gr2o_patient_nr'];
             }
-            
+
             $row['exists'] = false;
             if ($update) {
                 $row['exists'] = true;

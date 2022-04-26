@@ -6,7 +6,9 @@ declare(strict_types=1);
 namespace Pulse\Api\Emma\Fhir;
 
 
+use Gems\Event\EventDispatcher;
 use Gems\Rest\Model\ModelTranslateException;
+use Pulse\Api\Emma\Fhir\Event\RespondentMergeEvent;
 use Pulse\Api\Emma\Fhir\Repository\ImportLogRepository;
 use Pulse\Api\Repository\RespondentRepository;
 
@@ -23,15 +25,16 @@ class ExistingEpdPatientRepository
     protected $respondentRepository;
 
     protected $currentEpd = 'emma';
-    /**
-     * @var ImportLogRepository
-     */
-    protected $importLogRepository;
 
-    public function __construct(RespondentRepository $respondentRepository, ImportLogRepository $importLogRepository)
+    /**
+     * @var EventDispatcher
+     */
+    protected $event;
+
+    public function __construct(RespondentRepository $respondentRepository, EventDispatcher $event)
     {
         $this->respondentRepository = $respondentRepository;
-        $this->importLogRepository = $importLogRepository;
+        $this->event = $event;
     }
 
     public function getExistingPatients($ssn, $patientNr)
@@ -46,8 +49,15 @@ class ExistingEpdPatientRepository
             foreach($existingPatients as $key=>$existingPatient) {
                 if (isset($existingPatient['gr2o_patient_nr']) && $existingPatient['gr2o_patient_nr'] != $patientNr) {
                     if ($this->respondentRepository->patientNrExistsInEpd($patientNr, $this->currentEpd)) {
+
+                        $respondentMergeEvent = new RespondentMergeEvent();
+                        $respondentMergeEvent->setOldPatientNr($existingPatient['gr2o_patient_nr']);
+                        $respondentMergeEvent->setNewPatientNr($patientNr);
+                        $respondentMergeEvent->setSsn($ssn);
+                        $respondentMergeEvent->setEpd($this->currentEpd);
+
                         if ($deletedExistingPatient === false) {
-                            $log = $this->importLogRepository->getImportLogger('respondent-merge');
+                            $respondentMergeEvent->setStatus('error');
                             if ($existingPatient['gr2o_reception_code'] !== 'deleted') {
                                 $message = sprintf(
                                     'Patient nr %s already exists for epd %s. SSN %s is already known in patient nr %s. Patient %s not saved!!',
@@ -57,19 +67,14 @@ class ExistingEpdPatientRepository
                                     $existingPatient['gr2o_patient_nr'],
                                     $patientNr
                                 );
-                                $log->error($message);
+                                $this->event->dispatch($respondentMergeEvent, 'respondent.merge');
                                 throw new ModelTranslateException($message);
                             }
-
+                            $respondentMergeEvent->setStatus('old-deleted');
                             $comment = $existingPatient['gr2o_comments'] .= sprintf("\nSSN %s removed in favor of patientnr %s", $ssn, $patientNr);
                             $this->respondentRepository->removeSsnFromRespondent($existingPatient['gr2o_id_user'], $comment);
-                            $log->alert(
-                                sprintf(
-                                    'Existing patient nr %s was deleted. Its ssn has been removed. It can be merged with %s',
-                                    $existingPatient['gr2o_patient_nr'],
-                                    $patientNr
-                                ));
                             $deletedExistingPatient = true;
+                            $this->event->dispatch($respondentMergeEvent, 'respondent.merge');
                         }
                         unset($existingPatients[$key]);
                     } else {
