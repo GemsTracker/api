@@ -26,6 +26,8 @@ class PatientOtherFieldsTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_gender'] = 'U';
+        $expected['grs_birthday'] = null;
+        $expected['grs_iso_lang'] = 'nl';
 
         $this->assertEquals($expected, $result);
     }
@@ -44,6 +46,8 @@ class PatientOtherFieldsTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_gender'] = 'M';
+        $expected['grs_birthday'] = null;
+        $expected['grs_iso_lang'] = 'nl';
 
         $this->assertEquals($expected, $result);
     }
@@ -62,6 +66,9 @@ class PatientOtherFieldsTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_gender'] = 'F';
+        $expected['grs_birthday'] = null;
+        $expected['grs_iso_lang'] = 'nl';
+
 
         $this->assertEquals($expected, $result);
     }
@@ -80,6 +87,8 @@ class PatientOtherFieldsTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_gender'] = 'U';
+        $expected['grs_birthday'] = null;
+        $expected['grs_iso_lang'] = 'nl';
 
         $this->assertEquals($expected, $result);
     }
@@ -98,6 +107,8 @@ class PatientOtherFieldsTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_gender'] = 'U';
+        $expected['grs_birthday'] = null;
+        $expected['grs_iso_lang'] = 'nl';
 
         $this->assertEquals($expected, $result);
     }
@@ -116,6 +127,8 @@ class PatientOtherFieldsTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_gender'] = 'U';
+        $expected['grs_birthday'] = null;
+        $expected['grs_iso_lang'] = 'nl';
 
         $this->assertEquals($expected, $result);
     }
@@ -134,6 +147,8 @@ class PatientOtherFieldsTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_gender'] = 'U';
+        $expected['grs_birthday'] = null;
+        $expected['grs_iso_lang'] = 'nl';
 
         $this->assertEquals($expected, $result);
     }

@@ -108,6 +108,7 @@ class EpisodeOfCareOrganizationTransformerTest extends TestCase
 
         $expected = $data;
         $expected['gec_id_organization'] = 1;
+        $expected['locationId'] = 201;
 
         $this->assertEquals($expected, $result);
     }
@@ -116,6 +117,8 @@ class EpisodeOfCareOrganizationTransformerTest extends TestCase
     {
         $organizationRepositoryProphecy = $this->prophesize(OrganizationRepository::class);
         $organizationRepositoryProphecy->getOrganizationId('Test organization Amsterdam')->willReturn(1);
+        $organizationRepositoryProphecy->getLocationFromOrganizationName('Test organization Amsterdam')->willReturn('Amsterdam');
+        $organizationRepositoryProphecy->matchLocation('Amsterdam', 1, true)->willReturn(201);
 
         return new EpisodeOfCareOrganizationTransformer($organizationRepositoryProphecy->reveal());
     }

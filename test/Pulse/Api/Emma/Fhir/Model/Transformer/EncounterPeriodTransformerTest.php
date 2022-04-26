@@ -73,6 +73,7 @@ class EncounterPeriodTransformerTest extends TestCase
 
         $expected = $data;
         $expected['gap_admission_time'] = '2022-02-22T08:00:00+02:00';
+        $expected['gap_discharge_time'] = null;
 
         $this->assertEquals($expected, $result);
     }

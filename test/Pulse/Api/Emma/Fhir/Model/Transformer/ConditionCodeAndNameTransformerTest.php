@@ -23,7 +23,11 @@ class ConditionCodeAndNameTransformerTest extends TestCase
 
         $result = $transformer->transformRowBeforeSave($model, $data);
 
-        $this->assertEquals($data, $result);
+        $expected = $data;
+        $expected['gmco_code'] = null;
+        $expected['gmco_name'] = null;
+
+        $this->assertEquals($expected, $result);
     }
 
     public function testNullCode()
@@ -37,7 +41,11 @@ class ConditionCodeAndNameTransformerTest extends TestCase
 
         $result = $transformer->transformRowBeforeSave($model, $data);
 
-        $this->assertEquals($data, $result);
+        $expected = $data;
+        $expected['gmco_code'] = null;
+        $expected['gmco_name'] = null;
+
+        $this->assertEquals($expected, $result);
     }
 
     public function testValidCode()
@@ -59,6 +67,7 @@ class ConditionCodeAndNameTransformerTest extends TestCase
 
         $expected = $data;
         $expected['gmco_code'] = 'TEST01';
+        $expected['gmco_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -81,6 +90,8 @@ class ConditionCodeAndNameTransformerTest extends TestCase
         $result = $transformer->transformRowBeforeSave($model, $data);
 
         $expected = $data;
+        $expected['gmco_code'] = null;
+        $expected['gmco_name'] = null;
 
         $this->assertEquals($expected, $result);
     }

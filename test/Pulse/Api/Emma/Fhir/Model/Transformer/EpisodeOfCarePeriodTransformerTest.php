@@ -73,6 +73,7 @@ class EpisodeOfCarePeriodTransformerTest extends TestCase
 
         $expected = $data;
         $expected['gec_startdate'] = '2022-02-22T08:00:00+02:00';
+        $expected['gec_enddate'] = null;
 
         $this->assertEquals($expected, $result);
     }

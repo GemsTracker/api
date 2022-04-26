@@ -21,7 +21,13 @@ class PatientTelecomTransformerTest extends TestCase
         $transformer = new PatientTelecomTransformer();
         $result = $transformer->transformRowBeforeSave($model, $data);
 
-        $this->assertEquals($data, $result);
+        $expected = $data;
+        $expected['gr2o_email'] = null;
+        $expected['grs_phone_1'] = null;
+        $expected['grs_phone_2'] = null;
+        $expected['grs_phone_3'] = null;
+
+        $this->assertEquals($expected, $result);
     }
 
     public function testEmailCorrect()
@@ -43,6 +49,9 @@ class PatientTelecomTransformerTest extends TestCase
 
         $expected = $data;
         $expected['gr2o_email'] = 'janneke@test.nl';
+        $expected['grs_phone_1'] = null;
+        $expected['grs_phone_2'] = null;
+        $expected['grs_phone_3'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -71,6 +80,9 @@ class PatientTelecomTransformerTest extends TestCase
 
         $expected = $data;
         $expected['gr2o_email'] = 'janneke@test.nl';
+        $expected['grs_phone_1'] = null;
+        $expected['grs_phone_2'] = null;
+        $expected['grs_phone_3'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -93,6 +105,10 @@ class PatientTelecomTransformerTest extends TestCase
         $result = $transformer->transformRowBeforeSave($model, $data);
 
         $expected = $data;
+        $expected['gr2o_email'] = null;
+        $expected['grs_phone_1'] = null;
+        $expected['grs_phone_2'] = null;
+        $expected['grs_phone_3'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -116,6 +132,9 @@ class PatientTelecomTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_phone_3'] = '0612345678';
+        $expected['gr2o_email'] = null;
+        $expected['grs_phone_1'] = null;
+        $expected['grs_phone_2'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -139,6 +158,9 @@ class PatientTelecomTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_phone_1'] = '0401234567';
+        $expected['gr2o_email'] = null;
+        $expected['grs_phone_2'] = null;
+        $expected['grs_phone_3'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -162,6 +184,9 @@ class PatientTelecomTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_phone_2'] = '0800123456';
+        $expected['gr2o_email'] = null;
+        $expected['grs_phone_1'] = null;
+        $expected['grs_phone_3'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -184,6 +209,10 @@ class PatientTelecomTransformerTest extends TestCase
         $result = $transformer->transformRowBeforeSave($model, $data);
 
         $expected = $data;
+        $expected['gr2o_email'] = null;
+        $expected['grs_phone_1'] = null;
+        $expected['grs_phone_2'] = null;
+        $expected['grs_phone_3'] = null;
 
         $this->assertEquals($expected, $result);
     }

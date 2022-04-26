@@ -8,6 +8,9 @@ namespace PulseTest\Rest\Api\Emma\Fhir\Repository;
 
 use GemsTest\Rest\Test\DbTestCase;
 use GemsTest\Rest\Test\LaminasDbFixtures;
+use Prophecy\Argument;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Pulse\Api\Emma\Fhir\Repository\AgendaActivityRepository;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 
@@ -93,6 +96,13 @@ class AgendaActivityRepositoryTest extends DbTestCase
         $currentUserRepositoryProphecy = $this->prophesize(CurrentUserRepository::class);
         $currentUserRepositoryProphecy->getUserId(1);
 
-        return new AgendaActivityRepository($this->db, $currentUserRepositoryProphecy->reveal());
+
+        $cacheProphecy = $this->prophesize(CacheItemPoolInterface::class);
+        $cacheItemProphecy = $this->prophesize(CacheItemInterface::class);
+        $cacheProphecy->hasItem(Argument::any())->willReturn(false);
+        $cacheProphecy->getItem(Argument::any())->willReturn($cacheItemProphecy->reveal());
+        $cacheProphecy->save(Argument::type(CacheItemInterface::class))->willReturn(null);
+
+        return new AgendaActivityRepository($this->db, $cacheProphecy->reveal(), $currentUserRepositoryProphecy->reveal());
     }
 }

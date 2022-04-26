@@ -23,6 +23,11 @@ class PatientAddressTransformerTest extends TestCase
         $result = $transformer->transformRowBeforeSave($model, $data);
 
         $expected = $data;
+        $expected['grs_city'] = null;
+        $expected['grs_zipcode'] = null;
+        $expected['grs_iso_country'] = null;
+        $expected['grs_address_1'] = null;
+
 
         $this->assertEquals($expected, $result);
     }
@@ -47,6 +52,9 @@ class PatientAddressTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_city'] = 'Teststad';
+        $expected['grs_zipcode'] = null;
+        $expected['grs_iso_country'] = null;
+        $expected['grs_address_1'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -71,6 +79,9 @@ class PatientAddressTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_city'] = 'Teststad';
+        $expected['grs_zipcode'] = null;
+        $expected['grs_iso_country'] = null;
+        $expected['grs_address_1'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -95,6 +106,9 @@ class PatientAddressTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_zipcode'] = '1234 AA';
+        $expected['grs_city'] = null;
+        $expected['grs_iso_country'] = null;
+        $expected['grs_address_1'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -133,6 +147,9 @@ class PatientAddressTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_iso_country'] = 'NL';
+        $expected['grs_city'] = null;
+        $expected['grs_zipcode'] = null;
+        $expected['grs_address_1'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -168,6 +185,9 @@ class PatientAddressTransformerTest extends TestCase
 
         $expected = $data;
         $expected['grs_address_1'] = 'Dorpstraat 1';
+        $expected['grs_city'] = null;
+        $expected['grs_zipcode'] = null;
+        $expected['grs_iso_country'] = null;
 
         $this->assertEquals($expected, $result);
     }

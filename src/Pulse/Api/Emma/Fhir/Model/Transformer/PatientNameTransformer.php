@@ -47,11 +47,11 @@ class PatientNameTransformer extends \MUtil_Model_ModelTransformerAbstract
 
 
             $familyNameData = $this->getFamilyName($name);
-            $row += $familyNameData;
+            $row = array_merge($row, $familyNameData);
 
             if (isset($name['given'])) {
                 $givenNameData = $this->getGivenName($name);
-                $row += $givenNameData;
+                $row = array_merge($row, $givenNameData);
             }
         }
 

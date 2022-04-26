@@ -98,6 +98,12 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_last_name'] = 'Jansen';
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -133,6 +139,11 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_surname_prefix'] = null;
         $expected['grs_raw_surname_prefix'] = 'van';
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -174,6 +185,11 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_raw_last_name'] = 'Janssen';
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -214,6 +230,10 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_partner_last_name'] = 'Jong';
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -265,6 +285,9 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_partner_surname_prefix'] = 'de';
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -316,6 +339,9 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_partner_last_name'] = 'Jong';
         $expected['grs_partner_surname_prefix'] = 'de';
         $expected['grs_last_name_order'] = 'partner name';
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -367,6 +393,9 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_partner_last_name'] = 'Jong';
         $expected['grs_partner_surname_prefix'] = 'de';
         $expected['grs_last_name_order'] = 'partner name, surname';
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -418,6 +447,9 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_partner_surname_prefix'] = 'de';
         $expected['grs_last_name_order'] = 'surname, partner name';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -445,6 +477,12 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_last_name'] = 'Jansen';
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -473,6 +511,11 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_first_name'] = 'Janneke';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -525,6 +568,12 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_last_name'] = 'Jansen';
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -563,6 +612,11 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_first_name'] = 'Janneke';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_initials_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -601,6 +655,11 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_last_name_order'] = 'surname';
         $expected['grs_initials_name'] = 'J.';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
+        $expected['grs_first_name'] = null;
 
         $this->assertEquals($expected, $result);
     }
@@ -648,6 +707,10 @@ class PatientNameTransformerTest extends TestCase
         $expected['grs_first_name'] = 'Janneke';
         $expected['grs_initials_name'] = 'J.';
         $expected['grs_surname_prefix'] = null;
+        $expected['grs_raw_last_name'] = null;
+        $expected['grs_raw_surname_prefix'] = null;
+        $expected['grs_partner_last_name'] = null;
+        $expected['grs_partner_surname_prefix'] = null;
 
         $this->assertEquals($expected, $result);
     }

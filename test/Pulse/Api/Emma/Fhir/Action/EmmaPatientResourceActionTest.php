@@ -297,6 +297,7 @@ class EmmaPatientResourceActionTest extends TestCase
         $model->getColNames('allow_api_load')->willReturn([]);
         $model->getColNames('allow_api_save')->willReturn([]);
         $model->save(Argument::any())->willThrow(new ModelValidationException('validation errros!', ['somefield' => 'is missing!']));
+        $model->getName()->willReturn('respondentModel');
 
         $action->setModelName($model->reveal());
 
@@ -365,6 +366,7 @@ class EmmaPatientResourceActionTest extends TestCase
         $model->getColNames('allow_api_load')->willReturn([]);
         $model->getColNames('allow_api_save')->willReturn([]);
         $model->save(Argument::any())->willThrow(new ModelException('Some model error!!'));
+        $model->getName()->willReturn('respondentModel');
 
         $action->setModelName($model->reveal());
 
