@@ -119,6 +119,62 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
                 ['logFileImportDeleteError', -10],
                 ['logDbImportDeleteError', -10],
             ],
+
+            'resource.encounterModel.delete' => [
+                ['logFileImportDeleteStart', -10],
+            ],
+
+            'resource.encounterModel.deleted' => [
+                ['logFileImportDeleted', -10],
+                ['logDbImportDeleted', -10],
+            ],
+
+            'resource.encounterModel.delete.error' => [
+                ['logFileImportDeleteError', -10],
+                ['logDbImportDeleteError', -10],
+            ],
+
+            'resource.conditionModel.delete' => [
+                ['logFileImportDeleteStart', -10],
+            ],
+
+            'resource.conditionModel.deleted' => [
+                ['logFileImportDeleted', -10],
+                ['logDbImportDeleted', -10],
+            ],
+
+            'resource.conditionModel.delete.error' => [
+                ['logFileImportDeleteError', -10],
+                ['logDbImportDeleteError', -10],
+            ],
+
+            'resource.episodeOfCareModel.delete' => [
+                ['logFileImportDeleteStart', -10],
+            ],
+
+            'resource.episodeOfCareModel.deleted' => [
+                ['logFileImportDeleted', -10],
+                ['logDbImportDeleted', -10],
+            ],
+
+            'resource.episodeOfCareModel.delete.error' => [
+                ['logFileImportDeleteError', -10],
+                ['logDbImportDeleteError', -10],
+            ],
+
+            'resource.respondentModel.delete' => [
+                ['logFileImportDeleteStart', -10],
+            ],
+
+            'resource.respondentModel.deleted' => [
+                ['logFileImportDeleted', -10],
+                ['logDbImportDeleted', -10],
+            ],
+
+            'resource.respondentModel.delete.error' => [
+                ['logFileImportDeleteError', -10],
+                ['logDbImportDeleteError', -10],
+            ],
         ];
     }
 
