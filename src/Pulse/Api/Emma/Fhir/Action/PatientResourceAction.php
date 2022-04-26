@@ -183,6 +183,10 @@ class PatientResourceAction extends ModelRestController
         foreach($rows as $row) {
             $row = $this->filterColumns($row, true);
             $row = $this->beforeSaveRow($row);
+            if (isset($row['gr2o_patient_nr'])) {
+                $row['patientNr'] = $row['gr2o_patient_nr'];
+            }
+            
             $row['exists'] = false;
             if ($update) {
                 $row['exists'] = true;

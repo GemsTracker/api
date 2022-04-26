@@ -550,7 +550,11 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
         }
 
         $importLogger = $this->importLogRepository->getImportLogger();
+
         $message = sprintf('Finished import of %s %s with ID %s', $isNew, $resourceName, $resourceId);
+        if (isset($newValues['patientNr'])) {
+            $message = sprintf('Finished import of %s %s with ID %s for patient %s', $isNew, $resourceName, $resourceId, $newValues['patientNr']);
+        }
 
         $updateData = $event->getUpdateDiffs();
 

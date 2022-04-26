@@ -34,13 +34,14 @@ class EncounterPatientTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         $epdId = str_replace('Patient/', '', $row['subject']['reference']);
-        $respondentId = $this->respondentRepository->getRespondentIdFromEpdId($epdId, $this->epdRepository->getEpdName());
+        $respondentData = $this->respondentRepository->getRespondentInfoFromEpdId($epdId, $this->epdRepository->getEpdName());
 
-        if ($respondentId === null) {
+        if ($respondentData === null || !isset($respondentData['gr2o_id_user'])) {
             throw new MissingDataException('Patient not found');
         }
 
-        $row['gap_id_user'] = $respondentId;
+        $row['gap_id_user'] = $respondentData['gr2o_id_user'];
+        $row['patientNr'] = $respondentData['gr2o_patient_nr'];
 
         return $row;
     }

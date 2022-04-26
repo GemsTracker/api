@@ -47,9 +47,10 @@ class PatientReferenceTransformer extends \MUtil_Model_ModelTransformerAbstract
         }
 
         $epdId = str_replace('Patient/', '', $row[$this->externalField]['reference']);
-        $respondentId = $this->respondentRepository->getRespondentIdFromEpdId($epdId, $this->epdRepository->getEpdName());
-        if ($respondentId) {
-            $row[$this->internalField] = $respondentId;
+        $respondentData = $this->respondentRepository->getRespondentInfoFromEpdId($epdId, $this->epdRepository->getEpdName());
+        if ($respondentData && isset($respondentData['gr2o_id_user'])) {
+            $row[$this->internalField] = $respondentData['gr2o_id_user'];
+            $row['patientNr'] = $respondentData['gr2o_patient_nr'];
         }
 
         return $row;

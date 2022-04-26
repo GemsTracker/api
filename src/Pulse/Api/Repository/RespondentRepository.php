@@ -129,13 +129,13 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         return null;
     }
 
-    public function getRespondentIdFromEpdId($epdId, $epd)
+    public function getRespondentInfoFromEpdId($epdId, $epd)
     {
         $sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__respondent2org')
             ->join('gems__organizations', 'gor_id_organization = gr2o_id_organization', [])
-            ->columns(['gr2o_id_user'])
+            ->columns(['gr2o_id_user', 'gr2o_patient_nr'])
             ->where([
                 'gr2o_epd_id' => $epdId,
                 'gor_epd' => $epd,
@@ -145,8 +145,8 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         $result = $statement->execute();
 
         if ($result->valid() && $result->current()) {
-            $user = $result->current();
-            return $user['gr2o_id_user'];
+            $userData = $result->current();
+            return $userData;
         }
         return null;
     }

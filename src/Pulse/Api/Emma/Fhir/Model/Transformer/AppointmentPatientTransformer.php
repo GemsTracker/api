@@ -37,10 +37,11 @@ class AppointmentPatientTransformer extends \MUtil_Model_ModelTransformerAbstrac
         foreach($row['participant'] as $participant) {
             if (isset($participant['actor'], $participant['actor']['reference']) && strpos($participant['actor']['reference'], 'Patient/') === 0) {
                 $epdId = str_replace('Patient/', '', $participant['actor']['reference']);
-                $respondentId = $this->respondentRepository->getRespondentIdFromEpdId($epdId, $this->epdRepository->getEpdName());
-                if ($respondentId) {
+                $respondentData = $this->respondentRepository->getRespondentInfoFromEpdId($epdId, $this->epdRepository->getEpdName());
+                if ($respondentData && isset($respondentData['gr2o_id_user'])) {
                     $patientParticipant = true;
-                    $row['gap_id_user'] = $respondentId;
+                    $row['gap_id_user'] = $respondentData['gr2o_id_user'];
+                    $row['patientNr'] = $respondentData['gr2o_patient_nr'];
                 }
             }
         }
