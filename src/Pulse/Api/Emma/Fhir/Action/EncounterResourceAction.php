@@ -14,6 +14,7 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
 use Pulse\Api\Emma\Fhir\Model\AppointmentModel;
 use Pulse\Api\Emma\Fhir\Model\ConditionModel;
 use Pulse\Api\Emma\Fhir\Model\EncounterModel;
@@ -47,6 +48,15 @@ class EncounterResourceAction extends ResourceActionAbstract
         $this->appointmentRepository = $appointmentRepository;
         $this->epdRepository = $epdRepository;
         parent::__construct($currentUser, $event, $accesslogRepository, $loader, $urlHelper, $LegacyDb);
+    }
+
+    protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
+    {
+        $appointment = $this->appointmentRepository->getAppointmentFromSourceId($sourceId, $this->epdRepository->getEpdName());
+        if ($appointment) {
+            $event->setRespondentId($appointment['gap_id_user']);
+            $event->setOrganizationId($appointment['gap_id_organization']);
+        }
     }
 
     public function deleteResourceFromSourceId($sourceId)

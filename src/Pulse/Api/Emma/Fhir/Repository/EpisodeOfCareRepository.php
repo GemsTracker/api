@@ -32,7 +32,7 @@ class EpisodeOfCareRepository
         $sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__episodes_of_care')
-            ->columns(['gec_episode_of_care_id', 'gec_id_user'])
+            ->columns(['gec_episode_of_care_id', 'gec_id_user', 'gec_id_organization'])
             ->where([
                 'gec_source' => $source,
                 'gec_id_in_source' => $sourceId,

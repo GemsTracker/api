@@ -14,6 +14,7 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
 use Pulse\Api\Emma\Fhir\Model\AppointmentModel;
 use Pulse\Api\Emma\Fhir\Model\ConditionModel;
 use Pulse\Api\Emma\Fhir\Repository\ConditionRepository;
@@ -46,6 +47,14 @@ class ConditionResourceAction extends ResourceActionAbstract
         $this->conditionRepository = $conditionRepository;
         $this->epdRepository = $epdRepository;
         parent::__construct($currentUser, $event, $accesslogRepository, $loader, $urlHelper, $LegacyDb);
+    }
+
+    protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
+    {
+        $condition = $this->conditionRepository->getConditionBySourceId($sourceId);
+        if ($condition) {
+            $event->setRespondentId($condition['gmco_id_user']);
+        }
     }
 
     public function deleteResourceFromSourceId($sourceId)

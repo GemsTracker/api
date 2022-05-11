@@ -74,6 +74,14 @@ class PatientResourceAction extends ModelRestController
         $this->epdRepository = $epdRepository;
     }
 
+    protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
+    {
+        $episode = $this->respondentRepository->getRespondentInfoFromEpdId($sourceId, $this->epdRepository->getEpdName());
+        if ($episode) {
+            $event->setRespondentId($episode['gr2o_id_user']);
+        }
+    }
+
     protected function afterSaveRow($newRow)
     {
         $event = new SavedModel($this->model);
@@ -262,9 +270,7 @@ class PatientResourceAction extends ModelRestController
             return new EmptyResponse(404);
         }
 
-        $patientInfo = $this->respondentRepository->getRespondentInfoFromEpdId($id, $this->epdRepository->getEpdName());
-
-        $event->setRespondentId($patientInfo['gr2o_id_user']);
+        $this->addRespondentInfoToEvent($event, $id);
 
         $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.deleted');
 

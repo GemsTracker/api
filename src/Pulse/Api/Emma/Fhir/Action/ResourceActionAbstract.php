@@ -51,6 +51,10 @@ class ResourceActionAbstract extends ModelRestControllerAbstract
         $this->currentUserRepository = $currentUserRepository;
     }
 
+    protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
+    {
+    }
+
     protected function afterSaveRow($newRow)
     {
         $event = new SavedModel($this->model);
@@ -111,7 +115,7 @@ class ResourceActionAbstract extends ModelRestControllerAbstract
             return new EmptyResponse(404);
         }
 
-        $event->setRespondentId($this->getRespondentIdFromSourceId($id));
+        $this->addRespondentInfoToEvent($event, $id);
 
         $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.deleted');
 

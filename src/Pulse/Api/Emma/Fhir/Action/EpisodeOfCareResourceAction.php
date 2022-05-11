@@ -12,6 +12,7 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Mezzio\Helper\UrlHelper;
 use Psr\Http\Message\ServerRequestInterface;
+use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
 use Pulse\Api\Emma\Fhir\Model\EpisodeOfCareModel;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
@@ -44,18 +45,17 @@ class EpisodeOfCareResourceAction extends ResourceActionAbstract
         parent::__construct($currentUser, $event, $accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
+    protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
+    {
+        $episode = $this->episodeOfCareRepository->getEpisodeOfCareBySourceId($sourceId, $this->epdRepository->getEpdName());
+        if ($episode) {
+            $event->setRespondentId($episode['gec_id_user']);
+            $event->setOrganizationId($episode['gec_id_organization']);
+        }
+    }
+
     public function deleteResourceFromSourceId($sourceId)
     {
         return $this->episodeOfCareRepository->softDeleteEpisodeFromSourceId($sourceId, $this->epdRepository->getEpdName());
-    }
-
-    protected function getRespondentIdFromSourceId($sourceId)
-    {
-        $episode = $this->episodeOfCareRepository->getEpisodeOfCareBySourceId($sourceId);
-        if ($episode) {
-            return $episode['gec_id_user'];
-        }
-
-        return null;
     }
 }

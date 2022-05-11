@@ -47,17 +47,17 @@ class AppointmentResourceAction extends ResourceActionAbstract
         parent::__construct($currentUser, $event, $accesslogRepository, $loader, $urlHelper, $LegacyDb);
     }
 
-    public function deleteResourceFromSourceId($sourceId)
-    {
-        return $this->appointmentRepository->softDeleteAppointmentFromSourceId($sourceId, $this->epdRepository->getEpdName());
-    }
-
-    protected function getRespondentIdFromSourceId($sourceId)
+    protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
     {
         $appointment = $this->appointmentRepository->getAppointmentFromSourceId($sourceId, $this->epdRepository->getEpdName());
         if ($appointment) {
-            return $appointment['gap_id_user'];
+            $event->setRespondentId($appointment['gap_id_user']);
+            $event->setOrganizationId($appointment['gap_id_organization']);
         }
-        return null;
+    }
+
+    public function deleteResourceFromSourceId($sourceId)
+    {
+        return $this->appointmentRepository->softDeleteAppointmentFromSourceId($sourceId, $this->epdRepository->getEpdName());
     }
 }

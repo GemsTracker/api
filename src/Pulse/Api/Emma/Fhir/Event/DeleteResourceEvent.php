@@ -10,6 +10,8 @@ class DeleteResourceEvent extends ModelEvent
 {
     use EventDuration;
 
+    protected $organizationId;
+
     protected $resourceId;
 
     protected $respondentId;
@@ -18,6 +20,14 @@ class DeleteResourceEvent extends ModelEvent
     {
         parent::__construct($model);
         $this->resourceId = $resourceId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOrganizationId()
+    {
+        return $this->organizationId;
     }
 
     public function getResourceId()
@@ -31,6 +41,14 @@ class DeleteResourceEvent extends ModelEvent
     public function getRespondentId()
     {
         return $this->respondentId;
+    }
+
+    /**
+     * @param mixed $organizationId
+     */
+    public function setOrganizationId($organizationId): void
+    {
+        $this->organizationId = $organizationId;
     }
 
     /**
