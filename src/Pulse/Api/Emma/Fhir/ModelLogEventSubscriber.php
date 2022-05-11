@@ -488,6 +488,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'geir_resource_id' => $resourceId,
             'geir_type' => $resourceName,
             'geir_id_user' => $event->getRespondentId(),
+            'geir_id_organization' => $event->getOrganizationId(),
             'geir_status' => 'deleted',
             'geir_duration' => $event->getDurationInSeconds(),
             'geir_new' => 0,
