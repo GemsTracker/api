@@ -12,6 +12,8 @@ class DeleteResourceEvent extends ModelEvent
 
     protected $resourceId;
 
+    protected $respondentId;
+
     public function __construct(\MUtil_Model_ModelAbstract $model, $resourceId)
     {
         parent::__construct($model);
@@ -21,5 +23,21 @@ class DeleteResourceEvent extends ModelEvent
     public function getResourceId()
     {
         return $this->resourceId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRespondentId()
+    {
+        return $this->respondentId;
+    }
+
+    /**
+     * @param mixed $respondentId
+     */
+    public function setRespondentId($respondentId): void
+    {
+        $this->respondentId = $respondentId;
     }
 }

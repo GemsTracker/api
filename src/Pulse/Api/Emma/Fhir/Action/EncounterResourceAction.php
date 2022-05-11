@@ -53,4 +53,13 @@ class EncounterResourceAction extends ResourceActionAbstract
     {
         return $this->appointmentRepository->softDeleteAppointmentFromSourceId($sourceId, $this->epdRepository->getEpdName());
     }
+
+    protected function getRespondentIdFromSourceId($sourceId)
+    {
+        $appointment = $this->appointmentRepository->getAppointmentFromSourceId($sourceId, $this->epdRepository->getEpdName());
+        if ($appointment) {
+            return $appointment['gap_id_user'];
+        }
+        return null;
+    }
 }

@@ -52,4 +52,14 @@ class ConditionResourceAction extends ResourceActionAbstract
     {
         return $this->conditionRepository->softDeleteConditionFromSourceId($sourceId, $this->epdRepository->getEpdName());
     }
+
+    protected function getRespondentIdFromSourceId($sourceId)
+    {
+        $condition = $this->conditionRepository->getConditionBySourceId($sourceId);
+        if ($condition) {
+            return $condition['gmco_id_user'];
+        }
+
+        return null;
+    }
 }

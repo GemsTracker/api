@@ -262,6 +262,10 @@ class PatientResourceAction extends ModelRestController
             return new EmptyResponse(404);
         }
 
+        $patientInfo = $this->respondentRepository->getRespondentInfoFromEpdId($id, $this->epdRepository->getEpdName());
+
+        $event->setRespondentId($patientInfo['gr2o_id_user']);
+
         $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.deleted');
 
         return new EmptyResponse(204);

@@ -111,6 +111,8 @@ class ResourceActionAbstract extends ModelRestControllerAbstract
             return new EmptyResponse(404);
         }
 
+        $event->setRespondentId($this->getRespondentIdFromSourceId($id));
+
         $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.deleted');
 
         return new EmptyResponse(204);
@@ -119,6 +121,11 @@ class ResourceActionAbstract extends ModelRestControllerAbstract
     public function deleteResourceFromSourceId($sourceId)
     {
         return 0;
+    }
+
+    protected function getRespondentIdFromSourceId($sourceId)
+    {
+        return null;
     }
 
     public function put(ServerRequestInterface $request)

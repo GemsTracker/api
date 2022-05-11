@@ -48,4 +48,14 @@ class EpisodeOfCareResourceAction extends ResourceActionAbstract
     {
         return $this->episodeOfCareRepository->softDeleteEpisodeFromSourceId($sourceId, $this->epdRepository->getEpdName());
     }
+
+    protected function getRespondentIdFromSourceId($sourceId)
+    {
+        $episode = $this->episodeOfCareRepository->getEpisodeOfCareBySourceId($sourceId);
+        if ($episode) {
+            return $episode['gec_id_user'];
+        }
+
+        return null;
+    }
 }

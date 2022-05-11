@@ -487,6 +487,7 @@ class ModelLogEventSubscriber implements EventSubscriberInterface
             'geir_source' => $this->epdRepository->getEpdName(),
             'geir_resource_id' => $resourceId,
             'geir_type' => $resourceName,
+            'geir_id_user' => $event->getRespondentId(),
             'geir_status' => 'deleted',
             'geir_duration' => $event->getDurationInSeconds(),
             'geir_new' => 0,
