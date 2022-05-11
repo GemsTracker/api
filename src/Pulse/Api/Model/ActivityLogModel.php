@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Pulse\Api\Model;
 
 
+use MUtil\Model\Type\JsonData;
 use MUtil\Translate\TranslateableTrait;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 use Pulse\Api\Model\Transformer\ActivityLogActionTransformer;
@@ -76,10 +77,14 @@ class ActivityLogModel extends \MUtil_Model_JoinModel
             'apiName' => 'message',
         ]);
 
+        $jdType = new JsonData();
+        $jdType->apply($this, 'gla_message', true);
+
         $this->set('gla_data', [
             'label' => $this->_('Data'),
             'apiName' => 'data',
         ]);
+        $jdType->apply($this, 'gla_data', true);
 
         $this->set('gla_method', [
             'label' => $this->_('Method'),
