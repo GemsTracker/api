@@ -32,7 +32,7 @@ class AppointmentRepository
         $sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__appointments')
-            ->columns(['gap_id_appointment', 'gap_id_organization'])
+            ->columns(['gap_id_appointment', 'gap_id_organization', 'gap_id_user'])
             ->where([
                 'gap_id_in_source' => $sourceId,
             ]);

@@ -33,10 +33,12 @@ class ConditionEpisodeOfCareTransformer extends \MUtil_Model_ModelTransformerAbs
         $row['episodeOfCareSourceId'] = $episodeSourceId = str_replace('EpisodeOfCare/', '', $row['context']['reference']);
 
 
-        $episodeId = $this->episodeOfCareRepository->getEpisodeOfCareBySourceId($episodeSourceId, 'emma');
-        $row['gmco_id_episode_of_care'] = $episodeId;
+        $episode = $this->episodeOfCareRepository->getEpisodeOfCareBySourceId($episodeSourceId, 'emma');
+        if ($episode && isset($episode['gec_episode_of_care_id'])) {
+            $row['gmco_id_episode_of_care'] = $episode['gec_episode_of_care_id'];
+        }
 
-        if ($episodeId === null) {
+        if ($episode === null) {
             $this->importEscrowLinkRepository->addEscrowLink('episodeOfCare', $episodeSourceId, 'condition', $row['id']);
         }
 

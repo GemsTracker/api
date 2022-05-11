@@ -36,9 +36,9 @@ class ExistingEpisodeOfCareTransformer extends \MUtil_Model_ModelTransformerAbst
             throw new MissingDataException('No source ID supplied');
         }
 
-        $episodeOfCareId = $this->episodeOfCareRepository->getEpisodeOfCareBySourceId($row['id'], $this->epdRepository->getEpdName());
-        $row['gec_episode_of_care_id'] = $episodeOfCareId;
-        if ($episodeOfCareId) {
+        $episodeOfCare = $this->episodeOfCareRepository->getEpisodeOfCareBySourceId($row['id'], $this->epdRepository->getEpdName());
+        if ($episodeOfCare && isset($episodeOfCare['gec_episode_of_care_id'])) {
+            $row['gec_episode_of_care_id'] = $episodeOfCare['gec_episode_of_care_id'];
             $row['exists'] = true;
         }
 

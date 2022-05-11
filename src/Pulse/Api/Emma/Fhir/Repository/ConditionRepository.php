@@ -34,7 +34,7 @@ class ConditionRepository
         $sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__medical_conditions')
-            ->columns(['gmco_id_condition', 'gmco_id_source', 'gmco_id_episode_of_care'])
+            ->columns(['gmco_id_condition', 'gmco_id_source', 'gmco_id_episode_of_care', 'gmco_id_user'])
             ->where([
                 'gmco_id_source' => $sourceId,
                 'gmco_source' => $source,

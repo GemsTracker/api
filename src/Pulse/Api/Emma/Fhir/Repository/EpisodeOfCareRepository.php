@@ -25,14 +25,14 @@ class EpisodeOfCareRepository
     /**
      * @param $sourceId string source ID
      * @param $source string epd/source name
-     * @return int|null episode of care ID or null of not found
+     * @return array|null episode of care fields or null of not found
      */
     public function getEpisodeOfCareBySourceId($sourceId, $source)
     {
         $sql = new Sql($this->db);
         $select = $sql->select();
         $select->from('gems__episodes_of_care')
-            ->columns(['gec_episode_of_care_id'])
+            ->columns(['gec_episode_of_care_id', 'gec_id_user'])
             ->where([
                 'gec_source' => $source,
                 'gec_id_in_source' => $sourceId,
@@ -42,10 +42,7 @@ class EpisodeOfCareRepository
         $result = $statement->execute();
 
         if ($result->valid() && $result->current()) {
-            $current = $result->current();
-            if (isset($current['gec_episode_of_care_id'])) {
-                return (int)$current['gec_episode_of_care_id'];
-            }
+            return $result->current();
         }
         return null;
     }
