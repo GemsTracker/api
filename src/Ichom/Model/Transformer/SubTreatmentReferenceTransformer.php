@@ -8,8 +8,8 @@ class SubTreatmentReferenceTransformer extends \MUtil_Model_ModelTransformerAbst
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
         foreach($data as $rowIndex=>$row) {
+            $newTreatments = [];
             if (isset($row['treatments'])) {
-                $newTreatments = [];
                 foreach ($row['treatments'] as $subRow) {
                     $newSubRow = [];
                     if (isset($subRow['gtrt_id_treatment'], $subRow['gtrt_name'])) {
