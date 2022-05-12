@@ -1,6 +1,9 @@
 <?php
 
 namespace Pulse\Api\Model;
+use Gems\Rest\Fhir\Model\Transformer\BooleanTransformer;
+use Gems\Rest\Fhir\Model\Transformer\IntTransformer;
+
 /**
  * TEMPORARY, DO NOT ADD TO GIT, WILL BE REPLACED IN PULSE
  */
@@ -39,6 +42,7 @@ class ActivityDiagnosisModel extends \Gems_Model_JoinModel
             'label' => $this->_('Medical category'),
             'apiName' => 'medicalCategory',
             'elementClass' => 'select',
+            'no_text_search' => true,
             'multiOptionSettings' => [
                 'reference' => 'ichom/medical-category',
                 'key' => 'id',
@@ -81,5 +85,8 @@ class ActivityDiagnosisModel extends \Gems_Model_JoinModel
         ]);
 
         \Gems_Model::setChangeFieldsByPrefix($this, 'pa2d');
+
+        $this->addTransformer(new IntTransformer(['pa2d_id_activity2diagnosis', 'pa2d_id_diagnosis', 'pa2d_order']));
+        $this->addTransformer(new BooleanTransformer(['pa2d_active']));
     }
 }
