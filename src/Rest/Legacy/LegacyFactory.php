@@ -587,6 +587,10 @@ class LegacyFactory implements FactoryInterface
 
     protected function getProjectSettings()
     {
+        if (isset($this->config['db'], $this->config['db']['database'])) {
+            defined('DATABASE') || define('DATABASE', $this->config['db']['database']);
+        }
+
         $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/config/project');
 
         $project = $this->loader->create('Project_ProjectSettings', $projectArray);
