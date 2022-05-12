@@ -34,5 +34,20 @@ return [
             'emma/survey-questions' => ['GET', 'OPTIONS'],
             'emma/token-answers' => ['GET', 'OPTIONS'],
         ]
-    ]
+    ],
+    'r-dashboard' => [
+        'description' => 'R Dashboard',
+        'permissions' => [
+            'api.fhir/patient' => ['GET'],
+            'api.fhir/questionnaire-task' => ['GET', 'PATCH'],
+            'api.fhir/questionnaire-response' => ['GET'],
+            'api.fhir/care-plan' => ['GET'],
+            'api.data-set/data' => ['GET'],
+            'api.ichom/diagnosis' => ['GET'],
+            'api.ichom/treatment' => ['GET'],
+            'api.ichom/medical-category' => ['GET'],
+            'api.reference-data' => ['GET'],
+            'other-patient-numbers' => ['GET'],
+        ],
+    ],
 ];
