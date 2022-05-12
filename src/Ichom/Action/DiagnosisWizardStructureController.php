@@ -58,18 +58,18 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
         }
 
         $structures = [
-            'newDiagnosis' => $this->getNewDiagnosisStructure(),
-            'editDiagnosis' => $this->getEditDiagnosisStructure(),
+            'newDiagnosis' => $this->getNewDiagnosisStructure($params['organizationId']),
+            'editDiagnosis' => $this->getEditDiagnosisStructure($params['organizationId']),
             'trackfields' => $this->getTrackfieldsPerTrack($params['patientNr'], $params['organizationId']),
         ];
 
         return new JsonResponse($structures);
     }
 
-    protected function getDiagnosisTracks()
+    protected function getDiagnosisTracks($organizationId)
     {
         if (!$this->diagnosisTracks) {
-            $this->diagnosisTracks = $this->diagnosis2TreatmentRepository->getDiagnosisTracks();
+            $this->diagnosisTracks = $this->diagnosis2TreatmentRepository->getDiagnosisTracks($organizationId);
         }
         return $this->diagnosisTracks;
     }
@@ -86,7 +86,7 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
         return $keyValueList;
     }
 
-    protected function getEditDiagnosisStructure()
+    protected function getEditDiagnosisStructure($organizationId)
     {
         $structure = [
             'action' => [
@@ -104,7 +104,7 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
             ],
         ];
 
-        $structure = array_merge($structure, $this->getBaseStructure());
+        $structure = array_merge($structure, $this->getBaseStructure($organizationId));
         $structure['removeDiagnosis'] = [
             'label' => $this->_('Remove diagnosis reason'),
             'elementClass' => 'Checkbox',
@@ -139,16 +139,16 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
         return $structure;
     }
 
-    protected function getNewDiagnosisStructure()
+    protected function getNewDiagnosisStructure($organizationId)
     {
-        $structure = $this->getBaseStructure();
+        $structure = $this->getBaseStructure($organizationId);
         $structure['diagnosis']['label'] = $this->_('New diagnosis');
         $structure['treatment']['label'] = $this->_('New treatment');
 
         return $structure;
     }
 
-    protected function getBaseStructure()
+    protected function getBaseStructure($organizationId)
     {
         $structure = [
             'track' => [
@@ -156,7 +156,7 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                 'required' => true,
                 'elementClass' => 'Radio',
                 'type' => 'string',
-                'multiOptions' => $this->pairsToKeyValue($this->getDiagnosisTracks()),
+                'multiOptions' => $this->pairsToKeyValue($this->getDiagnosisTracks($organizationId)),
                 'name' => 'track',
                 'onChange' => [
                     'otherFieldValue' => [
@@ -231,7 +231,7 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
     protected function getTrackfieldsPerTrack($patientNr, $organizationId)
     {
         $trackFieldStructure = [];
-        $tracks = $this->getDiagnosisTracks();
+        $tracks = $this->getDiagnosisTracks($organizationId);
 
         $skipFields = ['diagnosis', 'treatment'];
 

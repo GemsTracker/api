@@ -130,7 +130,7 @@ class ChartRepository
     protected function addChartDataFromScores($norms, $normType='')
     {
         $firstNorm = reset($norms);
-        if ($firstNorm['pt2o_graph'] == 'errorbar') {
+        if ($firstNorm && $firstNorm['pt2o_graph'] == 'errorbar') {
             $errorData = $this->getErrorData($norms);
             if (isset($errorData['error_y'])) {
                 $norms = $errorData['norms'];
@@ -580,11 +580,13 @@ class ChartRepository
             $tokenSelect = $sql->select();
             $tokenSelect
                 ->from('gems__tokens')
+                ->join('gems__reception_codes', 'grc_id_reception_code = gto_reception_code')
                 ->where(
                     [
                         'gto_id_respondent_track' => $respondentTrackId,
                         'gto_id_track' => $this->trackId,
                         'gto_id_survey' => $this->surveyId,
+                        'grc_success' => 1,
                     ])
                 ->order('gto_round_order')
                 ->where->notEqualTo('gto_round_description', 'Stand-alone survey');
@@ -613,7 +615,7 @@ class ChartRepository
                             && is_array($questionInformation[$questionCode]['answers'])
                             && isset($questionInformation[$questionCode]['answers'][$answer])
                         ) {
-                            $answer = $questionInformation[$questionCode]['answers'][$answer];
+                            $answer = (float) filter_var($questionInformation[$questionCode]['answers'][$answer],FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION );
                         }
 
                         if (is_numeric($answer)) {

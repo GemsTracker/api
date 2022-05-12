@@ -81,6 +81,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
         return [
             'acl-groups'    => $this->getAclGroups(),
             'dependencies'  => $this->getDependencies(),
+            'migrations'    => $this->getMigrations(),
             'oauth2'        => $this->getOauth2(),
             'routes'        => $this->getRoutes(),
             'templates'     => $this->getTemplates(),
@@ -198,6 +199,18 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 RefreshTokenRepositoryInterface::class => RefreshTokenRepository::class,
                 ScopeRepositoryInterface::class => ScopeRepository::class,
                 UserRepositoryInterface::class => UserRepository::class,
+            ],
+        ];
+    }
+
+    protected function getMigrations()
+    {
+        return [
+            'migrations' => [
+                '%%PHINX_CONFIG_DIR%%/config/db/migrations',
+            ],
+            'seeds' => [
+                '%%PHINX_CONFIG_DIR%%/config/db/seeds',
             ],
         ];
     }
