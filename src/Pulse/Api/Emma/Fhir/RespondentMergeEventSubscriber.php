@@ -80,7 +80,16 @@ class RespondentMergeEventSubscriber implements EventSubscriberInterface
                 );
             case 'old-deleted':
                 return sprintf(
-                    'Existing patient nr %s was deleted. Its ssn has been removed. It can be merged with %s',
+                    'Existing patient %s was deleted. Its ssn has been removed. It can be merged with %s',
+                    $event->getOldPatientNr(),
+                    $event->getNewPatientNr()
+                );
+            case 'new-ssn-removed':
+                return sprintf(
+                    'Patient nr %s already exists for epd %s. SSN %s is already known in patient nr %s. SSN of Patient %s has been removed!!',
+                    $event->getNewPatientNr(),
+                    $event->getEpd(),
+                    $event->getSsn(),
                     $event->getOldPatientNr(),
                     $event->getNewPatientNr()
                 );
@@ -96,6 +105,9 @@ class RespondentMergeEventSubscriber implements EventSubscriberInterface
                 $level = 'error';
                 break;
             case 'old-deleted':
+                $level = 'alert';
+                break;
+            case 'new-ssn-removed':
                 $level = 'alert';
                 break;
             default:

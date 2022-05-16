@@ -173,13 +173,35 @@ class PatientResourceAction extends ModelRestController
         }
         $existingPatients = $this->existingEpdPatientRepository->getExistingPatients($row['grs_ssn'], $row['gr2o_patient_nr']);
 
+        $removeNewSsn = false;
+        if ($existingPatients && isset($existingPatients['removeNewSsn'])) {
+            $removeNewSsn = true;
+            unset($existingPatients['removeNewSsn']);
+        }
+
         if ($existingPatients) {
             foreach ($existingPatients as $existingPatient) {
-                $savePatients[] = $existingPatient + $row;
+                $newPatient = $existingPatient + $row;
+                if ($removeNewSsn && isset($newPatient['grs_ssn'])) {
+                    if (!array_key_exists('importInfo', $newPatient)) {
+                        $newPatient['importInfo'] = null;
+                    }
+
+                    $newPatient['importInfo'] .= sprintf("SSN %s removed as it is used in another patient.\n", $newPatient['grs_ssn']);
+                    $newPatient['grs_ssn'] = null;
+                }
+                $savePatients[] = $newPatient;
             }
             $this->update = true;
         } else {
             $row['gr2o_id_organization'] = $this->escrowOrganizationId;
+            if ($removeNewSsn && isset($row['grs_ssn'])) {
+                $row['grs_ssn'] = null;
+                if (!array_key_exists('importInfo', $row)) {
+                    $row['importInfo'] = null;
+                }
+                $row['importInfo'] .= sprintf("SSN %s removed as it is used in another patient.\n", $row['grs_ssn']);
+            }
             $savePatients[] = $row;
         }
 
