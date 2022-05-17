@@ -14,6 +14,8 @@ use Pulse\Api\Repository\RespondentRepository;
 
 class ExistingEpdPatientRepository
 {
+    protected $mergeRespondents = [];
+
     /**
      * @var \MUtil_Model_DatabaseModelAbstract
      */
@@ -57,9 +59,7 @@ class ExistingEpdPatientRepository
                         $respondentMergeEvent->setSsn($ssn);
                         $respondentMergeEvent->setEpd($this->currentEpd);
 
-                        if ($deletedExistingPatient === false) {
-
-
+                        if (!in_array($existingPatient['gr2o_id_user'], $this->mergeRespondents) && $deletedExistingPatient === false) {
                             if ($existingPatient['gr2o_reception_code'] === 'deleted') {
                                 $respondentMergeEvent->setStatus('old-deleted');
                                 $comment = $existingPatient['gr2o_comments'] .= sprintf("\nSSN %s removed in favor of patientnr %s", $ssn, $patientNr);
@@ -71,6 +71,7 @@ class ExistingEpdPatientRepository
                             }
 
                             $this->event->dispatch($respondentMergeEvent, 'respondent.merge');
+                            $this->mergeRespondents[] = $existingPatient['gr2o_id_user'];
                         }
                         unset($existingPatients[$key]);
                     } else {
