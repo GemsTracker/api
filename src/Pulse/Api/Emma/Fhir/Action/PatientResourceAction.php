@@ -32,13 +32,12 @@ use Pulse\Api\Emma\Fhir\Model\Transformer\PatientIdentifierTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\ValidateFieldsTransformer;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
+use Pulse\Api\Emma\Fhir\Repository\EscrowOrganizationRepository;
 use Pulse\Api\Repository\RespondentRepository;
 use Zalt\Loader\ProjectOverloader;
 
 class PatientResourceAction extends ModelRestController
 {
-    protected $escrowOrganizationId = 81;
-
     /**
      * @var EventDispatcher
      */
@@ -62,9 +61,13 @@ class PatientResourceAction extends ModelRestController
      * @var EpdRepository
      */
     protected $epdRepository;
+    /**
+     * @var EscrowOrganizationRepository
+     */
+    protected $escrowOrganizationRepository;
 
 
-    public function __construct(RespondentRepository $respondentRepository, EpdRepository $epdRepository, CurrentUserRepository $currentUserRepository, EventDispatcher $event, ExistingEpdPatientRepository $existingEpdPatientRepository, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
+    public function __construct(RespondentRepository $respondentRepository, EpdRepository $epdRepository, CurrentUserRepository $currentUserRepository, EscrowOrganizationRepository $escrowOrganizationRepository, EventDispatcher $event, ExistingEpdPatientRepository $existingEpdPatientRepository, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
     {
         $this->existingEpdPatientRepository = $existingEpdPatientRepository;
         parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
@@ -72,6 +75,7 @@ class PatientResourceAction extends ModelRestController
         $this->currentUserRepository = $currentUserRepository;
         $this->respondentRepository = $respondentRepository;
         $this->epdRepository = $epdRepository;
+        $this->escrowOrganizationRepository = $escrowOrganizationRepository;
     }
 
     protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
@@ -194,7 +198,7 @@ class PatientResourceAction extends ModelRestController
             }
             $this->update = true;
         } else {
-            $row['gr2o_id_organization'] = $this->escrowOrganizationId;
+            $row['gr2o_id_organization'] = $this->escrowOrganizationRepository->getId();
             if ($removeNewSsn && isset($row['grs_ssn'])) {
                 $row['grs_ssn'] = null;
                 if (!array_key_exists('importInfo', $row)) {

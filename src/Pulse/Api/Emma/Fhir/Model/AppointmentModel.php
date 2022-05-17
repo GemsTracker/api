@@ -23,6 +23,7 @@ use Pulse\Api\Emma\Fhir\Repository\AgendaStaffRepository;
 use Pulse\Api\Emma\Fhir\Repository\AppointmentRepository;
 use Pulse\Api\Emma\Fhir\Repository\ConditionRepository;
 use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
+use Pulse\Api\Emma\Fhir\Repository\EscrowOrganizationRepository;
 use Pulse\Api\Emma\Fhir\Repository\ImportEscrowLinkRepository;
 use Pulse\Api\Repository\RespondentRepository;
 use Pulse\Model\ModelUpdateDiffs;
@@ -37,7 +38,8 @@ class AppointmentModel extends \Gems_Model_JoinModel
                                 AgendaActivityRepository $agendaActivityRepository,
                                 EpdRepository $epdRepository,
                                 ConditionRepository $conditionRepository,
-                                ImportEscrowLinkRepository $importEscrowLinkRepository)
+                                ImportEscrowLinkRepository $importEscrowLinkRepository,
+                                EscrowOrganizationRepository $escrowOrganizationRepository)
     {
         parent::__construct('appointmentModel', 'gems__appointments', 'gap', true);
 
@@ -50,7 +52,7 @@ class AppointmentModel extends \Gems_Model_JoinModel
 
         $this->addTransformer(new ExistingAppointmentTransformer($appointmentRepository, $epdRepository));
 
-        $this->addTransformer(new AppointmentEscrowOrganizationTransformer());
+        $this->addTransformer(new AppointmentEscrowOrganizationTransformer($escrowOrganizationRepository));
         $this->addTransformer(new AppointmentPatientTransformer($respondentRepository, $epdRepository));
         $this->addTransformer(new AppointmentPractitionerTransformer($agendaStaffRepository, $epdRepository));
         $this->addTransformer(new AppointmentStatusTransformer());
