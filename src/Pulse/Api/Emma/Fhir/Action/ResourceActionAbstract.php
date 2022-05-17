@@ -34,6 +34,14 @@ use Zalt\Loader\ProjectOverloader;
 class ResourceActionAbstract extends ModelRestControllerAbstract
 {
     /**
+     * @var array List of allowed content types as input for write methods
+     */
+    protected $allowedContentTypes = [
+        'application/json',
+        'application/fhir+json',
+    ];
+
+    /**
      * @var EventDispatcher
      */
     protected $event;

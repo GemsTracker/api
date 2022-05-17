@@ -39,6 +39,14 @@ use Zalt\Loader\ProjectOverloader;
 class PatientResourceAction extends ModelRestController
 {
     /**
+     * @var array List of allowed content types as input for write methods
+     */
+    protected $allowedContentTypes = [
+        'application/json',
+        'application/fhir+json',
+    ];
+    
+    /**
      * @var EventDispatcher
      */
     protected $event;
