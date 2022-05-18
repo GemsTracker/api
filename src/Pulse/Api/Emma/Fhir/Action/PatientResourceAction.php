@@ -32,13 +32,20 @@ use Pulse\Api\Emma\Fhir\Model\Transformer\PatientIdentifierTransformer;
 use Pulse\Api\Emma\Fhir\Model\Transformer\ValidateFieldsTransformer;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
+use Pulse\Api\Emma\Fhir\Repository\EscrowOrganizationRepository;
 use Pulse\Api\Repository\RespondentRepository;
 use Zalt\Loader\ProjectOverloader;
 
 class PatientResourceAction extends ModelRestController
 {
-    protected $escrowOrganizationId = 81;
-
+    /**
+     * @var array List of allowed content types as input for write methods
+     */
+    protected $allowedContentTypes = [
+        'application/json',
+        'application/fhir+json',
+    ];
+    
     /**
      * @var EventDispatcher
      */
@@ -62,9 +69,13 @@ class PatientResourceAction extends ModelRestController
      * @var EpdRepository
      */
     protected $epdRepository;
+    /**
+     * @var EscrowOrganizationRepository
+     */
+    protected $escrowOrganizationRepository;
 
 
-    public function __construct(RespondentRepository $respondentRepository, EpdRepository $epdRepository, CurrentUserRepository $currentUserRepository, EventDispatcher $event, ExistingEpdPatientRepository $existingEpdPatientRepository, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
+    public function __construct(RespondentRepository $respondentRepository, EpdRepository $epdRepository, CurrentUserRepository $currentUserRepository, EscrowOrganizationRepository $escrowOrganizationRepository, EventDispatcher $event, ExistingEpdPatientRepository $existingEpdPatientRepository, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
     {
         $this->existingEpdPatientRepository = $existingEpdPatientRepository;
         parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
@@ -72,6 +83,7 @@ class PatientResourceAction extends ModelRestController
         $this->currentUserRepository = $currentUserRepository;
         $this->respondentRepository = $respondentRepository;
         $this->epdRepository = $epdRepository;
+        $this->escrowOrganizationRepository = $escrowOrganizationRepository;
     }
 
     protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
@@ -173,13 +185,35 @@ class PatientResourceAction extends ModelRestController
         }
         $existingPatients = $this->existingEpdPatientRepository->getExistingPatients($row['grs_ssn'], $row['gr2o_patient_nr']);
 
+        $removeNewSsn = false;
+        if ($existingPatients && isset($existingPatients['removeNewSsn'])) {
+            $removeNewSsn = true;
+            unset($existingPatients['removeNewSsn']);
+        }
+
         if ($existingPatients) {
             foreach ($existingPatients as $existingPatient) {
-                $savePatients[] = $existingPatient + $row;
+                $newPatient = $existingPatient + $row;
+                if ($removeNewSsn && isset($newPatient['grs_ssn'])) {
+                    if (!array_key_exists('importInfo', $newPatient)) {
+                        $newPatient['importInfo'] = null;
+                    }
+
+                    $newPatient['importInfo'] .= sprintf("SSN %s removed as it is used in another patient.\n", $newPatient['grs_ssn']);
+                    $newPatient['grs_ssn'] = null;
+                }
+                $savePatients[] = $newPatient;
             }
             $this->update = true;
         } else {
-            $row['gr2o_id_organization'] = $this->escrowOrganizationId;
+            $row['gr2o_id_organization'] = $this->escrowOrganizationRepository->getId();
+            if ($removeNewSsn && isset($row['grs_ssn'])) {
+                $row['grs_ssn'] = null;
+                if (!array_key_exists('importInfo', $row)) {
+                    $row['importInfo'] = null;
+                }
+                $row['importInfo'] .= sprintf("SSN %s removed as it is used in another patient.\n", $row['grs_ssn']);
+            }
             $savePatients[] = $row;
         }
 

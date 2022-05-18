@@ -151,6 +151,29 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         return null;
     }
 
+    public function getRespondentInfoFromPatientNr($patientNr, $epdName)
+    {
+        $sql = new Sql($this->db);
+        $select = $sql->select();
+        $select->from('gems__respondent2org')
+            ->join('gems__respondents', 'gr2o_id_user = grs_id_user', ['grs_ssn'])
+            ->join('gems__organizations', 'gor_id_organization = gr2o_id_organization', [])
+            ->columns(['gr2o_id_user', 'gr2o_patient_nr'])
+            ->where([
+                'gr2o_patient_nr' => $patientNr,
+                'gor_epd' => $epdName,
+            ]);
+
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+
+        if ($result->valid() && $result->current()) {
+            $userData = $result->current();
+            return $userData;
+        }
+        return null;
+    }
+
     public function patientNrExistsInEpd($patientNr, $epd)
     {
         $sql = new Sql($this->db);
@@ -233,6 +256,24 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
             ->where([
                 'gr2o_epd_id' => $sourceId,
                 'gor_epd' => $source,
+            ]);
+
+        $statement = $sql->prepareStatementForSqlObject($update);
+        $result = $statement->execute();
+        return $result->getAffectedRows();
+    }
+
+    public function updateRespondentFromPatientnr($patientNr, $epdName, $data)
+    {
+        $sql = new Sql($this->db);
+        $update = $sql->update();
+        $update->table('gems__respondent2org')
+            ->join('gems__respondents', 'gr2o_id_user = grs_id_user')
+            ->join('gems__organizations', 'gr2o_id_organization = gor_id_organization')
+            ->set($data)
+            ->where([
+                'gr2o_patient_nr' => $patientNr,
+                'gor_epd' => $epdName,
             ]);
 
         $statement = $sql->prepareStatementForSqlObject($update);

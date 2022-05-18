@@ -7,6 +7,7 @@ namespace Pulse\Api\Emma\Fhir;
 
 
 use Pulse\Api\Emma\Fhir\Event\SavedModel;
+use Pulse\Api\Emma\Fhir\Repository\IntakeAnaesthesiaLinkRepository;
 use Pulse\Respondent\Accounts;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Zalt\Loader\ProjectOverloader;
@@ -27,22 +28,29 @@ class AppointmentEventSubscriber implements EventSubscriberInterface
      * @var ProjectOverloader
      */
     protected $overLoader;
+    /**
+     * @var IntakeAnaesthesiaLinkRepository
+     */
+    protected $intakeAnaesthesiaLinkRepository;
 
-    public function __construct(ProjectOverloader $overLoader)
+    public function __construct(ProjectOverloader $overLoader, IntakeAnaesthesiaLinkRepository $intakeAnaesthesiaLinkRepository)
     {
         $this->overLoader = $overLoader;
+        $this->intakeAnaesthesiaLinkRepository = $intakeAnaesthesiaLinkRepository;
     }
 
     public static function getSubscribedEvents()
     {
         return [
             'model.appointmentModel.saved' => [
-                'updateTracks', 30,
-                'checkAccounts', 25,
+                ['updateTracks', 30],
+                ['checkIntakeAnaesthesiaLink', 25],
+                ['checkAccounts', 20],
             ],
             'model.encounterModel.saved' => [
-                'updateTracks', 30,
-                'checkAccounts', 25,
+                ['updateTracks', 30],
+                ['checkIntakeAnaesthesiaLink', 25],
+                ['checkAccounts', 20],
             ],
         ];
     }
@@ -54,6 +62,14 @@ class AppointmentEventSubscriber implements EventSubscriberInterface
             $appointment = $this->getAppointment($data['gap_id_appointment']);
             $accounts = $this->getAccountRepository();
             $accounts->checkAppointmentForAccounts($appointment);
+        }
+    }
+
+    public function checkIntakeAnaesthesiaLink(SavedModel $event)
+    {
+        $data = $event->getNewData();
+        if (isset($data['gap_id_appointment'])) {
+            $this->intakeAnaesthesiaLinkRepository->checkAppointmentLink($data);
         }
     }
 

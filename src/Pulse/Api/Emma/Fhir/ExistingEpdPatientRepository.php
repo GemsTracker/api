@@ -14,6 +14,8 @@ use Pulse\Api\Repository\RespondentRepository;
 
 class ExistingEpdPatientRepository
 {
+    protected $mergeRespondents = [];
+
     /**
      * @var \MUtil_Model_DatabaseModelAbstract
      */
@@ -40,6 +42,7 @@ class ExistingEpdPatientRepository
     public function getExistingPatients($ssn, $patientNr)
     {
         $existingPatients = null;
+        $removeNewSsn = false;
         if ($ssn !== null) {
             $existingPatients = $this->respondentRepository->getPatientsFromSsn($ssn, $this->currentEpd);
         }
@@ -56,25 +59,19 @@ class ExistingEpdPatientRepository
                         $respondentMergeEvent->setSsn($ssn);
                         $respondentMergeEvent->setEpd($this->currentEpd);
 
-                        if ($deletedExistingPatient === false) {
-                            $respondentMergeEvent->setStatus('error');
-                            if ($existingPatient['gr2o_reception_code'] !== 'deleted') {
-                                $message = sprintf(
-                                    'Patient nr %s already exists for epd %s. SSN %s is already known in patient nr %s. Patient %s not saved!!',
-                                    $patientNr,
-                                    $this->currentEpd,
-                                    $ssn,
-                                    $existingPatient['gr2o_patient_nr'],
-                                    $patientNr
-                                );
-                                $this->event->dispatch($respondentMergeEvent, 'respondent.merge');
-                                throw new ModelTranslateException($message);
+                        if (!in_array($existingPatient['gr2o_id_user'], $this->mergeRespondents) && $deletedExistingPatient === false) {
+                            if ($existingPatient['gr2o_reception_code'] === 'deleted') {
+                                $respondentMergeEvent->setStatus('old-deleted');
+                                $comment = $existingPatient['gr2o_comments'] .= sprintf("\nSSN %s removed in favor of patientnr %s", $ssn, $patientNr);
+                                $this->respondentRepository->removeSsnFromRespondent($existingPatient['gr2o_id_user'], $comment);
+                                $deletedExistingPatient = true;
+                            } else {
+                                $respondentMergeEvent->setStatus('new-ssn-removed');
+                                $removeNewSsn = true;
                             }
-                            $respondentMergeEvent->setStatus('old-deleted');
-                            $comment = $existingPatient['gr2o_comments'] .= sprintf("\nSSN %s removed in favor of patientnr %s", $ssn, $patientNr);
-                            $this->respondentRepository->removeSsnFromRespondent($existingPatient['gr2o_id_user'], $comment);
-                            $deletedExistingPatient = true;
+
                             $this->event->dispatch($respondentMergeEvent, 'respondent.merge');
+                            $this->mergeRespondents[] = $existingPatient['gr2o_id_user'];
                         }
                         unset($existingPatients[$key]);
                     } else {
@@ -94,6 +91,10 @@ class ExistingEpdPatientRepository
                     $existingPatients[$key]['grs_ssn'] = $ssn;
                 }
             }
+        }
+
+        if ($removeNewSsn) {
+            $existingPatients['removeNewSsn'] = true;
         }
 
         return $existingPatients;

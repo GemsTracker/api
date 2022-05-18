@@ -25,9 +25,11 @@ use Pulse\Api\Emma\Fhir\Repository\ConditionRepository;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
 use Pulse\Api\Emma\Fhir\Repository\EpisodeOfCareRepository;
+use Pulse\Api\Emma\Fhir\Repository\EscrowOrganizationRepository;
 use Pulse\Api\Emma\Fhir\Repository\ImportDbLogRepository;
 use Pulse\Api\Emma\Fhir\Repository\ImportEscrowLinkRepository;
 use Pulse\Api\Emma\Fhir\Repository\ImportLogRepository;
+use Pulse\Api\Emma\Fhir\Repository\IntakeAnaesthesiaLinkRepository;
 use Pulse\Api\Emma\Fhir\Repository\OrganizationRepository;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
@@ -81,6 +83,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ImportLogRepository::class => ReflectionFactory::class,
                 ExistingEpdPatientRepository::class => ReflectionFactory::class,
                 OrganizationRepository::class => ReflectionFactory::class,
+                IntakeAnaesthesiaLinkRepository::class => ReflectionFactory::class,
+                EscrowOrganizationRepository::class => ReflectionFactory::class,
 
                 // EventSubscribers
                 ModelLogEventSubscriber::class => ReflectionFactory::class,

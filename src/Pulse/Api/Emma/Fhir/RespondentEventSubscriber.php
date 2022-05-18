@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Pulse\Api\Emma\Fhir;
 
 
+use Pulse\Api\Emma\Fhir\Event\RespondentMergeEvent;
 use Pulse\Api\Emma\Fhir\Event\SavedModel;
 use Pulse\Respondent\Accounts;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -37,12 +38,12 @@ class RespondentEventSubscriber implements EventSubscriberInterface
     {
         return [
             'model.respondentModel.saved' => [
-                'updateTracks', -10,
-                'checkAccounts', -15,
+                ['updateTracks', -10],
+                ['checkAccounts', -15],
             ],
             'model.encounterModel.saved' => [
-                'updateTracks', -10,
-                'checkAccounts', -15,
+                ['updateTracks', -10],
+                ['checkAccounts', -15],
             ],
         ];
     }
