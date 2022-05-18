@@ -5,7 +5,7 @@ namespace Gems\Rest\Fhir\Model;
 
 use Gems\Rest\Fhir\Model\Transformer\ManagingOrganizationTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientReferenceTransformer;
-use Gems\Rest\Fhir\Model\Transformer\QuestionnaireItemsTransformer;
+use Gems\Rest\Fhir\Model\Transformer\QuestionnaireResponseItemsTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireOwnerTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireResponseStatusTransformer;
 
@@ -57,6 +57,6 @@ class QuestionnaireResponseModel extends \Gems_Model_JoinModel
     public function afterRegistry()
     {
         $tracker = $this->loader->getTracker();
-        $this->addTransformer(new QuestionnaireItemsTransformer($tracker, $this->locale->getLanguage()));
+        $this->addTransformer(new QuestionnaireResponseItemsTransformer($tracker, $this->locale->getLanguage()));
     }
 }

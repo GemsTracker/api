@@ -5,6 +5,10 @@ namespace Gems\Rest\Legacy;
 use Gems\Event\EventDispatcher;
 use Interop\Container\ContainerInterface;
 use Gems\Rest\Legacy\LegacyCacheFactoryWrapper;
+use Laminas\Cache\Psr\CacheItemPool\CacheItemPoolDecorator;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\NullAdapter;
 use Zalt\Loader\ProjectOverloader;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
@@ -80,7 +84,8 @@ class LegacyFactory implements FactoryInterface
                 return $this->loader->create($requestedName, $this->loader, []);
                 break;
             case EventDispatcher::class:
-                return new EventDispatcher();
+                $event = $this->getEventDispatcher();
+                return $event;
                 break;
             case 'LegacySource':
                 return new \Gems\Rest\Legacy\ServiceManagerRegistrySource($container);
@@ -104,6 +109,9 @@ class LegacyFactory implements FactoryInterface
             case \Zend_Acl::class:
                 return $this->getAcl();
                 break;
+
+            case CacheItemPoolInterface::class:
+                return $this->getPsr6Cache();
 
             case Cache::class:
                 $cache = $this->getCache();
@@ -173,6 +181,152 @@ class LegacyFactory implements FactoryInterface
         }
 
         return $roles->getAcl();
+    }
+
+    protected function getPsr6Cache()
+    {
+        $project = $this->container->get('LegacyProject');
+
+        $useCache = $project->getCache();
+        $exists      = false;
+        $cachePrefix = GEMS_PROJECT_NAME . '_';
+
+        $defaultLifetime = null;
+        // Check if APC extension is loaded and enabled
+        if (\MUtil_Console::isConsole() && !ini_get('apc.enable_cli') && $useCache === 'apc') {
+            // To keep the rest readable, we just fall back to File when apc is disabled on cli
+            $useCache = "file";
+        }
+
+        switch ($useCache) {
+            case 'newFile':
+                if (!class_exists('\Symfony\Component\Cache\Adapter\FilesystemAdapter')) {
+                    error_log("Symfony filesystem cache not available!");
+                    break;
+                }
+                $namespace = '';
+                $cacheDir = GEMS_ROOT_DIR . '/var/cache';
+                //$cache = new Symfony\Component\Cache\Simple\FilesystemCache($namespace, $defaultLifetime, $directory);
+                $cache = new \Symfony\Component\Cache\Adapter\TagAwareAdapter(
+                    new \Symfony\Component\Cache\Adapter\FilesystemAdapter($namespace, $defaultLifetime, $cacheDir)
+                );
+                $exists = true;
+                break;
+            case 'newZendFile':
+                if (!class_exists('\Laminas\Cache\StorageFactory')) {
+                    error_log("Laminas\Cache Filesystem cache not available!");
+                    break;
+                }
+                $cacheDir = GEMS_ROOT_DIR . "/var/cache/";
+
+                $storage = \Laminas\Cache\StorageFactory::factory([
+                    'adapter' => [
+                        'name' => 'filesystem',
+                        'options' => [
+                            'cache_dir' => $cacheDir,
+                            'file_permission' => 0660,
+                        ],
+                    ],
+                    'plugins' => array(
+                        // Don't throw exceptions on cache errors
+                        /*'exception_handler' => array(
+                            'throw_exceptions' => false
+                        ),*/
+                        // We store database rows on filesystem so we need to serialize them
+                        'Serializer'
+                    )
+                ]);
+
+                $cache = new CacheItemPoolDecorator($storage);
+
+                if (!file_exists($cacheDir)) {
+                    if (@mkdir($cacheDir, 0777, true)) {
+                        $exists = true;
+                    }
+                }
+                break;
+            case 'redis':
+
+                $redisDsn = $project->getRedisDsn();
+
+                if ($redisDsn !== false) {
+                    $redisClient = \Symfony\Component\Cache\Adapter\RedisAdapter::createConnection(
+                        $redisDsn
+                    );
+
+                    $namespace = 'gems';
+
+                    $cache = new \Symfony\Component\Cache\Adapter\TagAwareAdapter(
+                        new \Symfony\Component\Cache\Adapter\RedisAdapter($redisClient, $namespace)
+                    );
+                    $exists = true;
+                }
+
+                break;
+            case 'newApc':
+
+                if (!class_exists('\Symfony\Component\Cache\Adapter\ApcuAdapter')) {
+                    error_log("Symfony APCU cache not available!");
+                    break;
+                }
+                if (extension_loaded('apc') && ini_get('apc.enabled')) {
+                    //Add path to the prefix as APC is a SHARED cache
+                    $cachePrefix .= md5(APPLICATION_PATH);
+
+                    $cache = new \Symfony\Component\Cache\Adapter\TagAwareAdapter(
+                        new \Symfony\Component\Cache\Adapter\ApcuAdapter($cachePrefix, $defaultLifetime)
+                    );
+                    $exists = true;
+
+                }
+                break;
+
+            default:
+                $exists = false;
+                break;
+        }
+
+        if ($exists === false) {
+            $cache = new \Symfony\Component\Cache\Adapter\TagAwareAdapter(
+                new NullAdapter()
+            );
+        }
+
+        return $cache;
+    }
+
+    protected function getLegacyCache()
+    {
+        $cache = $this->getPsr6Cache();
+        $cacheBackend = new \Gems\Cache\Backend\Psr6Cache($cache);
+
+        $project = $this->container->get('LegacyProject');
+        $useCache = $project->getCache();
+
+        $cacheBackendOptions = [];
+        switch ($useCache) {
+            case 'newFile':
+            case 'newZendFile':
+                $cacheDir = GEMS_ROOT_DIR . '/var/cache';
+                $cacheBackendOptions = ['cache_dir' => $cacheDir, 'cache_file_perm' => 0660];
+                break;
+            case 'newApc':
+                $cachePrefix = GEMS_PROJECT_NAME . '_';
+                $cacheBackendOptions = array('cache_id_prefix' => $cachePrefix);
+                break;
+        }
+
+        $cachePrefix = GEMS_PROJECT_NAME . '_';
+        $cacheFrontendOptions = array('automatic_serialization' => true,
+            'cache_id_prefix' => $cachePrefix,
+            'automatic_cleaning_factor' => 0);
+
+        $legacyCache = \Zend_Cache::factory('Core', $cacheBackend, $cacheFrontendOptions, $cacheBackendOptions);
+
+        \Zend_Db_Table_Abstract::setDefaultMetadataCache($legacyCache);
+        \Zend_Translate::setCache($legacyCache);
+        \Zend_Locale::setCache($legacyCache);
+
     }
 
     protected function getCache()
@@ -384,6 +538,22 @@ class LegacyFactory implements FactoryInterface
         return 'development';
     }
 
+    protected function getEventDispatcher()
+    {
+        $event = new EventDispatcher();
+        if (isset($this->config['events'])) {
+            foreach($this->config['events'] as $subscriberClass) {
+                if ($this->container->has($subscriberClass)) {
+                    $subscriber = $this->container->get($subscriberClass);
+                } else {
+                    $subscriber = new $subscriberClass;
+                }
+                $event->addSubscriber($subscriber);
+            }
+        }
+        return $event;
+    }
+
     protected function getLocale()
     {
         $locale = new \Zend_Locale('default');
@@ -417,6 +587,10 @@ class LegacyFactory implements FactoryInterface
 
     protected function getProjectSettings()
     {
+        if (isset($this->config['db'], $this->config['db']['database'])) {
+            defined('DATABASE') || define('DATABASE', $this->config['db']['database']);
+        }
+
         $projectArray = $this->includeFile(GEMS_ROOT_DIR . '/config/project');
 
         $project = $this->loader->create('Project_ProjectSettings', $projectArray);

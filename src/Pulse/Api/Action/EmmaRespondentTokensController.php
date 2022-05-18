@@ -66,6 +66,15 @@ class EmmaRespondentTokensController extends ModelRestController
                 'heuvelrug',
             ],
         ],
+        'xc-oogzorg' => [
+            'gsu_code' => [
+                'anesthesie',
+                'intake OHK',
+            ],
+            'gor_code' => [
+                'xc-oogzorg ',
+            ],
+        ],
     ];
 
     public function __construct(AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb, $LegacyCurrentUser)

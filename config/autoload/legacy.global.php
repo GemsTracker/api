@@ -28,6 +28,7 @@ return [
             Zend_Translate::class => LegacyFactory::class,
             Gems_Log::class => LegacyFactory::class,
             Zend_Cache::class => LegacyFactory::class,
+            \Psr\Cache\CacheItemPoolInterface::class => LegacyFactory::class,
             Zend_View::class => LegacyFactory::class,
             Gems\Legacy\LegacyControllerMiddleware::class => ReflectionFactory::class,
         ],

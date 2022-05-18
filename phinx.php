@@ -1,15 +1,16 @@
 <?php
 
-$config = require 'config/autoload/database.local.php';
+if (!defined('GEMS_LOG_DIR')) {
+    define('GEMS_LOG_DIR', 'data/logs');
+}
+require 'vendor/autoload.php';
+$config = require 'config/config.php';
 
 return
 [
     'paths' => [
-        'migrations' => [
-            '%%PHINX_CONFIG_DIR%%/config/db/migrations',
-            '%%PHINX_CONFIG_DIR%%/src/Prediction/config/db/migrations',
-        ],
-        'seeds' => '%%PHINX_CONFIG_DIR%%/config/db/seeds'
+        'migrations' => $config['migrations']['migrations'],
+        'seeds' => $config['migrations']['seeds'],
     ],
     'environments' => [
         'default_migration_table' => 'gems__migration_log',
@@ -28,7 +29,7 @@ return
             'host' => 'localhost',
             'name' => 'testing_db',
             'user' => 'root',
-            'pass' => '',
+            'pass' => 'test123',
             'port' => '3306',
             'charset' => 'utf8',
         ]
