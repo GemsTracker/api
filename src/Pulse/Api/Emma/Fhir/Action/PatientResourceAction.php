@@ -45,7 +45,7 @@ class PatientResourceAction extends ModelRestController
         'application/json',
         'application/fhir+json',
     ];
-    
+
     /**
      * @var EventDispatcher
      */
@@ -192,7 +192,12 @@ class PatientResourceAction extends ModelRestController
         }
 
         if ($existingPatients) {
+            $knownInCurrentEpd = false;
             foreach ($existingPatients as $existingPatient) {
+                if (isset($existingPatient['gor_epd']) && $existingPatient['gor_epd'] != $this->epdRepository->getEpdName()) {
+                    continue;
+                }
+                $knownInCurrentEpd = true;
                 $newPatient = $existingPatient + $row;
                 if ($removeNewSsn && isset($newPatient['grs_ssn'])) {
                     if (!array_key_exists('importInfo', $newPatient)) {
@@ -204,7 +209,23 @@ class PatientResourceAction extends ModelRestController
                 }
                 $savePatients[] = $newPatient;
             }
+
             $this->update = true;
+
+            if (!$knownInCurrentEpd) {
+                $firstOtherEpdPatient = reset($existingPatients);
+                $row['gr2o_id_user'] = $firstOtherEpdPatient['gr2o_id_user'];
+                $row['gr2o_id_organization'] = $this->escrowOrganizationRepository->getId();
+                if ($removeNewSsn && isset($row['grs_ssn'])) {
+                    $row['grs_ssn'] = null;
+                    if (!array_key_exists('importInfo', $row)) {
+                        $row['importInfo'] = null;
+                    }
+                    $row['importInfo'] .= sprintf("SSN %s removed as it is used in another patient.\n", $row['grs_ssn']);
+                }
+                $savePatients[] = $row;
+                $this->update = false;
+            }
         } else {
             $row['gr2o_id_organization'] = $this->escrowOrganizationRepository->getId();
             if ($removeNewSsn && isset($row['grs_ssn'])) {

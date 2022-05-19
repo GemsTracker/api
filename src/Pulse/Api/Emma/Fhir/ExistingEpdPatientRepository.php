@@ -44,14 +44,14 @@ class ExistingEpdPatientRepository
         $existingPatients = null;
         $removeNewSsn = false;
         if ($ssn !== null) {
-            $existingPatients = $this->respondentRepository->getPatientsFromSsn($ssn, $this->currentEpd);
+            $existingPatients = $this->respondentRepository->getPatientsFromSsn($ssn /*$this->currentEpd*/);
         }
 
         if ($existingPatients) {
             $deletedExistingPatient = false;
             foreach($existingPatients as $key=>$existingPatient) {
                 if (isset($existingPatient['gr2o_patient_nr']) && $existingPatient['gr2o_patient_nr'] != $patientNr) {
-                    if ($this->respondentRepository->patientNrExistsInEpd($patientNr, $this->currentEpd)) {
+                    if ($existingPatient['gor_epd'] == $this->currentEpd && $this->respondentRepository->patientNrExistsInEpd($patientNr, $this->currentEpd)) {
 
                         $respondentMergeEvent = new RespondentMergeEvent();
                         $respondentMergeEvent->setOldPatientNr($existingPatient['gr2o_patient_nr']);
