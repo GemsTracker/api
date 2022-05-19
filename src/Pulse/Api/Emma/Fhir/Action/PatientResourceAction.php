@@ -194,7 +194,7 @@ class PatientResourceAction extends ModelRestController
         if ($existingPatients) {
             $knownInCurrentEpd = false;
             foreach ($existingPatients as $existingPatient) {
-                if (isset($existingPatient['gor_epd']) && $existingPatient['gor_epd'] != $this->epdRepository->getEpdName()) {
+                if (array_key_exists('gor_epd', $existingPatient) && $existingPatient['gor_epd'] != $this->epdRepository->getEpdName()) {
                     continue;
                 }
                 $knownInCurrentEpd = true;
