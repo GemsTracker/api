@@ -197,13 +197,13 @@ class IntakeAnaesthesiaLinkRepository
         $sql =  new Sql($this->db);
         $select = $sql->select('pulse__anaesthesia_tokens');
         $select
-            ->join('gems__tokens', 'gto_id_token = pat_id_token')
-            ->join('gems__reception_codes', 'gto_reception_code = grc_id_reception_code', ['grc_success'])
-            ->join('gems__surveys', 'gto_id_survey = gsu_id_survey', ['gsu_active'])
+            ->join('gems__tokens', 'gto_id_token = pat_id_token', $select::SQL_STAR, $select::JOIN_LEFT)
+            ->join('gems__reception_codes', 'gto_reception_code = grc_id_reception_code', ['grc_success'], $select::JOIN_LEFT)
+            ->join('gems__surveys', 'gto_id_survey = gsu_id_survey', ['gsu_active'], $select::JOIN_LEFT)
             ->where([
                 'pat_id_appointment' => $appointmentId,
-                'grc_success' => 1,
-                'gsu_active' => 1,
+                //'grc_success' => 1,
+                //'gsu_active' => 1,
             ]);
 
         $statement = $sql->prepareStatementForSqlObject($select);
