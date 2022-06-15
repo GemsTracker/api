@@ -24,7 +24,7 @@ class DiagnosisTransformedModel extends Diagnosis2TrackModel
     {
         parent::applyApiSettings();
 
-        $this->addTransformer(new IntTransformer(['gdt_id_diagnosis', 'gdt_priority', 'gdt_id_track']));
+        $this->addTransformer(new IntTransformer(['gdt_id_diagnosis', 'gdt_id_order', 'gdt_priority', 'gdt_id_track']));
         $this->addTransformer(new MedicalCategoryReferenceTransformer('gdt_id_medical_category'));
     }
 
