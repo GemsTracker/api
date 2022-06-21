@@ -38,11 +38,6 @@ class RespondentEventSubscriber implements EventSubscriberInterface
     {
         return [
             'model.respondentModel.saved' => [
-                ['updateTracks', -10],
-                ['checkAccounts', -15],
-            ],
-            'model.encounterModel.saved' => [
-                ['updateTracks', -10],
                 ['checkAccounts', -15],
             ],
         ];
@@ -50,53 +45,34 @@ class RespondentEventSubscriber implements EventSubscriberInterface
 
     public function checkAccounts(SavedModel $event)
     {
-        $data = $event->getNewData();
-        //
-        if (isset($data['gap_id_appointment'])) {
-            $appointment = $this->getAppointment($data['gap_id_appointment']);
-            $accounts = $this->getAccountRepository();
-            $accounts->checkAppointmentForAccounts($appointment);
-        }
-    }
+        $oldValues = $event->getOldData();
+        $diffs = $event->getUpdateDiffs();
 
-    protected function processAfterSaveChanges($oldValues, array $newValues)
-    {
-        $accountChangeFields = [
-            'gr2o_email',
-            'grs_phone_1',
-            'grs_phone_2',
-            'grs_phone_3',
-        ];
+        if ($oldValues !== null && count($oldValues) && count($diffs)) {
+            $accountChangeFields = [
+                'gr2o_patient_nr',
+                'gr2o_email',
+                'grs_phone_1',
+                'grs_phone_2',
+                'grs_phone_3',
+            ];
 
-        $checkAccounts = false;
+            $checkAccounts = false;
 
-        if ($oldValues !== null) {
             foreach($accountChangeFields as $checkField) {
-                if (isset($newValues[$checkField])) {
-                    if (!isset($oldValues[$checkField])) {
-                        $checkAccounts = true;
-                        break;
-                    }
-                    if ($oldValues[$checkField] !== $newValues[$checkField]) {
-                        $checkAccounts = true;
-                        break;
-                    }
+                if (array_key_exists($checkField, $diffs)) {
+                    $checkAccounts = true;
+                    break;
                 }
             }
-        }
 
-        if ($checkAccounts) {
-            $accountsRepository = $this->getAccountRepository();
+            if ($checkAccounts) {
+                $accountsRepository = $this->getAccountRepository();
 
-            if (isset($oldValues['gr2o_id_user'], $oldValues['gr2o_id_organization'])) {
-                $accountsRepository->updateAccountsForRespondent($oldValues['gr2o_id_user'], $oldValues['gr2o_id_organization']);
+                if (isset($oldValues['gr2o_id_user'], $oldValues['gr2o_id_organization'])) {
+                    $accountsRepository->updateAccountsForRespondent($oldValues['gr2o_id_user'], $oldValues['gr2o_id_organization']);
+                }
             }
-            // Queue the update instead of doing it directly
-            /*
-            \Pulse\Queue\Queue::setCurrentUserId($this->currentUser->getUserId());
-            \Pulse\Queue\Queue::add('Account\\CheckAccountsForRespondent',
-                [$newValues['gr2o_id_user'], $newValues['gr2o_id_organization']],
-                $this->currentUser->getUserId(), null);*/
         }
     }
 

@@ -64,7 +64,7 @@ class ConditionResourceAction extends ResourceActionAbstract
 
     protected function getRespondentIdFromSourceId($sourceId)
     {
-        $condition = $this->conditionRepository->getConditionBySourceId($sourceId);
+        $condition = $this->conditionRepository->getConditionBySourceId($sourceId, $this->epdRepository->getEpdName());
         if ($condition) {
             return $condition['gmco_id_user'];
         }

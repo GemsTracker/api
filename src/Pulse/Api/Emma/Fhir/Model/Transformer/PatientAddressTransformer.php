@@ -27,7 +27,7 @@ class PatientAddressTransformer extends \MUtil_Model_ModelTransformerAbstract
         $this->currentAddressUse = null;
         $row['grs_city'] = null;
         $row['grs_zipcode'] = null;
-        $row['grs_iso_country'] = null;
+        $row['grs_iso_country'] = 'NL';
         $row['grs_address_1'] = null;
 
         if (isset($row['address']) && is_array($row['address'])) {
