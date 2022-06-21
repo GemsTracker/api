@@ -104,7 +104,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             CheckRespondentOrganizationEventSubscriber::class,
             ImportEscrowEventSubscriber::class,
             AppointmentEventSubscriber::class,
-            RespondentEventSubscriber::class,
+            //RespondentEventSubscriber::class,
             RespondentMergeEventSubscriber::class,
         ];
     }
