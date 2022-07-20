@@ -4,14 +4,10 @@ namespace Gems\Rest\Fhir\Model\Transformer;
 
 
 use Gems\Rest\Fhir\Endpoints;
+use Gems\Util\SiteUtil;
 
 class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
-    /**
-     * @var null
-     */
-    protected $currentUri;
-
     /**
      * @var \Zend_Db_Adapter_Abstract
      */
@@ -21,9 +17,19 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
      */
     protected $respondentTrackReceptionCodes;
 
-    public function __construct(\Zend_Db_Adapter_Abstract $db, $currentUri = null)
+    /**
+     * @var SiteUtil
+     */
+    protected $siteUtil;
+    /**
+     * @var null
+     */
+    private $currentUri;
+
+    public function __construct(\Zend_Db_Adapter_Abstract $db, SiteUtil $siteUtil, $currentUri = null)
     {
         $this->db = $db;
+        $this->siteUtil = $siteUtil;
         $this->currentUri = $currentUri;
     }
 
@@ -136,11 +142,8 @@ class QuestionnaireTaskInfoTransformer extends \MUtil_Model_ModelTransformerAbst
 
     protected function getLoginUrl($row)
     {
-        if (array_key_exists('gor_url_base', $row) && $baseUrls = explode(' ', $row['gor_url_base'])) {
-            $baseUrl = reset($baseUrls);
-            if (!empty($baseUrl)) {
-                return $baseUrl;
-            }
+        if (isset($row['gto_id_organization'])) {
+            return $this->siteUtil->getOrganizationPreferredUrl($row['gto_id_organization']);
         }
 
         return $this->currentUri;

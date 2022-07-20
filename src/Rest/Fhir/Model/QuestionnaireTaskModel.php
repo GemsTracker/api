@@ -85,6 +85,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
 
     public function afterRegistry()
     {
+        $siteUtil = $this->util->getSites();
         $currentUri = $this->util->getCurrentURI();
 
         $this->addTransformer(new QuestionnaireTaskStatusTransformer());
@@ -92,7 +93,7 @@ class QuestionnaireTaskModel extends \Gems_Model_JoinModel
         $this->addTransformer(new QuestionnaireOwnerTransformer());
         $this->addTransformer(new QuestionnaireTaskForTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gto_id_organization', true));
-        $this->addTransformer(new QuestionnaireTaskInfoTransformer($this->db, $currentUri));
+        $this->addTransformer(new QuestionnaireTaskInfoTransformer($this->db, $siteUtil, $currentUri));
         $this->addTransformer(new QuestionnaireReferenceTransformer('focus'));
     }
 }
