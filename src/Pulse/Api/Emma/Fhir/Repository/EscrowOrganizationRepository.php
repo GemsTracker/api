@@ -8,13 +8,31 @@ namespace Pulse\Api\Emma\Fhir\Repository;
 
 class EscrowOrganizationRepository
 {
-    protected $id = 81;
+    protected $defaultId = 81;
+
+    protected $idsPerEpd = [
+        'emma' => 81,
+        'heuvelrug' => 92,
+    ];
+
+    /**
+     * @var EpdRepository
+     */
+    protected $epdRepository;
+
+    public function __construct(EpdRepository $epdRepository)
+    {
+        $this->epdRepository = $epdRepository;
+    }
 
     /**
      * @return int
      */
     public function getId(): int
     {
-        return $this->id;
+        if (isset($this->idsPerEpd[$this->epdRepository->getEpdName()])) {
+            return $this->idsPerEpd[$this->epdRepository->getEpdName()];
+        }
+        return $this->defaultId;
     }
 }

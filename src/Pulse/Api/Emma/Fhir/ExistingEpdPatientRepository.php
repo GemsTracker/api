@@ -9,6 +9,7 @@ namespace Pulse\Api\Emma\Fhir;
 use Gems\Event\EventDispatcher;
 use Gems\Rest\Model\ModelTranslateException;
 use Pulse\Api\Emma\Fhir\Event\RespondentMergeEvent;
+use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
 use Pulse\Api\Emma\Fhir\Repository\ImportLogRepository;
 use Pulse\Api\Repository\RespondentRepository;
 
@@ -26,17 +27,22 @@ class ExistingEpdPatientRepository
      */
     protected $respondentRepository;
 
-    protected $currentEpd = 'emma';
+    /**
+     * @var EpdRepository
+     */
+    protected $epdRepository;
 
     /**
      * @var EventDispatcher
      */
     protected $event;
 
-    public function __construct(RespondentRepository $respondentRepository, EventDispatcher $event)
+
+    public function __construct(RespondentRepository $respondentRepository, EventDispatcher $event, EpdRepository $epdRepository)
     {
         $this->respondentRepository = $respondentRepository;
         $this->event = $event;
+        $this->epdRepository = $epdRepository;
     }
 
     public function getExistingPatients($ssn, $patientNr)
@@ -51,13 +57,13 @@ class ExistingEpdPatientRepository
             $deletedExistingPatient = false;
             foreach($existingPatients as $key=>$existingPatient) {
                 if (isset($existingPatient['gr2o_patient_nr']) && $existingPatient['gr2o_patient_nr'] != $patientNr) {
-                    if (isset($existingPatient['gor_epd']) && $existingPatient['gor_epd'] == $this->currentEpd && $this->respondentRepository->patientNrExistsInEpd($patientNr, $this->currentEpd)) {
+                    if (isset($existingPatient['gor_epd']) && $existingPatient['gor_epd'] == $this->epdRepository->getEpdName() && $this->respondentRepository->patientNrExistsInEpd($patientNr, $this->currentEpd)) {
 
                         $respondentMergeEvent = new RespondentMergeEvent();
                         $respondentMergeEvent->setOldPatientNr($existingPatient['gr2o_patient_nr']);
                         $respondentMergeEvent->setNewPatientNr($patientNr);
                         $respondentMergeEvent->setSsn($ssn);
-                        $respondentMergeEvent->setEpd($this->currentEpd);
+                        $respondentMergeEvent->setEpd($this->epdRepository->getEpdName());
 
                         if (!in_array($existingPatient['gr2o_id_user'], $this->mergeRespondents) && $deletedExistingPatient === false) {
                             if ($existingPatient['gr2o_reception_code'] === 'deleted') {
@@ -85,7 +91,7 @@ class ExistingEpdPatientRepository
         }
 
         if ($existingPatients === null || count($existingPatients) === 0) {
-            $existingPatients = $this->respondentRepository->getPatientsFromPatientNr($patientNr, $this->currentEpd);
+            $existingPatients = $this->respondentRepository->getPatientsFromPatientNr($patientNr, $this->epdRepository->getEpdName());
             if ($existingPatients) {
                 foreach ($existingPatients as $key => $existingPatient) {
                     $existingPatients[$key]['grs_ssn'] = $ssn;
@@ -102,7 +108,7 @@ class ExistingEpdPatientRepository
 
     public function getExistingPatientsByPatientNumber($patientNr)
     {
-        return $this->respondentRepository->getPatientsFromPatientNr($patientNr, $this->currentEpd);
+        return $this->respondentRepository->getPatientsFromPatientNr($patientNr, $this->epdRepository->getEpdName());
     }
 
     protected function getKeyCopyName($name)

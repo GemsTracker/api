@@ -45,7 +45,7 @@ class RespondentRepository extends \Gems\Rest\Repository\RespondentRepository
         $select = $sql->select();
         $select->from('gems__respondent2org')
             ->join('gems__respondents', 'grs_id_user = gr2o_id_user', ['grs_ssn'])
-            ->join('gems__organizations', 'gor_id_organization = gr2o_id_organization', [])
+            ->join('gems__organizations', 'gor_id_organization = gr2o_id_organization', ['gor_epd'])
             ->columns([
                 'gr2o_id_user',
                 'gr2o_patient_nr',
