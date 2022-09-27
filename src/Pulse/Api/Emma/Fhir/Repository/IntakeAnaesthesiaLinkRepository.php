@@ -69,23 +69,34 @@ class IntakeAnaesthesiaLinkRepository
             return false;
         }
 
-        $linkData = $this->getActivityAnaesthesiologyLink($appointmentData['gap_id_activity']);
+        $linkData = $this->getActivityAnaesthesiologyLinks($appointmentData['gap_id_activity']);
         // No need to continue if no link is found
-        if ($linkData === null || !isset($linkData['pa2a_code'])) {
+        if ($linkData === null) {
             return false;
         }
 
-        $currentLink = $this->getCurrentLink($appointmentData['gap_id_appointment']);
-        // No changes needed if current link is still correct!
-        if ($currentLink !== null && $currentLink['grc_success'] == 1 && $currentLink['gsu_active'] == 1) {
-            return false;
+        $linked = false;
+        foreach($linkData as $linkInfo) {
+            if (!isset($linkInfo['pa2a_code'])) {
+                continue;
+            }
+
+            $currentLink = $this->getCurrentLink($appointmentData['gap_id_appointment']);
+            // No changes needed if current link is still correct!
+            if ($currentLink !== null && $currentLink['grc_success'] == 1 && $currentLink['gsu_active'] == 1) {
+                continue;
+            }
+
+            $tokenInfo = $this->getLinkToken($appointmentData['gap_id_user'], $appointmentData['gap_id_organization'], $linkInfo['pa2a_code'], $appointmentStartTime);
+
+            $this->linkAppointmentToken($appointmentData, $linkInfo, $currentLink, $tokenInfo);
+            $linked = true;
+            if ($tokenInfo !== null) {
+                break;
+            }
         }
 
-        $token = $this->getLinkToken($appointmentData['gap_id_user'], $appointmentData['gap_id_organization'], $linkData['pa2a_code'], $appointmentStartTime);
-
-        $this->linkAppointmentToken($appointmentData, $linkData, $currentLink, $token);
-
-        return true;
+        return $linked;
     }
 
     protected function linkAppointmentToken($appointmentData, $linkData, $currentLink, $token)
@@ -130,7 +141,7 @@ class IntakeAnaesthesiaLinkRepository
         return true;
     }
 
-    public function getActivityAnaesthesiologyLink($activityId)
+    public function getActivityAnaesthesiologyLinks($activityId)
     {
         $sql =  new Sql($this->db);
         $select = $sql->select('pulse__activity2anaesthesiology');
@@ -145,8 +156,10 @@ class IntakeAnaesthesiaLinkRepository
 
         $result = $statement->execute();
 
-        if ($result->valid() && $result->current()) {
-            return $result->current();
+        $links = iterator_to_array($result);
+
+        if (count($links)) {
+            return $links;
         }
 
         return null;
@@ -169,16 +182,16 @@ class IntakeAnaesthesiaLinkRepository
             ]);
         $select->where->greaterThanOrEqualTo(new Expression('COALESCE(gto_completion_time, gto_valid_from)'), $minDateTime->format('Y-m-d H:i:s'))
             ->nest()
-                ->isNotNull('gto_completion_time')
-                ->or
-                ->lessThan('gto_valid_from', $appointmentStartTime->format('Y-m-d H:i:s'))
+            ->isNotNull('gto_completion_time')
+            ->or
+            ->lessThan('gto_valid_from', $appointmentStartTime->format('Y-m-d H:i:s'))
             ->unnest()
             ->nest()
-                ->isNotNull('gto_completion_time')
-                ->or
-                ->isNull('gto_valid_until')
-                ->or
-                ->greaterThan('gto_valid_until', new Expression('CURRENT_TIMESTAMP'))
+            ->isNotNull('gto_completion_time')
+            ->or
+            ->isNull('gto_valid_until')
+            ->or
+            ->greaterThan('gto_valid_until', new Expression('CURRENT_TIMESTAMP'))
             ->unnest();
         $select->order('gto_valid_from DESC');
 

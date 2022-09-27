@@ -57,7 +57,7 @@ class ExistingEpdPatientRepository
             $deletedExistingPatient = false;
             foreach($existingPatients as $key=>$existingPatient) {
                 if (isset($existingPatient['gr2o_patient_nr']) && $existingPatient['gr2o_patient_nr'] != $patientNr) {
-                    if (isset($existingPatient['gor_epd']) && $existingPatient['gor_epd'] == $this->epdRepository->getEpdName() && $this->respondentRepository->patientNrExistsInEpd($patientNr, $this->currentEpd)) {
+                    if (isset($existingPatient['gor_epd']) && $existingPatient['gor_epd'] == $this->epdRepository->getEpdName() && $this->respondentRepository->patientNrExistsInEpd($patientNr, $this->epdRepository->getEpdName())) {
 
                         $respondentMergeEvent = new RespondentMergeEvent();
                         $respondentMergeEvent->setOldPatientNr($existingPatient['gr2o_patient_nr']);
