@@ -7,6 +7,7 @@ use Gems\Rest\Action\RestControllerAbstract;
 use Gems\Tracker\Field\FieldAbstract;
 use Gems\Tracker\Field\FieldInterface;
 use Ichom\Repository\Diagnosis2TreatmentRepository;
+use Ichom\StartStop;
 use Interop\Http\ServerMiddleware\DelegateInterface;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -272,6 +273,12 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
                         $dependencyChanges = $field->getDataModelDependyChanges($respondentTrackContext, true);
                         if ($dependencyChanges) {
                             $settings = array_merge($settings, $dependencyChanges);
+                        }
+
+                        if ($field->getCode() === StartStop::$treatmentDateFieldCode) {
+                            $settings['disabled'] = 'disabled';
+                            $settings['readonly'] = 'readonly';
+                            $settings['onchange'] = null;
                         }
 
                         $trackFieldStructure[$trackId][$fieldId] = $settings;
