@@ -61,8 +61,8 @@ class RespondentDossierTemplatePreviewController extends RestControllerAbstract
         $dossierTemplate = $this->dossierTemplateRepository->getTemplateFromDiagnosisTreatment($diagnosis, $treatment);
 
         $extraFields = [];
-        if (isset($params['side'])) {
-            $extraFields['side'] = $params['side'];
+        if (isset($params['treatedSide'])) {
+            $extraFields['treatedSide'] = $params['treatedSide'];
         }
         if (isset($params['treatedFingers'])) {
             $extraFields['treatedFingers'] = $params['treatedFingers'];
