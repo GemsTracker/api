@@ -12,6 +12,7 @@ use Gems\Rest\Repository\SurveyQuestionsRepository;
 use Gems\Rest\RestModelConfigProviderAbstract;
 use Pulse\Api\Action\ActivityLogAction;
 use Pulse\Api\Action\ActivityMatcher;
+use Pulse\Api\Action\AnesthesiaCheckHandler;
 use Pulse\Api\Action\AppointmentRestController;
 use Pulse\Api\Action\ChartsController;
 use Pulse\Api\Action\CorrectTokenController;
@@ -64,6 +65,8 @@ use Pulse\Api\Repository\TrackfieldsRepository;
 use Pulse\Api\Repository\TreatmentEpisodesRepository;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
 use Laminas\Log\Logger;
+use Pulse\Model\AppointmentTokenModel;
+use Pulse\Model\TokenAnswerLogModel;
 use Pulse\Tracker\DossierTemplateRepository;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
@@ -140,6 +143,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 PatientNumberPerOrganizationController::class => ReflectionFactory::class,
                 PreviewDossierTemplateController::class => ReflectionFactory::class,
                 OtherPatientNumbersController::class => ReflectionFactory::class,
+                AnesthesiaCheckHandler::class => ReflectionFactory::class,
 
                 ActivityMatcher::class => ReflectionFactory::class,
 
@@ -637,6 +641,47 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'idFieldRegex' => '[A-Za-z0-9\-]+',
                 'customAction' => ActivityLogAction::class,
             ],
+            'appointment-token' => [
+                'model' => AppointmentTokenModel::class,
+                'methods' => ['GET'],
+                'idField' => 'gap_id_appointment',
+                'allowed_fields' => [
+                    'id',
+                    'token',
+                    'tokenReceptionCode',
+                    'assignedTo',
+                    'tokenStatus',
+                    'contactAttempts',
+                    'patientNr',
+                    'organizationId',
+                    'gender',
+                    'birthdate',
+                    'respondentName',
+                    'email',
+                    'phone',
+                    'phoneWork',
+                    'phoneMobile',
+                    'appointmentStart',
+                    'practitioner',
+                    'activity',
+                    'location',
+                    'surveyName',
+                ],
+            ],
+            'token-answer-log' => [
+                'model' => TokenAnswerLogModel::class,
+                'methods' => ['GET'],
+                'idField' => 'plta_id_token_answer',
+                'allowed_fields' => [
+                    'id',
+                    'token',
+                    'questionCode',
+                    'oldValue',
+                    'newValue',
+                    'created',
+                    'createdBy',
+                ],
+            ],
         ];
     }
 
@@ -757,6 +802,12 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'path' => '/respondent-dossier-template-preview',
                 'middleware' => $this->getCustomActionMiddleware(RespondentDossierTemplatePreviewController::class),
                 'allowed_methods' => ['GET', 'OPTIONS'],
+            ],
+            [
+                'name' => 'anesthesia-check',
+                'path' => '/anesthesia-check/{id:[a-zA-Z0-9-_]+}',
+                'middleware' => $this->getCustomActionMiddleware(AnesthesiaCheckHandler::class),
+                'allowed_methods' => ['GET', 'PATCH'],
             ],
             [
                 'name' => 'env-test',
