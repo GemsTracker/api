@@ -33,7 +33,9 @@ class ModelRestController extends ModelRestControllerAbstract
             }
         }
 
-        return $model;
+        $this->model = $model;
+
+        return $this->model;
         //return $this->loader->create('Model_OrganizationModel');
     }
 
