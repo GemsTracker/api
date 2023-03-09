@@ -666,6 +666,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'activity',
                     'location',
                     'surveyName',
+                    'highRiskIntakeToken',
+                    'tokenCompleted',
                 ],
             ],
             'token-answer-log' => [
