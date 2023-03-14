@@ -38,7 +38,7 @@ class ConditionModel extends \Gems_Model_JoinModel
         $this->addTransformer(new ExistingConditionTransformer($conditionRepository, $epdRepository));
 
         $this->addTransformer(new PatientReferenceTransformer($respondentRepository, $epdRepository, 'subject', 'gmco_id_user'));
-        $this->addTransformer(new ConditionEpisodeOfCareTransformer($episodeOfCareRepository, $importEscrowLinkRepository));
+        $this->addTransformer(new ConditionEpisodeOfCareTransformer($episodeOfCareRepository, $importEscrowLinkRepository, $epdRepository));
         $this->addTransformer(new ConditionCodeAndNameTransformer());
     }
 
