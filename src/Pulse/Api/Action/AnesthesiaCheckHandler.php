@@ -126,7 +126,7 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
         }
 
         $structure['anesthesiaComment'] = [
-            'label' => $this->translateAdapter->_('Comment'),
+            'label' => $this->translateAdapter->_('Screening anaesthetist'),
             'type' => 'string',
             'required' => false,
             'name' => 'anesthesiaComment',
