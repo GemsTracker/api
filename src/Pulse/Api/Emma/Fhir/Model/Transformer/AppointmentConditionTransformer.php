@@ -42,15 +42,32 @@ class AppointmentConditionTransformer extends \MUtil_Model_ModelTransformerAbstr
             return $row;
         }
 
-        $row['gap_id_episode'] = null;
-        foreach($row['indication'] as $indication) {
-            if (isset($indication['reference']) && strpos($indication['reference'], 'Condition/') === 0) {
-                $conditionId = str_replace('Condition/', '', $indication['reference']);
-                $episodeOfCareId = $this->conditionRepository->getEpisodeOfCareIdFromConditionBySourceId($conditionId, $this->epdRepository->getEpdName());
-                $row['gap_id_episode'] = $episodeOfCareId;
+        $reasonReferences = null;
+        if (isset($row['reasonReference'])) {
+            $reasonReferences = $row['reasonReference'];
+        } elseif (isset($row['indication'])) {
+            $reasonReferences = $row['indication'];
+        }
 
-                if ($episodeOfCareId === null) {
-                    $this->importEscrowLinkRepository->addEscrowLink('condition', $conditionId, 'appointment', $row['id']);
+        $row['gap_id_episode'] = null;
+        if (is_array($reasonReferences)) {
+            foreach ($reasonReferences as $reference) {
+                if (isset($reference['reference']) && strpos($reference['reference'], 'Condition/') === 0) {
+                    $conditionId = str_replace('Condition/', '', $reference['reference']);
+                    $episodeOfCareId = $this->conditionRepository->getEpisodeOfCareIdFromConditionBySourceId(
+                        $conditionId,
+                        $this->epdRepository->getEpdName()
+                    );
+                    $row['gap_id_episode'] = $episodeOfCareId;
+
+                    if ($episodeOfCareId === null) {
+                        $this->importEscrowLinkRepository->addEscrowLink(
+                            'condition',
+                            $conditionId,
+                            'appointment',
+                            $row['id']
+                        );
+                    }
                 }
             }
         }

@@ -47,11 +47,11 @@ class AppointmentEventSubscriber implements EventSubscriberInterface
                 ['checkIntakeAnaesthesiaLink', 25],
                 ['checkAccounts', 20],
             ],
-            'model.encounterModel.saved' => [
+            /*'model.encounterModel.saved' => [
                 ['updateTracks', 30],
                 ['checkIntakeAnaesthesiaLink', 25],
                 ['checkAccounts', 20],
-            ],
+            ],*/
         ];
     }
 
