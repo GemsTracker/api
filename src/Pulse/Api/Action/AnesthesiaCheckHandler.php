@@ -131,6 +131,7 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
             'required' => false,
             'name' => 'anesthesiaComment',
             'elementClass' => 'textarea',
+            'rows' => 10,
         ];
 
         return $structure;
@@ -160,6 +161,7 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
             'required' => false,
             'name' => $questionCode,
             'elementClass' => 'textarea',
+            'rows' => 5,
         ];
 
         if (isset($questionInformation['answers']) && is_array($questionInformation['answers'])) {
@@ -219,6 +221,9 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
 
             if (count($surveyAnswers)) {
                 $token->setAndLogRawAnswers($surveyAnswers);
+                if ($token instanceof \Pulse_Tracker_Token) {
+                    $token->setResult($surveyAnswers, $this->currentUserId);
+                }
             }
         }
     }
