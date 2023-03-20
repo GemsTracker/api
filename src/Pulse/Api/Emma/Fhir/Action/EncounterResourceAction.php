@@ -72,4 +72,9 @@ class EncounterResourceAction extends ResourceActionAbstract
         }
         return null;
     }
+
+    public function put(ServerRequestInterface $request)
+    {
+        return new EmptyResponse(200);
+    }
 }

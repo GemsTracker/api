@@ -51,7 +51,7 @@ class CheckRespondentOrganizationEventSubscriber implements EventSubscriberInter
     {
         return [
 
-            'model.encounterModel.saved' => [
+            'model.appointmentModel.saved' => [
                 ['checkRespondentOrganization', 50],
             ],
             'model.episodeOfCareModel.saved' => [
