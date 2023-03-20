@@ -66,6 +66,7 @@ use Pulse\Api\Repository\TreatmentEpisodesRepository;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
 use Laminas\Log\Logger;
 use Pulse\Model\AppointmentTokenModel;
+use Pulse\Model\ShortTagModel;
 use Pulse\Model\TokenAnswerLogModel;
 use Pulse\Tracker\DossierTemplateRepository;
 
@@ -685,6 +686,18 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'newValue',
                     'created',
                     'createdBy',
+                ],
+            ],
+            'short-tags' => [
+                'model' => ShortTagModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'id',
+                    'from',
+                    'to',
+                    'medicalCategory',
+                    'context',
+                    'active',
                 ],
             ],
         ];
