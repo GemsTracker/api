@@ -69,6 +69,10 @@ class RespondentEventSubscriber implements EventSubscriberInterface
             if ($checkAccounts) {
                 $accountsRepository = $this->getAccountRepository();
 
+                if (isset($oldValues['gr2o_id_user'], $diffs['gr2o_email'], $oldValues['gr2o_id_organization']) && $diffs['gr2o_email'] != $oldValues['gr2o_email']) {
+                    $accountsRepository->disableAccount($oldValues['gr2o_id_user'], $oldValues['gr2o_email'], $oldValues['gr2o_id_organization']);
+                }
+
                 if (isset($oldValues['gr2o_id_user'], $oldValues['gr2o_id_organization'])) {
                     $accountsRepository->updateAccountsForRespondent($oldValues['gr2o_id_user'], $oldValues['gr2o_id_organization']);
                 }
@@ -79,7 +83,7 @@ class RespondentEventSubscriber implements EventSubscriberInterface
     protected function getAccountRepository()
     {
         if (!$this->accountRepository) {
-            $this->overLoader->create('Respondent\\Accounts');
+            $this->accountRepository = $this->overLoader->create('Respondent\\Accounts');
         }
         return $this->accountRepository;
     }
