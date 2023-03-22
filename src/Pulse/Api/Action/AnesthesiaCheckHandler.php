@@ -174,6 +174,7 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
 
     protected function saveTokenData($tokenId, $checkType, $data)
     {
+        $checkTokens = false;
         $token = $this->tracker->getToken($tokenId);
         if ($token->exists && $token->isCompleted()) {
             $anesthesiaStatuses = $this->getAnesthesiaStatuses();
@@ -192,6 +193,8 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
                 if ($comment !== null && $comment !== $oldComment) {
                     $this->logTokenStatusChange($token, 'anesthesiaComment', $oldComment, $comment);
                 }
+                $checkTokens = true;
+
             } elseif (isset($data['anesthesiaComment']) && $oldComment !== $data['anesthesiaComment']) {
                 $token->setComment($data['anesthesiaComment'], $this->currentUserId);
                 $this->logTokenStatusChange($token, 'anesthesiaComment', $oldComment, $data['anesthesiaComment']);
@@ -221,10 +224,16 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
 
             if (count($surveyAnswers)) {
                 $token->setAndLogRawAnswers($surveyAnswers);
+                $checkTokens = true;
                 if ($token instanceof \Pulse_Tracker_Token) {
                     $token->setResult($surveyAnswers, $this->currentUserId);
                 }
             }
+        }
+
+        if ($checkTokens) {
+            $token->getTrackEngine()->checkTokensFrom($token->getRespondentTrack(), $token, $this->currentUserId);
+            $token->checkTokenCompletion($this->currentUserId);
         }
     }
 
