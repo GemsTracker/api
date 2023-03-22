@@ -41,7 +41,7 @@ class AppointmentModel extends \Gems_Model_JoinModel
                                 EpdRepository $epdRepository,
                                 ConditionRepository $conditionRepository,
                                 ImportEscrowLinkRepository $importEscrowLinkRepository,
-                                OrganizationRepository $organizationRepository,
+                                OrganizationRepository $organizationRepository
     )
     {
         parent::__construct('appointmentModel', 'gems__appointments', 'gap', true);
