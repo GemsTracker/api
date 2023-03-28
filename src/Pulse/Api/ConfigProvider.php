@@ -67,7 +67,7 @@ use Pulse\Api\Repository\TreatmentsWithNormsRepository;
 use Laminas\Log\Logger;
 use Pulse\Model\AppointmentTokenModel;
 use Pulse\Model\RespondentDossierNoteModel;
-use Pulse\Model\ShortTagModel;
+use Pulse\Model\SmartTagModel;
 use Pulse\Model\TokenAnswerLogModel;
 use Pulse\Tracker\DossierTemplateRepository;
 
@@ -689,8 +689,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'createdBy',
                 ],
             ],
-            'short-tags' => [
-                'model' => ShortTagModel::class,
+            'smart-tags' => [
+                'model' => SmartTagModel::class,
                 'methods' => ['GET'],
                 'allowed_fields' => [
                     'id',
