@@ -66,6 +66,7 @@ use Pulse\Api\Repository\TreatmentEpisodesRepository;
 use Pulse\Api\Repository\TreatmentsWithNormsRepository;
 use Laminas\Log\Logger;
 use Pulse\Model\AppointmentTokenModel;
+use Pulse\Model\RespondentDossierNoteModel;
 use Pulse\Model\ShortTagModel;
 use Pulse\Model\TokenAnswerLogModel;
 use Pulse\Tracker\DossierTemplateRepository;
@@ -698,6 +699,24 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'medicalCategory',
                     'context',
                     'active',
+                ],
+            ],
+            'respondent-dossier-note' => [
+                'model' => RespondentDossierNoteModel::class,
+                'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
+                'allowed_fields' => [
+                    'id',
+                    'patientNr',
+                    'organizationId',
+                    'note',
+                    'changed',
+                    'changedBy',
+                ],
+                'allowed_save_fields' => [
+                    'grdn_id_note',
+                    'grdn_patient_nr',
+                    'grdn_id_organization',
+                    'grdn_note',
                 ],
             ],
         ];
