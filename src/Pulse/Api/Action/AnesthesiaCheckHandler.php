@@ -233,7 +233,7 @@ class AnesthesiaCheckHandler implements MiddlewareInterface
 
         if ($checkTokens) {
             $token->getTrackEngine()->checkTokensFrom($token->getRespondentTrack(), $token, $this->currentUserId);
-            $token->checkTokenCompletion($this->currentUserId);
+            //$token->checkTokenCompletion($this->currentUserId);
         }
     }
 
