@@ -24,6 +24,7 @@ use Pulse\Api\Emma\Fhir\Event\BeforeSaveModel;
 use Pulse\Api\Emma\Fhir\Event\DeleteResourceEvent;
 use Pulse\Api\Emma\Fhir\Event\DeleteResourceFailedEvent;
 use Pulse\Api\Emma\Fhir\Event\ModelImport;
+use Pulse\Api\Emma\Fhir\Event\RespondentMergeEvent;
 use Pulse\Api\Emma\Fhir\Event\SavedModel;
 use Pulse\Api\Emma\Fhir\Event\SaveFailedModel;
 use Pulse\Api\Emma\Fhir\ExistingEpdPatientRepository;
@@ -33,6 +34,7 @@ use Pulse\Api\Emma\Fhir\Model\Transformer\ValidateFieldsTransformer;
 use Pulse\Api\Emma\Fhir\Repository\CurrentUserRepository;
 use Pulse\Api\Emma\Fhir\Repository\EpdRepository;
 use Pulse\Api\Emma\Fhir\Repository\EscrowOrganizationRepository;
+use Pulse\Api\Emma\Fhir\Repository\RespondentSsnSkipRepository;
 use Pulse\Api\Repository\RespondentRepository;
 use Zalt\Loader\ProjectOverloader;
 
@@ -74,8 +76,24 @@ class PatientResourceAction extends ModelRestController
      */
     protected $escrowOrganizationRepository;
 
+    /**
+     * @var RespondentSsnSkipRepository
+     */
+    protected $respondentSsnSkipRepository;
 
-    public function __construct(RespondentRepository $respondentRepository, EpdRepository $epdRepository, CurrentUserRepository $currentUserRepository, EscrowOrganizationRepository $escrowOrganizationRepository, EventDispatcher $event, ExistingEpdPatientRepository $existingEpdPatientRepository, AccesslogRepository $accesslogRepository, ProjectOverloader $loader, UrlHelper $urlHelper, $LegacyDb)
+
+    public function __construct(RespondentRepository $respondentRepository,
+        EpdRepository $epdRepository,
+        CurrentUserRepository $currentUserRepository,
+        EscrowOrganizationRepository $escrowOrganizationRepository,
+        EventDispatcher $event,
+        ExistingEpdPatientRepository $existingEpdPatientRepository,
+        AccesslogRepository $accesslogRepository,
+        RespondentSsnSkipRepository $respondentSsnSkipRepository,
+        ProjectOverloader $loader,
+        UrlHelper $urlHelper,
+
+        $LegacyDb)
     {
         $this->existingEpdPatientRepository = $existingEpdPatientRepository;
         parent::__construct($accesslogRepository, $loader, $urlHelper, $LegacyDb);
@@ -84,6 +102,7 @@ class PatientResourceAction extends ModelRestController
         $this->respondentRepository = $respondentRepository;
         $this->epdRepository = $epdRepository;
         $this->escrowOrganizationRepository = $escrowOrganizationRepository;
+        $this->respondentSsnSkipRepository = $respondentSsnSkipRepository;
     }
 
     protected function addRespondentInfoToEvent(DeleteResourceEvent $event, $sourceId)
@@ -183,6 +202,11 @@ class PatientResourceAction extends ModelRestController
         if (!isset($row['grs_ssn'])) {
             $row['grs_ssn'] = null;
         }
+        if ($row['grs_ssn'] && $this->respondentSsnSkipRepository->skipSsn($row['gr2o_patient_nr'])) {
+            $this->checkMergeWhenSkipped($row);
+            $row['grs_ssn'] = null;
+        }
+
         $existingPatients = $this->existingEpdPatientRepository->getExistingPatients($row['grs_ssn'], $row['gr2o_patient_nr']);
 
         $removeNewSsn = false;
@@ -330,5 +354,30 @@ class PatientResourceAction extends ModelRestController
         $this->event->dispatch($event, 'resource.' . $this->model->getName() . '.deleted');
 
         return new EmptyResponse(204);
+    }
+
+    /**
+     * @param array $row
+     * @return void
+     */
+    protected function checkMergeWhenSkipped($row)
+    {
+        $existingPatients = $this->respondentRepository->getPatientsFromSsn($row['grs_ssn'], $this->epdRepository->getEpdName());
+        if (!count($existingPatients)) {
+            return;
+        }
+
+        $existingPatient = reset($existingPatients);
+        if (!isset($existingPatient['gr2o_patient_nr'])) {
+            return;
+        }
+
+        $respondentMergeEvent = new RespondentMergeEvent();
+        $respondentMergeEvent->setOldPatientNr($existingPatient['gr2o_patient_nr']);
+        $respondentMergeEvent->setNewPatientNr($row['gr2o_patient_nr']);
+        $respondentMergeEvent->setSsn($row['grs_ssn']);
+        $respondentMergeEvent->setEpd($this->epdRepository->getEpdName());
+        $respondentMergeEvent->setStatus('new-ssn-removed');
+        $this->event->dispatch($respondentMergeEvent, 'respondent.merge');
     }
 }
