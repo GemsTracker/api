@@ -31,6 +31,7 @@ use Pulse\Api\Emma\Fhir\Repository\ImportEscrowLinkRepository;
 use Pulse\Api\Emma\Fhir\Repository\ImportLogRepository;
 use Pulse\Api\Emma\Fhir\Repository\IntakeAnaesthesiaLinkRepository;
 use Pulse\Api\Emma\Fhir\Repository\OrganizationRepository;
+use Pulse\Api\Emma\Fhir\Repository\RespondentSsnSkipRepository;
 
 class ConfigProvider extends RestModelConfigProviderAbstract
 {
@@ -85,6 +86,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 OrganizationRepository::class => ReflectionFactory::class,
                 IntakeAnaesthesiaLinkRepository::class => ReflectionFactory::class,
                 EscrowOrganizationRepository::class => ReflectionFactory::class,
+                RespondentSsnSkipRepository::class => ReflectionFactory::class,
 
                 // EventSubscribers
                 ModelLogEventSubscriber::class => ReflectionFactory::class,
