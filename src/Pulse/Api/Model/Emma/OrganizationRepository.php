@@ -101,6 +101,15 @@ class OrganizationRepository
 
     public function getOrganizationId($organizationName)
     {
+        $tempOrganizationTranslations = [
+            'Annatommie mc' => 'Xpert Clinics Orthopedie',
+        ];
+        foreach ($tempOrganizationTranslations as $oldName => $newName) {
+            if (strpos($organizationName, $oldName) === 0) {
+                $organizationName = str_replace($oldName, $newName, $organizationName);
+            }
+        }
+
         $localOrganizations = $this->getLocalOrganizations();
 
         $organizationCompare = strtolower(trim($organizationName));
