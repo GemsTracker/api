@@ -77,6 +77,8 @@ class OrganizationRepository
 
     public function getLocationFromOrganizationName($organizationAndLocationString)
     {
+        $organizationAndLocationString = $this->tempTranslateOrganizationName($organizationAndLocationString);
+        
         $localOrganizations = $this->getLocalOrganizations();
         $location = trim(str_replace($localOrganizations, '', $organizationAndLocationString));
 
@@ -101,14 +103,7 @@ class OrganizationRepository
 
     public function getOrganizationId($organizationName)
     {
-        $tempOrganizationTranslations = [
-            'Annatommie mc' => 'Xpert Clinics Orthopedie',
-        ];
-        foreach ($tempOrganizationTranslations as $oldName => $newName) {
-            if (strpos($organizationName, $oldName) === 0) {
-                $organizationName = str_replace($oldName, $newName, $organizationName);
-            }
-        }
+        $organizationName = $this->tempTranslateOrganizationName($organizationName);
 
         $localOrganizations = $this->getLocalOrganizations();
 
@@ -121,5 +116,19 @@ class OrganizationRepository
         }
 
         return null;
+    }
+
+    protected function tempTranslateOrganizationName($organizationName)
+    {
+        $tempOrganizationTranslations = [
+            'Annatommie mc' => 'Xpert Clinics Orthopedie',
+        ];
+        foreach ($tempOrganizationTranslations as $oldName => $newName) {
+            if (strpos($organizationName, $oldName) === 0) {
+                $organizationName = str_replace($oldName, $newName, $organizationName);
+            }
+        }
+
+        return $organizationName;
     }
 }
