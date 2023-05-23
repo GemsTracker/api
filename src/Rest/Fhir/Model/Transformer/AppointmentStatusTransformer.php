@@ -48,11 +48,43 @@ class AppointmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
                 }
                 if (count($translatedStatus)) {
                     $filter[$this->statusField] = $translatedStatus;
+                    if (in_array('CO', $translatedStatus) && !in_array('AC', $translatedStatus)) {
+                        if (count($translatedStatus) === 1) {
+                            $filter[] = "($this->statusField = 'CO' OR ($this->statusField = 'AC' AND gap_admission_time < NOW()))";
+                            unset($filter[$this->statusField]);
+                        } else {
+                            $statusString = join(',', array_map(function($status) {
+                                return "'$status'";
+                            }, $translatedStatus));
+                            $filter[] = "($this->statusField IN ($statusString) OR ($this->statusField = 'AC' AND gap_admission_time < NOW()))";
+                            unset($filter[$this->statusField]);
+                        }
+                    }
+                    if (in_array('AC', $translatedStatus) && !in_array('CO', $translatedStatus)) {
+                        if (count($translatedStatus) === 1) {
+                            $filter[] = 'gap_admission_time > NOW()';
+                        } else {
+                            if (($acceptedKey = array_search('AC', $translatedStatus)) !== false) {
+                                unset($translatedStatus[$acceptedKey]);
+                            }
+                            $statusString = join(',', array_map(function($status) {
+                                return "'$status'";
+                            }, $translatedStatus));
+                            $filter[] = "($this->statusField IN ($statusString) OR ($this->statusField = 'AC' AND gap_admission_time > NOW()))";
+                            unset($filter[$this->statusField]);
+                        }
+                    }
                 } else {
                     unset($filter[$this->statusField]);
                 }
             } elseif (isset($reversedStatusTranslations[$filter[$this->statusField]])) {
                 $filter[$this->statusField] = $reversedStatusTranslations[$filter[$this->statusField]];
+                if ($filter[$this->statusField] === 'CO') {
+                    $filter[] = "($this->statusField = 'CO' OR ($this->statusField = 'AC' AND gap_admission_time < NOW()))";
+                    unset($filter[$this->statusField]);
+                } if ($filter[$this->statusField] === 'AC') {
+                    $filter[] = 'gap_admission_time > NOW()';
+                }
             }
         }
 
@@ -72,6 +104,14 @@ class AppointmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
         foreach($data as $key=>$item) {
+            // Assume fulfilled when appointment is in the past
+            if ($item[$this->statusField] === 'AC' || $item[$this->statusField] === 'booked') {
+                $admissionTime = new \DateTimeImmutable($item['gap_admission_time']);
+                $now = new \DateTimeImmutable();
+                if ($admissionTime < $now) {
+                    $item[$this->statusField] = 'CO';
+                }
+            }
             if (isset($item[$this->statusField]) && isset(self::$statusTranslation[$item[$this->statusField]])) {
                 $data[$key][$this->statusField] = self::$statusTranslation[$item[$this->statusField]];
             }
