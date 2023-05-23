@@ -53,7 +53,7 @@ class SurveyQuestionsRestController extends RestControllerAbstract
 
         $surveyQuestions = [
             'gsu_id_survey' => $id,
-            'questions' => $this->surveyQuestionsRepository->getSurveyQuestions($id),
+            'questions' => array_values($this->surveyQuestionsRepository->getSurveyQuestions($id)),
         ];
 
         return new JsonResponse($surveyQuestions);
