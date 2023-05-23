@@ -52,6 +52,7 @@ use Pulse\Api\Model\OutcomeVariableModel;
 use Pulse\Api\Model\RespondentDossierTemplatesModel;
 use Pulse\Api\Model\RespondentModel;
 use Pulse\Api\Model\RespondentTrackModel;
+use Pulse\Api\Model\TokenAnswerModel;
 use Pulse\Api\Repository\ActivityActionRepository;
 use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\IntakeAnesthesiaCheckRepository;
@@ -718,6 +719,21 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'grdn_id_organization',
                     'grdn_note',
                 ],
+            ],
+            'token-answers' => [
+                'model' => TokenAnswerModel::class,
+                'methods' => ['GET', 'POST'],
+                'allowed_fields' => [
+                    'id',
+                    'status',
+                    'subject',
+                    'organization',
+                    'answers',
+                ],
+                'allowed_save_fields' => [
+                    'gto_id_token',
+                    'answers',
+                ]
             ],
         ];
     }
