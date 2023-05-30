@@ -79,8 +79,14 @@ class TokenAnswerTransformer extends \MUtil_Model_ModelTransformerAbstract
                 }
             }
 
+            if (!$token->inSource()) {
+                $token->getUrl($this->language, $this->currentUserId);
+            }
+
             $token->setRawAnswers($answers);
-            $token->setCompletionTime(new \MUtil_Date(), $this->currentUserId);
+
+            $token->getSurvey()->getSource()->setTokenCompletionTime($token, new \MUtil_Date(), $token->getSurveyId());
+
             $this->tracker->processCompletedTokens($token->getRespondentId(), $this->currentUserId);
         }
 

@@ -31,6 +31,8 @@ return [
             \Psr\Cache\CacheItemPoolInterface::class => LegacyFactory::class,
             Zend_View::class => LegacyFactory::class,
             Gems\Legacy\LegacyControllerMiddleware::class => ReflectionFactory::class,
+            \Gems\Rest\Middleware\LegacyRequestMiddleware::class => ReflectionFactory::class,
+            \Gems\Rest\Request\MezzioRequestWrapper::class => ReflectionFactory::class,
         ],
         'aliases' => [
             'LegacyLoader' => Gems_Loader::class,
@@ -53,6 +55,7 @@ return [
             'LegacyCache' => Zend_Cache::class,
             'LegacyView' => Zend_View::class,
             'LegacyOverLoader' => \Zalt\Loader\ProjectOverloader::class,
+            'LegacyRequest' => \Gems\Rest\Request\MezzioRequestWrapper::class,
         ],
     ],
     'routes' => [
