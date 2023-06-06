@@ -247,6 +247,7 @@ class DiagnosisWizardStructureController extends RestControllerAbstract
             $respondentTrackContext = [
                 'gr2t_id_user' => $respondent['gr2o_id_user'],
                 'gr2t_id_organization' => $respondent['gr2o_id_organization'],
+                'gr2t_id_respondent_track' => null,
             ];
 
             foreach ($tracks as $trackId => $trackName) {
