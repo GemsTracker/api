@@ -692,7 +692,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'smart-tags' => [
                 'model' => SmartTagModel::class,
-                'methods' => ['GET'],
+                'methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
                 'allowed_fields' => [
                     'id',
                     'from',
@@ -700,6 +700,14 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'medicalCategory',
                     'context',
                     'active',
+                ],
+                'allowed_save_fields' => [
+                    'gsta_id_smart_tag',
+                    'gsta_from',
+                    'gsta_to',
+                    'gsta_context',
+                    'gsta_id_medical_category',
+                    'gsta_id_medical_category',
                 ],
             ],
             'respondent-dossier-note' => [
