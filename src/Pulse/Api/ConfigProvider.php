@@ -764,12 +764,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 'allowed_methods' => ['GET'],
             ],
             [
-                'name' => 'token-answers',
-                'path' => '/token-answers/[{id:[a-zA-Z0-9-_]+}]',
-                'middleware' => $this->getCustomActionMiddleware(TokenAnswersRestController::class),
-                'allowed_methods' => ['GET'],
-            ],
-            [
                 'name' => 'treatment-episodes',
                 'path' => '/treatment-episodes/[{id:\d+}]',
                 'middleware' => $this->getCustomActionMiddleware(TreatmentEpisodesRestController::class),
