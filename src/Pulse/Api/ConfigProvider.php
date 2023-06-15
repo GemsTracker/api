@@ -707,7 +707,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'gsta_to',
                     'gsta_context',
                     'gsta_id_medical_category',
-                    'gsta_id_medical_category',
+                    'gsta_active',
                 ],
             ],
             'respondent-dossier-note' => [
