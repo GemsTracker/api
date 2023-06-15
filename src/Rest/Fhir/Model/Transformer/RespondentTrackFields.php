@@ -6,6 +6,9 @@ trait RespondentTrackFields
 {
     protected function getDisplayValue($trackFieldInfo)
     {
+        if ($trackFieldInfo['gr2t2f_value'] === null) {
+            return null;
+        }
         switch ($trackFieldInfo['gtf_field_type']) {
             case 'caretaker':
                 return $this->getCaretakerName($trackFieldInfo['gr2t2f_value']);
