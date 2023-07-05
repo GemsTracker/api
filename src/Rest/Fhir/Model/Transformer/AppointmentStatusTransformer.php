@@ -82,7 +82,7 @@ class AppointmentStatusTransformer extends \MUtil_Model_ModelTransformerAbstract
                 if ($filter[$this->statusField] === 'CO') {
                     $filter[] = "($this->statusField = 'CO' OR ($this->statusField = 'AC' AND gap_admission_time < NOW()))";
                     unset($filter[$this->statusField]);
-                } if ($filter[$this->statusField] === 'AC') {
+                } elseif ($filter[$this->statusField] === 'AC') {
                     $filter[] = 'gap_admission_time > NOW()';
                 }
             }
