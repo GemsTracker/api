@@ -48,9 +48,14 @@ class TokenAnswerTransformer extends \MUtil_Model_ModelTransformerAbstract
 
         foreach ($data as $key => $row) {
             $tokenId = str_replace('-', '_', $row['gto_id_token']);
+            $answers = null;
             if (isset($tokenItems[$tokenId])) {
-                $data[$key]['answers'] = $tokenItems[$tokenId];
+                $answers = array_filter($tokenItems[$tokenId]);
+                if (empty($answers)) {
+                    $answers = null;
+                }
             }
+            $data[$key]['answers'] = $answers;
         }
 
         return $data;

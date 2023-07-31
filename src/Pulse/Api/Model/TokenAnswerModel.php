@@ -6,6 +6,7 @@ use Gems\Rest\Fhir\Model\Transformer\ManagingOrganizationTransformer;
 use Gems\Rest\Fhir\Model\Transformer\PatientReferenceTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireOwnerTransformer;
 use Gems\Rest\Fhir\Model\Transformer\QuestionnaireResponseStatusTransformer;
+use Pulse\Api\Model\Transformer\InitSurveyTransformer;
 use Pulse\Api\Model\Transformer\TokenAnswerTransformer;
 
 class TokenAnswerModel extends \MUtil_Model_JoinModel
@@ -61,5 +62,14 @@ class TokenAnswerModel extends \MUtil_Model_JoinModel
     {
         $tracker = $this->loader->getTracker();
         $this->addTransformer(new TokenAnswerTransformer($tracker, $this->locale->getLanguage(), $this->currentUser->getUserId()));
+    }
+
+    public function applyInitSurveySettings()
+    {
+        $tracker = $this->loader->getTracker();
+        $transformers = $this->getTransformers();
+        array_unshift($transformers, new InitSurveyTransformer($tracker, $this->locale->getLanguage(), $this->currentUser->getUserId()));
+
+        $this->setTransformers($transformers);
     }
 }

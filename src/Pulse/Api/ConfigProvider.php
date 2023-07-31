@@ -728,9 +728,10 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'grdn_note',
                 ],
             ],
-            'token-answers' => [
+            'questionnaire-answers' => [
                 'model' => TokenAnswerModel::class,
                 'methods' => ['GET', 'POST'],
+                'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
                 'allowed_fields' => [
                     'id',
                     'status',
@@ -743,6 +744,26 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'answers',
                 ]
             ],
+            'questionnaire-start' => [
+                'model' => TokenAnswerModel::class,
+                'methods' => ['GET'],
+                'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
+                'applySettings' => [
+                    'applyInitSurveySettings',
+                ],
+                'allowed_fields' => [
+                    'id',
+                    'status',
+                    'subject',
+                    'organization',
+                    'answers',
+                ],
+                'allowed_save_fields' => [
+                    'gto_id_token',
+                    'answers',
+                ]
+            ],
+
         ];
     }
 
