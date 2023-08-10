@@ -22,6 +22,7 @@ class QuestionnaireTaskInfoTransformer extends \Gems\Rest\Fhir\Model\Transformer
 
     protected function getExternalSurveyName($surveyInfo, $language)
     {
+        $surveyInfo = $row['focus'];
         $select = $this->db->select();
         $select->from('gems__translations', ['gtrs_translation'])
             ->where('gtrs_table = ?', 'gems__surveys')
@@ -34,6 +35,9 @@ class QuestionnaireTaskInfoTransformer extends \Gems\Rest\Fhir\Model\Transformer
         if ($result) {
             return $result;
         }
+        if (isset($row['gsu_external_description'])) {
+            return $row['gsu_external_description'];
+        }
 
         return $surveyInfo['display'];
     }
@@ -43,11 +47,9 @@ class QuestionnaireTaskInfoTransformer extends \Gems\Rest\Fhir\Model\Transformer
         $data = parent::transformLoad($model, $data, $new, $isPostData);
 
         foreach($data as $key => $row) {
-            $surveyInfo = $row['focus'];
-
             $data[$key]['info'][] = [
                 'type' => 'external-survey-name',
-                'value' => $this->getExternalSurveyName($surveyInfo, $this->currentLanguage),
+                'value' => $this->getExternalSurveyName($row, $this->currentLanguage),
             ];
         }
 
