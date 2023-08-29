@@ -20,7 +20,7 @@ class QuestionnaireTaskInfoTransformer extends \Gems\Rest\Fhir\Model\Transformer
         $this->currentLanguage = $currentLanguage;
     }
 
-    protected function getExternalSurveyName($surveyInfo, $language)
+    protected function getExternalSurveyName($row, $language)
     {
         $surveyInfo = $row['focus'];
         $select = $this->db->select();

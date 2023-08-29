@@ -27,7 +27,8 @@ class QuestionnaireTaskModel extends \Gems\Rest\Fhir\Model\QuestionnaireTaskMode
         $this->addTransformer(new QuestionnaireOwnerTransformer());
         $this->addTransformer(new QuestionnaireTaskForTransformer());
         $this->addTransformer(new ManagingOrganizationTransformer('gto_id_organization', true));
-        $this->addTransformer(new QuestionnaireTaskInfoTransformer($this->db, $siteUtil, $currentUri, $this->locale->getLanguage()));
         $this->addTransformer(new QuestionnaireReferenceTransformer('focus'));
+        $this->addTransformer(new QuestionnaireTaskInfoTransformer($this->db, $siteUtil, $currentUri, $this->locale->getLanguage()));
+
     }
 }
