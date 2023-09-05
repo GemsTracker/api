@@ -7,6 +7,7 @@ use Gems\Rest\RestModelConfigProviderAbstract;
 use Ichom\Action\DiagnosisWizardController;
 use Ichom\ConfigProvider;
 use Pulse\Api\Action\DiagnosisWizardStructureController;
+use Pulse\Api\Model\TreatmentTransformedModel;
 use Pulse\Model\MedicalCategoryModel;
 
 class IchomConfigProvider extends ConfigProvider
@@ -25,8 +26,13 @@ class IchomConfigProvider extends ConfigProvider
         array_push($restModels['ichom/medical-category']['allowed_fields'],
             'organizations',
             'noteTemplate',
-
         );
+
+        $restModels['ichom/treatment']['model'] = TreatmentTransformedModel::class;
+        array_push($restModels['ichom/treatment']['allowed_fields'],
+            'recoveryCode',
+        );
+
         return $restModels;
     }
 
