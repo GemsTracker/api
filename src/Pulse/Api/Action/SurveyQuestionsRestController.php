@@ -51,12 +51,20 @@ class SurveyQuestionsRestController extends RestControllerAbstract
             throw new RestException('Survey questions need a survey ID in the id parameter', 1, 'survey_id_missing', 400);
         }
 
-        $surveyQuestions = [
-            'gsu_id_survey' => $id,
-            'questions' => array_values($this->surveyQuestionsRepository->getSurveyQuestions($id)),
-        ];
+        $surveyQuestions = $this->surveyQuestionsRepository->getSurveyQuestions($id);
+        $filteredSurveyQuestions = [];
+        foreach($surveyQuestions as $question) {
+            if (isset($question['fullQuestion'])) {
+                $question['question'] = $question['fullQuestion'];
+                unset($question['fullQuestion']);
+            }
+            $filteredSurveyQuestions[] = $question;
+        }
 
-        return new JsonResponse($surveyQuestions);
+        return new JsonResponse([
+            'gsu_id_survey' => $id,
+            'questions' => $filteredSurveyQuestions,
+        ]);
     }
 
 }
