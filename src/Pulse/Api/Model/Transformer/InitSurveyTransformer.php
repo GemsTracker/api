@@ -28,5 +28,6 @@ class InitSurveyTransformer extends \MUtil_Model_ModelTransformerAbstract
                 $token->getRawAnswers();
             }
         }
+        return $data;
     }
 }
