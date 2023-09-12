@@ -77,8 +77,8 @@ class TokenAnswerTransformer extends \MUtil_Model_ModelTransformerAbstract
             foreach($row['answers'] as $questionCode => $answer) {
                 $answer = htmlspecialchars($answer);
                 if (isset($questionInformation[$questionCode])) {
-                    if (isset($questionInformation[$questionCode]['answers']) && !isset($questionInformation[$questionCode]['answers'][$answer])) {
-                        throw new \Exception('Answer %s is not a valid answer for question %s', $answer, $questionCode);
+                    if (isset($questionInformation[$questionCode]['answers']) && is_array($questionInformation[$questionCode]['answers']) && !isset($questionInformation[$questionCode]['answers'][$answer])) {
+                        throw new \Exception(sprintf('Answer %s is not a valid answer for question %s', $answer, $questionCode));
                     }
                     $answers[$questionCode] = $answer;
                 }
