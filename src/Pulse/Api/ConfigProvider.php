@@ -741,6 +741,13 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ],
                 'allowed_save_fields' => [
                     'gto_id_token',
+                    'gto_id_token',
+                    'gto_id_respondent_track',
+                    'gto_id_round',
+                    'gto_id_track',
+                    'gto_id_survey',
+                    'gto_changed_by',
+                    'gto_created_by',
                     'answers',
                 ]
             ],
