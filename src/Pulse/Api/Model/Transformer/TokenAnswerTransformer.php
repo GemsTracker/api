@@ -85,7 +85,7 @@ class TokenAnswerTransformer extends \MUtil_Model_ModelTransformerAbstract
             }
 
             if (!$token->inSource()) {
-                $token->getUrl($this->language, $this->currentUserId);
+                $token->getUrl($this->language, $token->getRespondentId());
             }
 
             $token->setRawAnswers($answers);
@@ -93,6 +93,7 @@ class TokenAnswerTransformer extends \MUtil_Model_ModelTransformerAbstract
             $token->setCompletionTime(new \MUtil_Date(), $token->getRespondentId());
             if ($token instanceof \Pulse_Tracker_Token) {
                 $token->setComment('Answered in digital-clinic', $token->getRespondentId());
+                $token->setBy($token->getRespondentId());
             }
 
             $this->tracker->processCompletedTokens($token->getRespondentId(), $this->currentUserId);

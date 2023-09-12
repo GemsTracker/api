@@ -24,7 +24,7 @@ class InitSurveyTransformer extends \MUtil_Model_ModelTransformerAbstract
 
             if (!$token->isCompleted() && $token->isCurrentlyValid()) {
                 $token->setTokenStart($this->language, $this->currentUserId);
-                $token->handleBeforeAnswering();
+                $token->getUrl($this->language, $this->currentUserId);
                 $token->getRawAnswers();
             }
         }
