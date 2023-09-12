@@ -90,7 +90,10 @@ class TokenAnswerTransformer extends \MUtil_Model_ModelTransformerAbstract
 
             $token->setRawAnswers($answers);
 
-            $token->getSurvey()->getSource()->setTokenCompletionTime($token, new \MUtil_Date(), $token->getSurveyId());
+            $token->setCompletionTime(new \MUtil_Date(), $token->getRespondentId());
+            if ($token instanceof \Pulse_Tracker_Token) {
+                $token->setComment('Answered in digital-clinic', $token->getRespondentId());
+            }
 
             $this->tracker->processCompletedTokens($token->getRespondentId(), $this->currentUserId);
         }
