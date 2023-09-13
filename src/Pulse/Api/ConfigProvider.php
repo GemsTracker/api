@@ -730,7 +730,7 @@ class ConfigProvider extends RestModelConfigProviderAbstract
             ],
             'questionnaire-answers' => [
                 'model' => TokenAnswerModel::class,
-                'methods' => ['GET', 'POST'],
+                'methods' => ['GET', 'PATCH'],
                 'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
                 'allowed_fields' => [
                     'id',
@@ -740,7 +740,6 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'answers',
                 ],
                 'allowed_save_fields' => [
-                    'gto_id_token',
                     'gto_id_token',
                     'gto_id_respondent_track',
                     'gto_id_round',
