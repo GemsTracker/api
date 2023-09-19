@@ -22,8 +22,10 @@ class CarePlanInfoTransformer extends \Gems\Rest\Fhir\Model\Transformer\CarePlan
                 return $this->getSedationName($trackFieldInfo['gr2t2f_value']);
             case 'caretaker':
                 return $this->getCaretakerName($trackFieldInfo['gr2t2f_value']);
-            case 'treatment':
+            case 'treatmentDiagnosis':
                 return $this->getTreatmentName($trackFieldInfo['gr2t2f_value']);
+            case 'diagnosis':
+                return $this->getDiagnosisName($trackFieldInfo['gr2t2f_value']);
             default:
                 return parent::getDisplayValue($trackFieldInfo);
         }
