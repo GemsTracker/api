@@ -22,6 +22,7 @@ use Pulse\Api\Action\EmmaSurveyQuestionsRestController;
 use Pulse\Api\Action\EmmaSurveysRestController;
 use Pulse\Api\Action\EmmaTokenAnswersRestController;
 use Pulse\Api\Action\EnvTestController;
+use Pulse\Api\Action\FhirAppointmentWithIntramedSynchHandler;
 use Pulse\Api\Action\InsertTrackTokenController;
 use Pulse\Api\Action\LastAnsweredTokenController;
 use Pulse\Api\Action\OtherPatientNumbersController;
@@ -56,6 +57,7 @@ use Pulse\Api\Model\TokenAnswerModel;
 use Pulse\Api\Repository\ActivityActionRepository;
 use Pulse\Api\Repository\ChartRepository;
 use Pulse\Api\Repository\IntakeAnesthesiaCheckRepository;
+use Pulse\Api\Repository\IntramedSyncRepository;
 use Pulse\Api\Repository\RequestRepository;
 use Pulse\Api\Repository\SelectTranslator;
 use Pulse\Api\Repository\RespondentResults;
@@ -179,6 +181,9 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 ActivityLogModel::class => ReflectionFactory::class,
                 ActivityActionRepository::class => ReflectionFactory::class,
                 RequestRepository::class => ReflectionFactory::class,
+
+                IntramedSyncRepository::class => ReflectionFactory::class,
+                FhirAppointmentWithIntramedSynchHandler::class => ReflectionFactory::class,
             ]
         ];
     }

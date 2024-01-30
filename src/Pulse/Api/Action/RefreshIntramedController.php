@@ -30,22 +30,43 @@ class RefreshIntramedController extends RestControllerAbstract
     {
         $this->loadIntramedSettings();
         $params = $request->getQueryParams();
-        if (!isset($params['gr2o_patient_nr'], $params['gr2o_id_organization'])) {
+
+        $patientNr = null;
+        $organizationId = null;
+
+        if (isset($params['patient_nr'])) {
+            $patientNr = $params['patient_nr'];
+        } elseif (isset($params['gr2o_patient_nr'])) {
+            $patientNr = $params['gr2o_patient_nr'];
+        }
+
+        if (isset($params['organization_id'])) {
+            $organizationId = $params['organization_id'];
+        } elseif (isset($params['gr2o_id_organization'])) {
+            $organizationId = $params['gr2o_id_organization'];
+        }
+
+        if ($patientNr === null || $organizationId === null) {
             return new JsonResponse(['error' => 'missing_data', 'message' => 'Patient number or organization ID missing as query params']);
         }
 
-        $organizationId = $params['gr2o_id_organization'];
         $organization = $this->loader->getOrganization($organizationId);
 
         /*if (!$organization->containsCode('intramed')) {
             return new EmptyResponse(204);
         }*/
 
+        $onlyAppointments = null;
+
         try {
             $intramedClient = $this->loader->getIntramedClient($this->currentUser);
-            $result = $intramedClient->updatePatient($params['gr2o_patient_nr'], $organizationId, true, true);
+            $result = $intramedClient->updatePatient($patientNr, $organizationId, true, true);
 
-            return new JsonResponse($result->getChanges());
+
+            return new JsonResponse([
+                'changes' => $result->getChanges(),
+                'actions' => $result->getActions(),
+            ]);
         } catch (\Pulse\Intramed\IntramedSetupException $e) {
             return new JsonResponse(['error' => $e->getMessage()]);
         }

@@ -3,6 +3,7 @@
 namespace Pulse\Api\Fhir;
 
 
+use Pulse\Api\Action\FhirAppointmentWithIntramedSynchHandler;
 use Pulse\Api\Fhir\Model\CarePlanModel;
 use Pulse\Api\Fhir\Model\PrefixedCodeTreatmentModel;
 use Pulse\Api\Fhir\Model\QuestionnaireTaskModel;
@@ -19,6 +20,28 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
 
         $restModels['fhir/appointment'] = [
             'model' => AppointmentModel::class,
+            'methods' => ['GET'],
+            'allowed_fields' => [
+                'resourceType',
+                'id',
+                'status',
+                'start',
+                'end',
+                'created',
+                'comment',
+                'description',
+                'serviceType',
+                'participant',
+                'created',
+                'changed',
+                'info',
+            ],
+            'idField' => 'id',
+        ];
+
+        $restModels['fhir/appointment-with-intramed-sync'] = [
+            'model' => AppointmentModel::class,
+            'customAction' => FhirAppointmentWithIntramedSynchHandler::class,
             'methods' => ['GET'],
             'allowed_fields' => [
                 'resourceType',
