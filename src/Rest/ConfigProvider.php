@@ -28,6 +28,7 @@ use Gems\Rest\Auth\MergeUsernameOrganizationMiddleware;
 use Gems\Rest\Auth\RefreshTokenRepository;
 use Gems\Rest\Auth\ScopeRepository;
 use Gems\Rest\Auth\UserRepository;
+use Gems\Rest\Db\ResultFetcher;
 use Gems\Rest\Legacy\CurrentUserRepository;
 use Gems\Rest\Factory\ReflectionFactory;
 
@@ -174,6 +175,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                 SurveyQuestionsRepository::class => ReflectionFactory::class,
 
                 RespondentRepository::class => ReflectionFactory::class,
+
+                ResultFetcher::class => ReflectionFactory::class,
 
                 Acl::class => AclFactory::class,
                 LoginAttemptsRepository::class => ReflectionFactory::class,
