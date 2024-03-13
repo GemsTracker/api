@@ -9,6 +9,7 @@ use Pulse\Api\Fhir\Model\PrefixedCodeTreatmentModel;
 use Pulse\Api\Fhir\Model\QuestionnaireTaskModel;
 use Pulse\Api\Fhir\Model\SoulveAppointmentModel;
 use Pulse\Api\Fhir\Model\TemporaryAppointmentModel;
+use Pulse\Api\Fhir\Model\TreatmentAppointmentCarePlanModel;
 use Pulse\Api\Fhir\Model\TreatmentModel;
 use Pulse\Api\Fhir\Model\AppointmentModel;
 
@@ -141,6 +142,26 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
 
         $restModels['fhir/care-plan'] = [
             'model' => CarePlanModel::class,
+            'methods' => ['GET'],
+            'allowed_fields' => [
+                'resourceType',
+                'id',
+                'status',
+                'staffOnly',
+                'intent',
+                'title',
+                'code',
+                'created',
+                'subject',
+                'period',
+                'contributor',
+                'supportingInfo',
+                'activity',
+            ],
+        ];
+
+        $restModels['fhir/treatment-care-plan'] = [
+            'model' => TreatmentAppointmentCarePlanModel::class,
             'methods' => ['GET'],
             'allowed_fields' => [
                 'resourceType',

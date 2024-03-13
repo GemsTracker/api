@@ -5,7 +5,7 @@ namespace Pulse\Api\Fhir\Model\Transformer;
 use Ichom\Repository\Diagnosis2TreatmentRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
 
-class CarePlanAppointmentTransformer extends \MUtil_Model_ModelTransformerAbstract
+class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
     protected \Pulse_Agenda $agenda;
 
@@ -16,9 +16,21 @@ class CarePlanAppointmentTransformer extends \MUtil_Model_ModelTransformerAbstra
     protected \Pulse_Util_DbLookup $dbLookup;
 
     /**
+     * @var int|null
+     */
+    protected $organizationId = null;
+
+    /**
+     * @var string|null
+     */
+    protected $patientNr = null;
+
+    /**
      * @var array|null
      */
     protected $sedations = null;
+
+    protected array $treatmentAppointmentOrganizations = [80, 79];
 
     public function __construct(
         \Zend_Db_Adapter_Abstract $db,
@@ -35,14 +47,49 @@ class CarePlanAppointmentTransformer extends \MUtil_Model_ModelTransformerAbstra
 
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
+        $this->checkForPatientInfo($filter);
         return $filter;
+    }
+
+    protected function checkForPatientInfo($array)
+    {
+        foreach($array as $key => $filterPart) {
+            if($key === 'gr2o_patient_nr') {
+                $this->patientNr = $filterPart;
+                continue;
+            }
+            if($key === 'gr2o_id_organization') {
+                $this->organizationId = $filterPart;
+                if ($this->patientNr) {
+                    break;
+                }
+                continue;
+            }
+            if (is_array($filterPart)) {
+                $this->checkForPatientInfo($filterPart);
+            }
+        }
     }
 
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
+        if ($this->patientNr === null || $this->organizationId === null) {
+            return $data;
+        }
+
+        if (!in_array($this->organizationId, $this->treatmentAppointmentOrganizations)) {
+            return $data;
+        }
+
         $treatmentAppointments = $this->getTreatmentAppointments();
 
+        $trackTreatmentAppointments = $this->getTrackTreatmentAppointmentIds($data);
+
         foreach ($treatmentAppointments as $treatmentAppointment) {
+            // Skip treatmen Appointments already linked to a track as treatment appointment
+            if (in_array($treatmentAppointment['gap_id_appointment'], $trackTreatmentAppointments)) {
+                continue;
+            }
             $carePlan = $this->getCarePlanFromTreatmentAppointment($treatmentAppointment);
             $data[] = $carePlan;
         }
@@ -52,7 +99,7 @@ class CarePlanAppointmentTransformer extends \MUtil_Model_ModelTransformerAbstra
 
     protected function getCarePlanFromTreatmentAppointment($treatmentAppointment)
     {
-        $treatmentName = '';
+        $treatmentName = $this->getTreatmentName($treatmentAppointment['pa2t_id_treatment']);
 
         $sedationId = $this->getSedationFromAppointmentActivity($treatmentAppointment['gaa_name']);
 
@@ -64,7 +111,7 @@ class CarePlanAppointmentTransformer extends \MUtil_Model_ModelTransformerAbstra
 
         $carePlan = [
             'id' => 'A' . $treatmentAppointment['gap_id_appointment'],
-            'created' => $treatmentAppointment['gap_created'],
+            'gr2t_created' => $treatmentAppointment['gap_created'],
             'title' => $treatmentName,
             'code' => 'treatmentAppointment',
             'resourceType' => 'CarePlan',
@@ -241,6 +288,22 @@ class CarePlanAppointmentTransformer extends \MUtil_Model_ModelTransformerAbstra
         }
     }
 
+    protected function getTrackTreatmentAppointmentIds($data)
+    {
+        $trackTreatmentAppointments = [];
+        foreach($data as $key => $row) {
+            if (isset($row['supportingInfo'])) {
+                foreach($row['supportingInfo'] as $infoItem) {
+                    if (isset($infoItem['code']) && $infoItem['code'] === 'treatmentAppointment') {
+                        $trackTreatmentAppointments[] = $infoItem['value']['id'];
+                    }
+                }
+            }
+        }
+
+        return $trackTreatmentAppointments;
+    }
+
     protected function getTreatmentDate($treatmentDate)
     {
         if ($treatmentDate === null) {
@@ -265,10 +328,13 @@ class CarePlanAppointmentTransformer extends \MUtil_Model_ModelTransformerAbstra
     public function getTreatmentAppointments()
     {
         $select = $this->db->select();
-        $select->from('gems__appointment')
-            ->join('gems__respondents', 'gr2o_id_user = grs_id_user')
+        $select->from('gems__appointments')
+            ->join('gems__respondent2org', 'gr2o_id_user = gap_id_user')
             ->join('gems__agenda_activities', 'gap_id_activity = gaa_id_activity')
-            ->join('pulse__activity2treatment', 'pa2t_activity = gaa_name');
+            ->join('pulse__activity2treatment', 'pa2t_activity = gaa_name')
+            ->where('gr2o_patient_nr = ?', $this->patientNr)
+            ->where('gap_id_organization = ?', $this->organizationId);
+
 
         return $this->db->fetchAll($select);
     }
