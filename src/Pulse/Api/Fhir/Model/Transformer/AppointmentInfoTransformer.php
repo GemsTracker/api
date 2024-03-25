@@ -36,7 +36,12 @@ class AppointmentInfoTransformer extends \MUtil_Model_ModelTransformerAbstract
                 $appointmentInfo = json_decode(trim(str_replace(['\"', '":"', '+00:00'], ['"', '": "', ''], $row['gap_info']), '"'), true);
                 if ($appointmentInfo && isset($appointmentInfo['present_time'])) {
                     try {
-                        $presentTime = new \DateTimeImmutable($appointmentInfo['present_time']);
+                        $value = $appointmentInfo['present_time'];
+                        if (strpos($value, '+') === 19 || strpos($value, '.') === 19) {
+                            $value = substr($value, 0, 19);
+                        }
+
+                        $presentTime = new \DateTimeImmutable($value);
                         $presentTimeInfo['value'] = $presentTime->format(\DateTime::ATOM);
                     } catch (\Exception $e) {
                     }
