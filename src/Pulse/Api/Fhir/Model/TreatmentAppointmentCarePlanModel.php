@@ -36,13 +36,12 @@ class TreatmentAppointmentCarePlanModel extends CarePlanModel
 
         $dbLookup = $this->loader->getUtil()->getDbLookup();
         $agenda = $this->loader->getAgenda();
-        $this->loader->
 
         $this->addTransformer(new TreatmentAppointmentCarePlanTransformer(
             $this->db,
             $dbLookup,
             $agenda,
-            $this->getDiagnosisRepository(),
+            $this->getDiagnosisRepository()
         ));
     }
 
@@ -52,6 +51,11 @@ class TreatmentAppointmentCarePlanModel extends CarePlanModel
             $this->diagnosisRepository = $this->overLoader->create('Repository\\Diagnosis2TreatmentRepository');
         }
         return $this->diagnosisRepository;
+    }
+
+    public function getItemCount($filter = true, $sort = true)
+    {
+        return count($this->load($filter, $sort));
     }
 
     public function load($filter = true, $sort = true, $refresh = false)

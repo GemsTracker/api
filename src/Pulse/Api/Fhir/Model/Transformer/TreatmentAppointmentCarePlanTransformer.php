@@ -9,21 +9,23 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
 {
     protected \Pulse_Agenda $agenda;
 
+    protected $appointmentCarePlanCode = 'treatmentAppointment';
+
+    protected $carePlanStatusFilter = null;
+
+
     protected Diagnosis2TreatmentRepository $diagnosis2TreatmentRepository;
 
     protected \Zend_Db_Adapter_Abstract $db;
 
     protected \Pulse_Util_DbLookup $dbLookup;
 
-    /**
-     * @var int|null
-     */
-    protected $organizationId = null;
+    protected $loadAppointmentsAsCarePlans = true;
 
     /**
-     * @var string|null
+     * @var array|null
      */
-    protected $patientNr = null;
+    protected $patientFilterData = null;
 
     /**
      * @var array|null
@@ -31,6 +33,8 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
     protected $sedations = null;
 
     protected array $treatmentAppointmentOrganizations = [80, 79];
+
+    protected array $treatmentTrackCodes = ['procto'];
 
     public function __construct(
         \Zend_Db_Adapter_Abstract $db,
@@ -48,36 +52,55 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
     {
         $this->checkForPatientInfo($filter);
+        if (isset($filter['status'])) {
+            $statusFilter = $filter['status'];
+
+            if (!is_array($statusFilter)) {
+                $statusFilter = [$statusFilter];
+            }
+            $this->carePlanStatusFilter = $statusFilter;
+        }
+        if (isset($filter['code'])) {
+            $codes = $filter['code'];
+            if (!is_array($codes)) {
+                $codes = [$codes];
+            }
+            if (!in_array($this->appointmentCarePlanCode, $codes)) {
+                $this->loadAppointmentsAsCarePlans = false;
+            }
+        }
         return $filter;
     }
 
-    protected function checkForPatientInfo($array)
+    protected function checkForPatientInfo($filter)
     {
-        foreach($array as $key => $filterPart) {
-            if($key === 'gr2o_patient_nr') {
-                $this->patientNr = $filterPart;
-                continue;
-            }
-            if($key === 'gr2o_id_organization') {
-                $this->organizationId = $filterPart;
-                if ($this->patientNr) {
-                    break;
+        foreach($filter as $key => $filterPart) {
+            if (is_numeric($key) && is_array($filterPart) && isset($filterPart[0]['gr2o_patient_nr'])) {
+                $pairs = [];
+                foreach($filterPart as $patientIdPair) {
+                    if (isset($patientIdPair['gr2o_id_organization']) && in_array($patientIdPair['gr2o_id_organization'], $this->treatmentAppointmentOrganizations)) {
+                        $pairs[] = $patientIdPair;
+                    }
                 }
-                continue;
-            }
-            if (is_array($filterPart)) {
-                $this->checkForPatientInfo($filterPart);
+                if (count($pairs)) {
+                    $this->patientFilterData = $pairs;
+                }
+                break;
             }
         }
     }
 
     public function transformLoad(\MUtil_Model_ModelAbstract $model, array $data, $new = false, $isPostData = false)
     {
-        if ($this->patientNr === null || $this->organizationId === null) {
+        if ($this->patientFilterData === null) {
             return $data;
         }
 
-        if (!in_array($this->organizationId, $this->treatmentAppointmentOrganizations)) {
+        if (!$this->hasTreatmentOrganizations()) {
+            return $data;
+        }
+
+        if (!$this->loadAppointmentsAsCarePlans) {
             return $data;
         }
 
@@ -86,7 +109,7 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
         $trackTreatmentAppointments = $this->getTrackTreatmentAppointmentIds($data);
 
         foreach ($treatmentAppointments as $treatmentAppointment) {
-            // Skip treatmen Appointments already linked to a track as treatment appointment
+            // Skip treatment Appointments already linked to a track as treatment appointment
             if (in_array($treatmentAppointment['gap_id_appointment'], $trackTreatmentAppointments)) {
                 continue;
             }
@@ -103,6 +126,7 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
 
         $sedationId = $this->getSedationFromAppointmentActivity($treatmentAppointment['gaa_name']);
 
+
         $diagnosisId = $this->getDiagnosisFromAppointmentActivity($treatmentAppointment['gaa_name']);
 
         $combinedPatientId = $treatmentAppointment['gr2o_patient_nr'] . '@' . $treatmentAppointment['gap_id_organization'];
@@ -113,7 +137,7 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
             'id' => 'A' . $treatmentAppointment['gap_id_appointment'],
             'gr2t_created' => $treatmentAppointment['gap_created'],
             'title' => $treatmentName,
-            'code' => 'treatmentAppointment',
+            'code' => $this->appointmentCarePlanCode,
             'resourceType' => 'CarePlan',
             'status' => $this->getStatus($treatmentAppointment['gap_status']),
             'staffOnly' => false,
@@ -194,7 +218,7 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
         $select = $this->db->select();
         $select->from('pulse__activity2diagnosis', ['pa2d_id_diagnosis'])
             ->where('pa2d_active = 1')
-            ->where(new \Zend_Db_Expr("'$activityName' = `pa2d_activity`"));
+            ->where(new \Zend_Db_Expr("'$activityName' LIKE `pa2d_activity`"));
 
         $result = $this->db->fetchOne($select);
         if ($result) {
@@ -228,6 +252,18 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
             return $organizations[$organizationId];
         }
         return null;
+    }
+
+    protected function getPatientsWhere()
+    {
+        $patientPairOptions = [];
+        foreach($this->patientFilterData as $patientsPair) {
+            if (!isset($patientsPair['gr2o_patient_nr'], $patientsPair['gr2o_id_organization'])) {
+                continue;
+            }
+            $patientPairOptions[] = sprintf('(gr2o_patient_nr = \'%s\' AND gr2o_id_organization = %d)', $patientsPair['gr2o_patient_nr'], $patientsPair['gr2o_id_organization']);
+        }
+        return '(' . join(' OR ', $patientPairOptions) . ')';
     }
 
     protected function getPhysicianName($physicianId)
@@ -292,6 +328,9 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
     {
         $trackTreatmentAppointments = [];
         foreach($data as $key => $row) {
+            if (!isset($row['gtr_code']) || !in_array($row['gtr_code'], $this->treatmentTrackCodes)) {
+                continue;
+            }
             if (isset($row['supportingInfo'])) {
                 foreach($row['supportingInfo'] as $infoItem) {
                     if (isset($infoItem['code']) && $infoItem['code'] === 'treatmentAppointment') {
@@ -329,13 +368,40 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
     {
         $select = $this->db->select();
         $select->from('gems__appointments')
-            ->join('gems__respondent2org', 'gr2o_id_user = gap_id_user')
+            ->join('gems__respondent2org', 'gr2o_id_user = gap_id_user AND gr2o_id_organization = gap_id_organization')
             ->join('gems__agenda_activities', 'gap_id_activity = gaa_id_activity')
             ->join('pulse__activity2treatment', 'pa2t_activity = gaa_name')
-            ->where('gr2o_patient_nr = ?', $this->patientNr)
-            ->where('gap_id_organization = ?', $this->organizationId);
+            ->where($this->getPatientsWhere())
+            ->where('pa2t_id_treatment > 70')
+            ->where('pa2t_active = 1');
 
+        if ($this->carePlanStatusFilter) {
+            $allowedAppointmentStatuses = [];
+            foreach($this->carePlanStatusFilter as $status) {
+                if ($status === 'active') {
+                    $allowedAppointmentStatuses[] = 'AC';
+                    $allowedAppointmentStatuses[] = 'CO';
+                }
+                if ($status === 'revoked') {
+                    $allowedAppointmentStatuses[] = 'CA';
+                    $allowedAppointmentStatuses[] = 'AB';
+                }
+            }
+            if (!empty($allowedAppointmentStatuses)) {
+                $select->where('gap_status IN (?)', $allowedAppointmentStatuses);
+            }
+        }
 
         return $this->db->fetchAll($select);
+    }
+
+    public function hasTreatmentOrganizations(): bool
+    {
+        foreach($this->patientFilterData as $patientIdPair) {
+            if (isset($patientIdPair['gr2o_id_organization']) && in_array($patientIdPair['gr2o_id_organization'], $this->treatmentAppointmentOrganizations)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

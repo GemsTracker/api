@@ -25,6 +25,7 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
             'allowed_fields' => [
                 'resourceType',
                 'id',
+                'identifier',
                 'status',
                 'start',
                 'end',
@@ -160,7 +161,7 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
             ],
         ];
 
-        $restModels['fhir/treatment-care-plan'] = [
+        $restModels['fhir/care-plan-with-treatment-appointment'] = [
             'model' => TreatmentAppointmentCarePlanModel::class,
             'methods' => ['GET'],
             'allowed_fields' => [
