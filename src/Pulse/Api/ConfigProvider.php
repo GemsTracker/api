@@ -41,6 +41,7 @@ use Pulse\Api\Action\TokenController;
 use Pulse\Api\Action\TrackfieldsRestController;
 use Pulse\Api\Action\TreatmentEpisodesRestController;
 use Pulse\Api\Action\TreatmentsWithNormsController;
+use Pulse\Api\Fhir\Repository\AppointmentMedicalCategoryRepository;
 use Pulse\Api\Model\ActivityDiagnosisModel;
 use Pulse\Api\Model\ActivityLogModel;
 use Pulse\Api\Model\AgendaActivityModel;
@@ -184,6 +185,8 @@ class ConfigProvider extends RestModelConfigProviderAbstract
 
                 IntramedSyncRepository::class => ReflectionFactory::class,
                 FhirAppointmentWithIntramedSynchHandler::class => ReflectionFactory::class,
+
+                AppointmentMedicalCategoryRepository::class => ReflectionFactory::class,
             ]
         ];
     }
