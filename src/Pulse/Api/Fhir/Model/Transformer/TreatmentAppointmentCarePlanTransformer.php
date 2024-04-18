@@ -3,24 +3,29 @@
 namespace Pulse\Api\Fhir\Model\Transformer;
 
 use Ichom\Repository\Diagnosis2TreatmentRepository;
+use Pulse\Api\Fhir\Repository\AppointmentMedicalCategoryRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
 
 class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransformerAbstract
 {
-    protected \Pulse_Agenda $agenda;
+    protected $agenda;
 
     protected $appointmentCarePlanCode = 'treatmentAppointment';
 
     protected $carePlanStatusFilter = null;
 
 
-    protected Diagnosis2TreatmentRepository $diagnosis2TreatmentRepository;
+    protected $diagnosis2TreatmentRepository;
 
-    protected \Zend_Db_Adapter_Abstract $db;
+    protected $db;
 
-    protected \Pulse_Util_DbLookup $dbLookup;
+    protected $dbLookup;
 
     protected $loadAppointmentsAsCarePlans = true;
+
+    protected $medicalCategoryFilter = null;
+
+    protected $medicalCategoryOrganizations = [80];
 
     /**
      * @var array|null
@@ -32,21 +37,26 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
      */
     protected $sedations = null;
 
-    protected array $treatmentAppointmentOrganizations = [80, 79];
+    protected $showMedicalCategories = false;
 
-    protected array $treatmentTrackCodes = ['procto'];
+    protected $treatmentAppointmentOrganizations = [80, 79];
+
+    protected $treatmentTrackCodes = ['procto'];
+    private $appointmentMedicalCategoryRepository;
 
     public function __construct(
         \Zend_Db_Adapter_Abstract $db,
         \Pulse_Util_DbLookup $dbLookup,
         \Pulse_Agenda $agenda,
-        Diagnosis2TreatmentRepository $diagnosis2TreatmentRepository
+        Diagnosis2TreatmentRepository $diagnosis2TreatmentRepository,
+        AppointmentMedicalCategoryRepository $appointmentMedicalCategoryRepository
     )
     {
         $this->agenda = $agenda;
         $this->diagnosis2TreatmentRepository = $diagnosis2TreatmentRepository;
         $this->db = $db;
         $this->dbLookup = $dbLookup;
+        $this->appointmentMedicalCategoryRepository = $appointmentMedicalCategoryRepository;
     }
 
     public function transformFilter(\MUtil_Model_ModelAbstract $model, array $filter)
@@ -68,6 +78,11 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
             if (!in_array($this->appointmentCarePlanCode, $codes)) {
                 $this->loadAppointmentsAsCarePlans = false;
             }
+        }
+
+        if (isset($filter['mcrtf.gr2t2f_value'])) {
+            $this->medicalCategoryFilter = $filter['mcrtf.gr2t2f_value'];
+            $this->showMedicalCategories = true;
         }
         return $filter;
     }
@@ -207,6 +222,16 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
                 'value' => $diagnosisId,
                 'display' => $this->getDiagnosisName($diagnosisId),
                 'code' => 'diagnosis',
+            ];
+        }
+
+        if ($this->showMedicalCategories && in_array($treatmentAppointment['gap_id_organization'], $this->medicalCategoryOrganizations)) {
+            $medicalCategoryId = $this->appointmentMedicalCategoryRepository->getMedicalCategoryFromAppointmentActivityId($treatmentAppointment['gap_id_activity'], $treatmentAppointment['gap_id_organization']);
+            $carePlan['supportingInfo'][] = [
+                'name' => 'medicalCategory',
+                'value' => $medicalCategoryId,
+                'display' => $this->appointmentMedicalCategoryRepository->getMedicalCategoryName($medicalCategoryId),
+                'code' => 'medicalCategory',
             ];
         }
 
@@ -392,7 +417,24 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
             }
         }
 
+        if ($this->medicalCategoryFilter) {
+            $agendaActivities = $this->getActivitiesForMedicalCategories($this->medicalCategoryFilter);
+            $select->where('gap_id_activity in (?)', $agendaActivities);
+        }
+
         return $this->db->fetchAll($select);
+    }
+
+    protected function getActivitiesForMedicalCategories($medicalCategoryIds)
+    {
+        $activityIds = [];
+        foreach($this->medicalCategoryOrganizations as $medicalCategoryOrganizationId) {
+            foreach($medicalCategoryIds as $medicalCategoryId) {
+                $activityIds = array_merge($activityIds, $this->appointmentMedicalCategoryRepository->getActivityIdsPerMedicalCategory($medicalCategoryId, $medicalCategoryOrganizationId));
+            }
+        }
+
+        return $activityIds;
     }
 
     public function hasTreatmentOrganizations(): bool
