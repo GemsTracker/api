@@ -44,6 +44,7 @@ use Pulse\Api\Action\TreatmentsWithNormsController;
 use Pulse\Api\Model\ActivityDiagnosisModel;
 use Pulse\Api\Model\ActivityLogModel;
 use Pulse\Api\Model\AgendaActivityModel;
+use Pulse\Api\Model\AppointmentNotificationModel;
 use Pulse\Api\Model\DossierTemplatesModel;
 use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentRepository;
@@ -774,7 +775,17 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'answers',
                 ]
             ],
-
+            'appointment-notification' => [
+                'model' => AppointmentNotificationModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'patientNr',
+                    'appointmentId',
+                    'appointmentTime',
+                    'start',
+                    'end',
+                ],
+            ],
         ];
     }
 
