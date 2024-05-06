@@ -99,6 +99,42 @@ class ConfigProvider extends \Gems\Rest\Fhir\ConfigProvider
             ],
         ];
 
+        $restModels['fhir/questionnaire-task'] = [
+            'model' => QuestionnaireTaskModel::class,
+            'methods' => ['GET', 'PATCH'],
+            'idFieldRegex' => '[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}',
+            'allowed_fields' => [
+                'resourceType',
+                'id',
+                'status',
+                'completedAt',
+                'priority',
+                'intent',
+                'owner',
+                'for',
+                'authoredOn',
+                'lastModified',
+                'executionPeriod',
+                'managingOrganization',
+                'focus',
+                'info',
+                'carePlanSuccess',
+            ],
+            'allowed_save_fields' => [
+                'executionPeriod',
+                'status',
+                'gto_id_token',
+                'gto_id_respondent_track',
+                'gto_id_round',
+                'gto_id_track',
+                'gto_id_survey',
+            ],
+            'patientIdField' => [
+                'for',
+                'patient',
+            ],
+        ];
+
         $restModels['fhir/temp/appointment'] = [
             'model' => TemporaryAppointmentModel::class,
             'methods' => ['GET'],

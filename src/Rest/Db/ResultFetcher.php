@@ -14,10 +14,12 @@ use Laminas\Db\TableGateway\TableGateway;
 class ResultFetcher
 {
     protected Sql $sql;
+    protected Adapter $db;
 
     public function __construct(Adapter $db)
     {
         $this->sql = new Sql($db);
+        $this->db = $db;
     }
 
     /**

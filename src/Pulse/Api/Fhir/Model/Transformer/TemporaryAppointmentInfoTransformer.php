@@ -39,7 +39,14 @@ class TemporaryAppointmentInfoTransformer extends \MUtil_Model_ModelTransformerA
                 $appointmentInfo = json_decode(trim(str_replace(['\"', '":"', '+00:00'], ['"', '": "', ''], $row['gap_info']), '"'), true);
                 if ($appointmentInfo && isset($appointmentInfo['present_time'])) {
                     try {
-                        $presentTime = new \DateTimeImmutable($appointmentInfo['present_time']);
+                        $value = $appointmentInfo['present_time'];
+                        // strip timezone, as it might not be correctly supplied
+                        if (strpos($value, '+') === 19 || strpos($value, '.') === 19) {
+                            $value = substr($value, 0, 19);
+                        }
+
+                        $presentTime = new \DateTimeImmutable($value);
+
                         // TEMPORARY ASSIGNMENT OF PRESENT TIME AS ADMISSION TIME
                         $admissionTime = $presentTime;
                         $presentTimeInfo['value'] = $presentTime->format(\DateTime::ATOM);
