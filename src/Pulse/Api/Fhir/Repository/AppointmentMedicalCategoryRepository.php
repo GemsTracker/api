@@ -173,7 +173,7 @@ class AppointmentMedicalCategoryRepository
 
         $activity2MedicalCategory = [];
         foreach($regexPatterns as $regex => $medicalCategoryId) {
-            $matches = preg_grep('/^' . $regex . '/', $activities);
+            $matches = preg_grep('/^' . $regex . '/i', $activities);
             foreach($matches as $activityId => $activityName) {
                 $activity2MedicalCategory[$activityId] = $medicalCategoryId;
             }
