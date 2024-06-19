@@ -182,6 +182,9 @@ class AppointmentMedicalCategoryRepository
         foreach($regexPatterns as $regex => $medicalCategoryId) {
             $matches = preg_grep('/^' . $regex . '/i', $activities);
             foreach($matches as $activityId => $activityName) {
+                if (array_key_exists($activityId, $activity2MedicalCategory)) {
+                    continue;
+                }
                 $activity2MedicalCategory[$activityId] = $medicalCategoryId;
             }
         }
