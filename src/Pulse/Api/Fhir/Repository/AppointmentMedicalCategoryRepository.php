@@ -14,7 +14,7 @@ class AppointmentMedicalCategoryRepository
         '%OK %' => 52,
         '%Acne%' => 57,
         '%Botox%' => 61,
-        'Comedonen%'  => 57,
+        'Comedonen%' => 57,
         '%PC%' => 52,
         '%HV%' => 57,
         '%peel%' => 57,
@@ -67,7 +67,7 @@ class AppointmentMedicalCategoryRepository
         '%rosacea%' => 57,
         'wondcontrole%' => 52,
         'VZ %' => 52,
-        'Verwijsconsult Derma' => 61,
+        '%Verwijs% derma%' => 61,
         '%teosyal%' => 61,
         '%MRI%' => 52,
         '2e Consult' => 52,
@@ -76,6 +76,13 @@ class AppointmentMedicalCategoryRepository
         'Tussentijdse controle injectables' => 61,
         'Telefonische afspraak injectables' => 61,
         'Extra controle injectables' => 61,
+        'Liquid facelift%' => 61,
+        'Telefonische afspraak arts' => 52,
+        'Telefonische afspraak ivm borstimplantaten 10 min' => 52,
+        'Telefonische afspraak ivm MRI-Follow-Up' => 52,
+        'Telefonische afspraak VPK' => 52,
+        '%Ouderdomsvlekken%' => 57,
+
     ];
 
     protected $activity2MedicalCategoryKey = 'activity2medicalCategory';
