@@ -51,6 +51,7 @@ use Pulse\Api\Model\Emma\AgendaDiagnosisRepository;
 use Pulse\Api\Model\Emma\AppointmentRepository;
 use Pulse\Api\Model\Emma\OrganizationRepository;
 use Pulse\Api\Model\Emma\RespondentRepository;
+use Pulse\Api\Model\OkAppointmentModel;
 use Pulse\Api\Model\OutcomeVariableModel;
 use Pulse\Api\Model\RespondentDossierTemplatesModel;
 use Pulse\Api\Model\RespondentModel;
@@ -787,6 +788,20 @@ class ConfigProvider extends RestModelConfigProviderAbstract
                     'appointmentTime',
                     'start',
                     'end',
+                ],
+            ],
+            'treatment-appointment-notification' => [
+                'model' => OkAppointmentModel::class,
+                'methods' => ['GET'],
+                'allowed_fields' => [
+                    'patientNr',
+                    'appointmentId',
+                    'appointmentTime',
+                    'start',
+                    'end',
+                    'sedation',
+                    'treatment',
+                    'diagnosis',
                 ],
             ],
         ];

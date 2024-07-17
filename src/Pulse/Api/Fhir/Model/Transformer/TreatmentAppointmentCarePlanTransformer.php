@@ -358,7 +358,7 @@ class TreatmentAppointmentCarePlanTransformer extends \MUtil_Model_ModelTransfor
             }
             if (isset($row['supportingInfo'])) {
                 foreach($row['supportingInfo'] as $infoItem) {
-                    if (isset($infoItem['code']) && $infoItem['code'] === 'treatmentAppointment') {
+                    if (isset($infoItem['code'], $infoItem['value']['id']) && $infoItem['code'] === 'treatmentAppointment') {
                         $trackTreatmentAppointments[] = $infoItem['value']['id'];
                     }
                 }
